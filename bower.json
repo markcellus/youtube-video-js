@@ -1,0 +1,33 @@
+{
+  "name": "videoplayer",
+  "version": "0.0.0",
+  "homepage": "https://github.com/mkay581/videoplayer",
+  "authors": [
+    "Mark Kennedy <mkay581@gmail.com>"
+  ],
+  "description": "JS Library API for the <video> element",
+  "moduleType": [
+    "amd",
+    "es6",
+    "node"
+  ],
+  "keywords": [
+    "video",
+    "social media",
+    "youtube",
+    "youtube video",
+    "social video"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "qunit": "~1.16.0",
+    "sinonjs": "~1.10.2"
+  }
+}

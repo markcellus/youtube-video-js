@@ -1,4 +1,3 @@
-video-lib
-=========
+#Video Player
 
-Video Library
+A lightweight framework that allows you to easily control videos using javascript.
