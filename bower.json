@@ -5,7 +5,7 @@
   "authors": [
     "Mark Kennedy <mkay581@gmail.com>"
   ],
-  "description": "JS Library API for the <video> element",
+  "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "moduleType": [
     "amd",
     "es6",
@@ -28,6 +28,8 @@
   ],
   "devDependencies": {
     "qunit": "~1.16.0",
-    "sinonjs": "~1.10.2"
+    "sinonjs-built": "~1.9.1",
+    "requirejs": "~2.1.15",
+    "underscore": "~1.7.0"
   }
 }
