@@ -2,7 +2,7 @@
     'use strict';
     // support both AMD and non-AMD
     if (typeof define === 'function' && define.amd) {
-        define(['underscore', 'element-kit'], function (_) {
+        define(['underscore'], function (_) {
             return factory(_);
         });
     } else {
