@@ -45,7 +45,7 @@ require(['path/to/video-player/file'], function (VideoPlayer) {
 
 ## Version History
 
-*0.0.1 (12.30.15)*
+*0.0.1 (12.30.14)*
 
 * Video player now supports Youtube Videos for its initial release.
 
