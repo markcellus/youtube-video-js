@@ -1,10 +1,12 @@
 #Video Player
 
-A lightweight framework that allows you to easily play and control social network videos using the new HTML5 `<video>` tag. Videos
-can be played, stopped, paused, and more all with simple html markup or with javascript. It does not depend on a css stylesheet,
-although if styles are desired they are left up to you.
+A lightweight framework that allows you to easily play and control social network videos using the new HTML5 [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos
+can be played, stopped, paused, and more all with simple html markup or with javascript.
 
 The library supports [Youtube](youtube.com) videos currently. More players will be added in the next few weeks.
+
+This Video Player library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, easy-to-use API
+which can be a lot easier when there are already so many video API's to deal with (i.e. Youtube, Facebook, Vine, Vimeo, etc).
 
 
 ##Usage
