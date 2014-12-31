@@ -4,7 +4,7 @@
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mkay581/videoplayer.git"
+    "url": "https://github.com/mkay581/video-player.git"
   },
   "keywords": [
     "video",
