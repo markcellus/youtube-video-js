@@ -1,7 +1,7 @@
 {
-  "name": "videoplayer",
+  "name": "video-player.js",
   "version": "0.0.0",
-  "homepage": "https://github.com/mkay581/videoplayer",
+  "homepage": "https://github.com/mkay581/video-player.js",
   "authors": [
     "Mark Kennedy <mkay581@gmail.com>"
   ],
@@ -11,8 +11,13 @@
     "es6",
     "node"
   ],
+  "main": [
+    "dist/video-player.js"
+  ],
   "keywords": [
     "video",
+    "video player",
+    "videoplayerjs",
     "social media",
     "youtube",
     "youtube video",
