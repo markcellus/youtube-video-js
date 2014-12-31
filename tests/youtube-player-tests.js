@@ -2,7 +2,7 @@ define([
     'sinon',
     'qunit',
     'test-utils',
-    'dist/video-player'
+    'src/video-player'
 ], function(
     Sinon,
     QUnit,
@@ -14,9 +14,10 @@ define([
     QUnit.module('Youtube Player Tests');
 
     QUnit.test('loading a player', function () {
-        QUnit.expect(10);
+        QUnit.expect(11);
+        var videoId = 'nOEw9iiopwI';
         var html = '<video width="640" height="360" id="player1">' +
-            '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />' +
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />' +
         '</video>';
         var fixture = document.getElementById('qunit-fixture');
         fixture.innerHTML = html;
@@ -45,6 +46,7 @@ define([
         var ytPlayerConstructorOptions = ytPlayerStub.args[0][1];
         QUnit.equal(ytPlayerConstructorOptions.width, 640, 'YouTube player constructor was passed width of video element');
         QUnit.equal(ytPlayerConstructorOptions.height, 360, 'YouTube player constructor was passed height of video element');
+        QUnit.equal(ytPlayerConstructorOptions.videoId, videoId, 'YouTube player constructor was passed correct video id');
         QUnit.equal(loadSpy.callCount, 0, 'load callback was STILL not fired yet because player hasnt finished loading');
         // trigger player ready
         ytPlayerConstructorOptions.events.onReady({target: stubbedPlayer});
@@ -89,5 +91,11 @@ define([
         QUnit.equal(stubbedPlayer.playVideo.callCount, 1, 'youtube player playVideo() method was called');
         player.destroy();
         window.YT = origYT;
+    });
+
+    QUnit.test('extracting video id from a url', function () {
+        QUnit.expect(2);
+        QUnit.equal(VideoPlayer.Youtube.prototype.extractVideoIdFromUrl('http://www.youtube.com/watch?v=nOEw9i3opwI'), 'nOEw9i3opwI', 'correct video id was returned');
+        QUnit.equal(VideoPlayer.Youtube.prototype.extractVideoIdFromUrl('https://www.youtube.com/embed/nCJJdW20uZI'), 'nCJJdW20uZI', 'correct video id was returned');
     });
 });

@@ -64,8 +64,7 @@
                 autoplay: el.getAttribute('autoplay'),
                 width: el.getAttribute('width'),
                 height: el.getAttribute('height'),
-                playingCssClass: 'video-playing',
-                videoId: null
+                playingCssClass: 'video-playing'
             }, options);
 
             BasePlayer.prototype.initialize.call(this, this.options);
@@ -77,7 +76,7 @@
          * Gets the source url of the youtube video.
          * @returns {String|undefined} Returns the source url string if there is one
          */
-        getSource: function () {
+        getSourceUrl: function () {
             var sources = this.el.getElementsByTagName('source'),
                 i, count = sources.length, source;
             if (!this.src) {
@@ -141,13 +140,25 @@
             return new YT.Player(id, {
                 height: this.options.height,
                 width: this.options.width,
-                videoId: this.options.videoId,
+                videoId: this.extractVideoIdFromUrl(this.getSourceUrl()),
                 events: {
                     onReady: function (e) {
                         onComplete(e.target);
                     }
                 }
             });
+        },
+
+        /**
+         * Extracts the video id from a youtube url.
+         * @returns {Number|string} - The video id extracted
+         */
+        extractVideoIdFromUrl: function (text) {
+            if (text) {
+                var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
+                text = text.replace(re, '$1');
+            }
+            return text;
         },
 
         /**
@@ -181,7 +192,7 @@
         play: function () {
             // add class so things like play button image,
             // thumbnail/poster image, etc can be manipulated if needed
-            if (this.getSource()) {
+            if (this.getSourceUrl()) {
                 this.el.classList.add(this.options.playingCssClass);
                 this.player.playVideo();
             } else {
