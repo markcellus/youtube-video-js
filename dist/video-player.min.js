@@ -1,5 +1,5 @@
 /** 
-* VideoPlayer - v0.0.0.
+* VideoPlayer - v0.0.1.
 * https://github.com/mkay581/videoplayer.git
 * Copyright 2014. Licensed MIT.
 */

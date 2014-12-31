@@ -1,6 +1,6 @@
 {
   "name": "videoplayer",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "repository": {
     "type": "git",
