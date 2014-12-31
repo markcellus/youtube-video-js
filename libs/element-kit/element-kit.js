@@ -7,7 +7,7 @@
     'use strict';
     // support both AMD and non-AMD
     if (typeof define === 'function' && define.amd) {
-        define(['exports'], function () {
+        define('element-kit', function () {
             return factory();
         });
     } else {

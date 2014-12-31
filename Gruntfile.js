@@ -28,6 +28,12 @@ module.exports = function(grunt) {
                 ]
             }
         },
+        concat: {
+            dist: {
+                src: ['src/video-player.js', 'libs/element-kit/element-kit.js'],
+                dest: 'dist/video-player.js'
+            }
+        },
         uglify: {
             all: {
                 files: {
@@ -87,33 +93,7 @@ module.exports = function(grunt) {
                 push: false,
                 updateConfigs: ['pkg']
             }
-        },
-        requirejs: {
-            compile: {
-                options: {
-                    baseUrl: 'src',
-                    'paths': {
-                        'underscore': '../libs/underscore/underscore-min',
-                        'element-kit': '../libs/element-kit/element-kit.min'
-                    },
-                    removeCombined: true,
-                    //optimize: 'uglify2',
-                    optimize: 'none',
-                    preserveLicenseComments: false,
-                    name: 'video-player',
-                    out: 'dist/video-player.js',
-                    insertRequire: ['video-player']
-                }
-            }
-        },
-        //browserify: {
-        //    all: {
-        //        files: {
-        //            'dist/video-player.js': ['src/video-player.js'],
-        //            'dist/video-player.youtube.js': ['src/video-player.youtube.js']
-        //        }
-        //    }
-        //}
+        }
     });
 
     // Load grunt tasks from node modules
@@ -135,7 +115,8 @@ module.exports = function(grunt) {
     grunt.registerTask( "build", [
         "clean",
         "copy:all",
-        "requirejs",
+        "concat",
+        "uglify",
         "usebanner:all",
         "test"
     ]);
