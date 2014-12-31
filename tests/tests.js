@@ -6,9 +6,9 @@ require.config({
     'paths': {
         qunit: 'libs/qunit/qunit-require',
         sinon: 'libs/sinon/sinon',
-        'underscore': 'libs/underscore/underscore-min',
-        'test-utils': 'libs/test-utils',
-        'element-kit': 'libs/element-kit/element-kit.min'
+        'underscore': 'libs/underscore/underscore',
+        'test-utils': 'tests/test-utils',
+        'element-kit': 'libs/element-kit/element-kit'
     },
     shim: {
         sinon: {exports: 'sinon'}

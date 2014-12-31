@@ -1,8 +1,3 @@
-/** 
-* VideoPlayer - v0.0.1.
-* https://github.com/mkay581/videoplayer.git
-* Copyright 2014. Licensed MIT.
-*/
 (function (factory) {
     'use strict';
     // support both AMD and non-AMD
@@ -251,21 +246,11 @@
 
 }));
 /** 
-* ElementKit - v0.1.3.
+* ElementKit - v0.1.4.
 * https://github.com/mkay581/element-kit.git
 * Copyright 2014 Mark Kennedy. Licensed MIT.
 */
-(function (factory) {
-    'use strict';
-    // support both AMD and non-AMD
-    if (typeof define === 'function' && define.amd) {
-        define('element-kit', function () {
-            return factory();
-        });
-    } else {
-        factory();
-    }
-})((function () {
+(function () {
     'use strict';
     /**
      * Creates an HTML Element from an html string.
@@ -683,6 +668,4 @@
         }
     });
 
-    return Kit;
-
-}));
+})();

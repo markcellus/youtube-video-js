@@ -25,6 +25,7 @@
     "grunt-contrib-jshint": "0.10.0",
     "grunt-contrib-qunit": "~0.5.2",
     "grunt-contrib-uglify": "^0.6.0",
+    "grunt-contrib-watch": "^0.6.1",
     "grunt-es6-module-transpiler": "^0.6.0",
     "load-grunt-tasks": "0.6.0",
     "phantomjs": "~1.9.7"

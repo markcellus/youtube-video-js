@@ -2,7 +2,7 @@ define([
     'sinon',
     'qunit',
     'test-utils',
-    'src/video-player'
+    'dist/video-player'
 ], function(
     Sinon,
     QUnit,

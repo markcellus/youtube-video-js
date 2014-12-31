@@ -32,6 +32,7 @@
     "qunit": "~1.16.0",
     "sinonjs-built": "~1.9.1",
     "requirejs": "~2.1.15",
-    "underscore": "~1.7.0"
+    "underscore": "~1.7.0",
+    "element-kit": "~0.1.4"
   }
 }

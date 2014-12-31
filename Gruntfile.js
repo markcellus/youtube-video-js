@@ -16,14 +16,32 @@ module.exports = function(grunt) {
                     {
                         expand: true,
                         cwd: 'bower_components/sinonjs',
-                        dest: 'tests/libs/sinon',
+                        dest: 'libs/sinon',
                         src: ['sinon.js']
                     },
                     {
                         expand: true,
                         cwd: 'bower_components/qunit/qunit',
-                        dest: 'tests/libs/qunit',
+                        dest: 'libs/qunit',
                         src: ['qunit.js', 'qunit.css']
+                    },
+                    {
+                        expand: true,
+                        cwd: 'bower_components/underscore',
+                        dest: 'libs/underscore',
+                        src: ['underscore.js']
+                    },
+                    {
+                        expand: true,
+                        cwd: 'bower_components/element-kit/dist',
+                        src: ['element-kit.js'],
+                        dest: 'libs/element-kit'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'bower_components/requirejs',
+                        src: ['require.js'],
+                        dest: 'libs/requirejs'
                     }
                 ]
             }
@@ -50,8 +68,16 @@ module.exports = function(grunt) {
             },
             local: {
                 options: {
-                    keepalive: true,
                     options: { livereload: true }
+                }
+            }
+        },
+        watch: {
+            scripts: {
+                files: ['src/video-player.js'],
+                tasks: ['copy:all', 'concat'],
+                options: {
+                    spawn: false
                 }
             }
         },
@@ -122,7 +148,8 @@ module.exports = function(grunt) {
     ]);
 
     grunt.registerTask( "server", [
-        "connect:local"
+        "connect:local",
+        "watch"
     ]);
 
     grunt.registerTask( "test", [
