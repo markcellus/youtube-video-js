@@ -1,11 +1,11 @@
-define(['./video-player', 'underscore'], function (VideoPlayer, _) {
+define(['./base-player', 'underscore', 'element-kit'], function (BasePlayer, _) {
     "use strict";
 
     var YoutubePlayer = function (options) {
         this.initialize(options);
     };
 
-    YoutubePlayer.prototype = _.extend({}, VideoPlayer.prototype, {
+    YoutubePlayer.prototype = _.extend({}, BasePlayer.prototype, {
 
         /**
          * Initialization.
@@ -18,29 +18,15 @@ define(['./video-player', 'underscore'], function (VideoPlayer, _) {
             this.options = _.extend({
                 el: el,
                 autoplay: el.getAttribute('autoplay'),
-                poster: el.getAttribute('poster'),
                 width: el.getAttribute('width'),
                 height: el.getAttribute('height'),
                 playingCssClass: 'video-playing',
                 videoId: null
             }, options);
 
-            VideoPlayer.prototype.initialize.call(this, this.options);
+            BasePlayer.prototype.initialize.call(this, this.options);
 
             this.el = this.options.el;
-
-            this.setup();
-        },
-
-        /**
-         * Sets up the required iframe for the video.
-         */
-        setup: function () {
-            // setup poster image
-            if (this.options.poster) {
-                this.poster = this._buildPoster(this.options.poster);
-                this.el.appendChild(this.poster);
-            }
         },
 
         /**
@@ -60,18 +46,6 @@ define(['./video-player', 'underscore'], function (VideoPlayer, _) {
                 }
             }
             return this.src;
-        },
-
-        /**
-         * Builds a poster image element.
-         * @returns {Image}
-         * @private
-         */
-        _buildPoster: function (path) {
-            var img = new Image();
-            img.onload = function() {};
-            img.src = path;
-            return img;
         },
 
         /**
@@ -112,7 +86,15 @@ define(['./video-player', 'underscore'], function (VideoPlayer, _) {
          * @private
          */
         _createPlayer: function (onComplete) {
-            return new YT.Player('ytplayer', {
+            // create parent div
+            var id = 'vplayer' + this.vpid;
+
+            this._container = this.el.kit.appendOuterHtml('<div id="' + id + '"></div>');
+            // hide video element now that we have a div for our player
+
+            this._container.removeChild(this.el);
+
+            return new YT.Player(id, {
                 height: this.options.height,
                 width: this.options.width,
                 videoId: this.options.videoId,
@@ -130,19 +112,20 @@ define(['./video-player', 'underscore'], function (VideoPlayer, _) {
          * @private
          */
         _loadScript: function (callback) {
-            if (this._scriptLoaded) {
+            if (YoutubePlayer.prototype._script) {
                 callback ? callback() : null;
             } else {
                 // Load the IFrame Player API code asynchronously.
-                var tag = document.createElement('script');
-                tag.src = 'https://www.youtube.com/iframe_api';
+                var script = document.createElement('script');
+                script.src = 'https://www.youtube.com/iframe_api';
                 var firstScriptTag = document.getElementsByTagName('script')[0];
-                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                firstScriptTag.parentNode.insertBefore(script, firstScriptTag);
+
+                YoutubePlayer.prototype._script = script;
 
                 // Replace the 'ytplayer' element with an <iframe> and
                 // YouTube player after the API code downloads.
                 window.onYouTubeIframeAPIReady = function () {
-                    this._scriptLoaded = true;
                     callback ? callback() : null;
                 }.bind(this)
             }
@@ -182,11 +165,25 @@ define(['./video-player', 'underscore'], function (VideoPlayer, _) {
          * Transitions the video to a certain time.
          * @param {Number} time - The second that should
          */
-        seekTo: function (time) {}
+        seekTo: function (time) {},
+
+        /**
+         * Destroys the video instance.
+         */
+        destroy: function () {
+            var script = YoutubePlayer.prototype._script;
+            if (script) {
+                script.parentNode.removeChild(script);
+                YoutubePlayer.prototype._script = null;
+            }
+            // get rid of container and place video element back in the dom exactly the way we found it
+            if (this._container) {
+                this._container.parentNode.replaceChild(this.el, this._container);
+            }
+            BasePlayer.prototype.destroy.call(this);
+        }
 
     });
 
     return YoutubePlayer;
 });
-
-

@@ -9,12 +9,7 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
-        clean: [
-            'dist',
-            'tests/libs/qunit/qunit.css',
-            'tests/libs/qunit/qunit.js',
-            'tests/libs/sinon'
-        ],
+        clean: ['dist'],
         copy: {
             all: {
                 files: [
@@ -36,7 +31,7 @@ module.exports = function(grunt) {
         uglify: {
             all: {
                 files: {
-                    'dist/video-player.min.js': ['dist/video-player.js'],
+                    'dist/video-player.min.js': ['dist/video-player.js']
                 }
             }
         },
@@ -92,7 +87,33 @@ module.exports = function(grunt) {
                 push: false,
                 updateConfigs: ['pkg']
             }
-        }
+        },
+        requirejs: {
+            compile: {
+                options: {
+                    baseUrl: 'src',
+                    'paths': {
+                        'underscore': '../libs/underscore/underscore-min',
+                        'element-kit': '../libs/element-kit/element-kit.min'
+                    },
+                    removeCombined: true,
+                    //optimize: 'uglify2',
+                    optimize: 'none',
+                    preserveLicenseComments: false,
+                    name: 'video-player',
+                    out: 'dist/video-player.js',
+                    insertRequire: ['video-player']
+                }
+            }
+        },
+        //browserify: {
+        //    all: {
+        //        files: {
+        //            'dist/video-player.js': ['src/video-player.js'],
+        //            'dist/video-player.youtube.js': ['src/video-player.youtube.js']
+        //        }
+        //    }
+        //}
     });
 
     // Load grunt tasks from node modules
@@ -115,7 +136,6 @@ module.exports = function(grunt) {
         "clean",
         "copy:all",
         "requirejs",
-        "uglify",
         "usebanner:all",
         "test"
     ]);
