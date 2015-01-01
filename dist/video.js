@@ -1,5 +1,5 @@
 /** 
-* Video - v0.0.5.
+* Video - v0.0.6.
 * https://github.com/mkay581/video.git
 * Copyright 2015. Licensed MIT.
 */
