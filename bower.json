@@ -1,6 +1,6 @@
 {
   "name": "videoplayer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/mkay581/video-player",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "moduleType": [
