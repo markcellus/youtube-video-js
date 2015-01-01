@@ -1,6 +1,6 @@
 {
   "name": "video",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "repository": {
     "type": "git",
