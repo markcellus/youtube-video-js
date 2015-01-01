@@ -1,4 +1,4 @@
-#Video Player
+#Video
 
 A lightweight framework that allows you to easily play and control social network videos using the new HTML5 [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos
 can be played, stopped, paused, and more all with simple html markup or with javascript.
@@ -22,9 +22,9 @@ Suppose you have the following HTML in the DOM (A Youtube Video).
 To start controlling the video player with javascript all you need to do is [require](http://requirejs.org) the built [video-player.js file](https://github.com/mkay581/video-player/tree/master/dist) and instantiate a new instance using a `<video>` element on the page:
 
 ```javascript
-require(['path/to/video-player/file'], function (VideoPlayer) {
+require(['path/to/video-player/file'], function (Video) {
     // start a youtube video
-    var video = new VideoPlayer.Youtube({
+    var video = new Video.Youtube({
           el: document.getElementsByTagName('video')[0]
       })
 });

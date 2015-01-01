@@ -1,6 +1,6 @@
 /** 
-* VideoPlayer - v0.0.2.
-* https://github.com/mkay581/video-player.git
+* Video - v0.0.2.
+* https://github.com/mkay581/video.git
 * Copyright 2015. Licensed MIT.
 */
 (function (factory) {
@@ -16,9 +16,9 @@
 })((function (_) {
     'use strict';
 
-    var BasePlayer = function () {};
+    var BaseVideo = function () {};
 
-    BasePlayer.prototype = {
+    BaseVideo.prototype = {
 
         /**
          * Initialization.
@@ -34,10 +34,10 @@
                 autoplay: el.getAttribute('autoplay')
             }, options);
 
-            BasePlayer.prototype.vidCount = BasePlayer.prototype.vidCount || 0;
-            BasePlayer.prototype.vidCount++;
+            BaseVideo.prototype.vidCount = BaseVideo.prototype.vidCount || 0;
+            BaseVideo.prototype.vidCount++;
 
-            this.vpid = 'v' + BasePlayer.prototype.vidCount;
+            this.vpid = 'v' + BaseVideo.prototype.vidCount;
 
         },
 
@@ -84,16 +84,16 @@
 
     };
 
-    var YoutubePlayer = function (options) {
+    var YoutubeVideo = function (options) {
         this.initialize(options);
     };
 
-    YoutubePlayer.prototype = _.extend({}, BasePlayer.prototype, {
+    YoutubeVideo.prototype = _.extend({}, BaseVideo.prototype, {
 
         /**
          * Initialization.
          * @param {object} options - Options passed into instance
-         * @extends BasePlayer
+         * @extends BaseVideo
          * @param {HTMLVideoElement} options.el - The video element
          * @param {string} [options.autoplay] - A boolean of whether to automatically play the video once player is loaded
          * @param {string} [options.width] - The width of the player
@@ -114,9 +114,9 @@
                 loadingCssClass: 'video-loading'
             }, options);
 
-            BasePlayer.prototype.initialize.call(this, this.options);
+            BaseVideo.prototype.initialize.call(this, this.options);
 
-            YoutubePlayer.prototype.players = YoutubePlayer.prototype.players || {};
+            YoutubeVideo.prototype.players = YoutubeVideo.prototype.players || {};
 
             this.el = this.options.el;
 
@@ -205,7 +205,7 @@
                 }
             });
 
-            YoutubePlayer.prototype.players[this.vpid] = this;
+            YoutubeVideo.prototype.players[this.vpid] = this;
 
             return instance;
         },
@@ -228,7 +228,7 @@
          * @private
          */
         _loadScript: function (callback) {
-            if (YoutubePlayer.prototype._script) {
+            if (YoutubeVideo.prototype._script) {
                 callback ? callback() : null;
             } else {
                 // Load the IFrame Player API code asynchronously.
@@ -237,7 +237,7 @@
                 var firstScriptTag = document.getElementsByTagName('script')[0];
                 firstScriptTag.parentNode.insertBefore(script, firstScriptTag);
 
-                YoutubePlayer.prototype._script = script;
+                YoutubeVideo.prototype._script = script;
 
                 // Replace the 'ytplayer' element with an <iframe> and
                 // YouTube player after the API code downloads.
@@ -337,25 +337,25 @@
          * Destroys the video instance.
          */
         destroy: function () {
-            var script = YoutubePlayer.prototype._script,
-                cachedPlayers = YoutubePlayer.prototype.players;
+            var script = YoutubeVideo.prototype._script,
+                cachedPlayers = YoutubeVideo.prototype.players;
 
             // remove from cache
             delete cachedPlayers[this.vpid];
 
             if (script && !_.keys(cachedPlayers).length) {
                 script.parentNode.removeChild(script);
-                YoutubePlayer.prototype._script = null;
+                YoutubeVideo.prototype._script = null;
             }
             // get rid of container and place video element back in the dom exactly the way we found it
             this._container.parentNode.replaceChild(this.el, this._container);
 
-            BasePlayer.prototype.destroy.call(this);
+            BaseVideo.prototype.destroy.call(this);
         }
     });
 
     return {
-        Youtube: YoutubePlayer
+        Youtube: YoutubeVideo
     }
 
 }));

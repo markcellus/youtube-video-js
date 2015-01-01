@@ -2,7 +2,7 @@ module.exports = function(grunt) {
     "use strict";
 
     var banner = '/** \n' +
-        '* VideoPlayer - v<%= pkg.version %>.\n' +
+        '* Video - v<%= pkg.version %>.\n' +
         '* <%= pkg.repository.url %>\n' +
         '* Copyright <%= grunt.template.today("yyyy") %>. Licensed MIT.\n' +
         '*/\n';
@@ -48,14 +48,14 @@ module.exports = function(grunt) {
         },
         concat: {
             dist: {
-                src: ['src/video-player.js', 'libs/element-kit/element-kit.js'],
-                dest: 'dist/video-player.js'
+                src: ['src/video.js', 'libs/element-kit/element-kit.js'],
+                dest: 'dist/video.js'
             }
         },
         uglify: {
             all: {
                 files: {
-                    'dist/video-player.min.js': ['dist/video-player.js']
+                    'dist/video.min.js': ['dist/video.js']
                 }
             }
         },
@@ -74,7 +74,7 @@ module.exports = function(grunt) {
         },
         watch: {
             scripts: {
-                files: ['src/video-player.js'],
+                files: ['src/video.js'],
                 tasks: ['copy:all', 'concat'],
                 options: {
                     spawn: false

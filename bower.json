@@ -1,7 +1,7 @@
 {
-  "name": "videoplayer",
+  "name": "video",
   "version": "0.0.2",
-  "homepage": "https://github.com/mkay581/video-player",
+  "homepage": "https://github.com/mkay581/video",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "moduleType": [
     "amd",
@@ -9,7 +9,7 @@
     "node"
   ],
   "main": [
-    "dist/video-player.js"
+    "dist/video.js"
   ],
   "keywords": [
     "video",

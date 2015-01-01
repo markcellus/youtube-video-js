@@ -16,7 +16,7 @@ require.config({
 
 // require each test
 require([
-    'tests/youtube-player-tests'
+    'tests/youtube-video-tests'
 ], function() {
     QUnit.config.requireExpects = true;
     QUnit.start();
