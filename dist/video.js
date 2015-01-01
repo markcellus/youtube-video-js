@@ -45,18 +45,20 @@
          * Adds an event listener to the media element.
          * @param event
          * @param listener
+         * @param useCapture
          */
-        addEventListener: function (event, listener) {
-            this.el.addEventListener.apply(this, arguments);
+        addEventListener: function (event, listener, useCapture) {
+            this.el.addEventListener(event, listener, useCapture);
         },
 
         /**
          * Removes an event listener fromt the media element.
          * @param event
          * @param listener
+         * @param useCapture
          */
-        removeEventListener: function (event, listener) {
-            this.el.removeEventListener.apply(this, arguments);
+        removeEventListener: function (event, listener, useCapture) {
+            this.el.removeEventListener(event, listener, useCapture);
         },
 
         load: function () {
