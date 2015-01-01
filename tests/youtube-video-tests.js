@@ -91,7 +91,7 @@ define([
         var playSpy = Sinon.spy();
         videoEl.addEventListener('play', playSpy);
         QUnit.equal(playSpy.callCount, 0, 'play event on the video element hasnt been triggered yet');
-        ytPlayerStub.args[0][1].events.onStateChange(1); // trigger play
+        ytPlayerStub.args[0][1].events.onStateChange({data: 1}); // trigger play
         QUnit.ok(player._container.classList.contains(playingClass), 'when video is played, playing css class has been added to the video container element');
         QUnit.equal(playSpy.callCount, 1, 'play event on the video element has been triggered once');
         player.destroy();

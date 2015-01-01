@@ -244,20 +244,20 @@
 
         /**
          * When the video's state changes.
-         * @param {Number} state - The number representing the state of the video
+         * @param {Object} obj - Youtube's data object
+         * @param {Number} obj.state - The number representing the state of the video
          * @private
          */
-        _onStateChange: function (state) {
+        _onStateChange: function (obj) {
             var stateMap = {
-                '-1': {name: 'unstarted'},
-                '0': {name: 'ended', method: this.onEnd},
-                '1': {name: 'playing', method: this.onPlay},
-                '2': {name: 'paused', method: this.onPause},
-                '3': {name: 'buffering'},
-                '5': {name: 'cued'}
-            };
-
-            state = '' + state; // to string
+                    '-1': {name: 'unstarted'},
+                    '0': {name: 'ended', method: this.onEnd},
+                    '1': {name: 'playing', method: this.onPlay},
+                    '2': {name: 'paused', method: this.onPause},
+                    '3': {name: 'buffering'},
+                    '5': {name: 'cued'}
+                },
+                state = '' + obj.data; // to string
             if (stateMap[state].method) {
                 stateMap[state].method.call(this);
             }
