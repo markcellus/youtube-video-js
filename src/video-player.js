@@ -11,9 +11,7 @@
 })((function (_) {
     'use strict';
 
-    var BasePlayer = function (options) {
-        this.initialize(options);
-    };
+    var BasePlayer = function () {};
 
     BasePlayer.prototype = {
 
@@ -39,6 +37,42 @@
         },
 
         /**
+         * Adds an event listener to the media element.
+         * @param event
+         * @param listener
+         */
+        addEventListener: function (event, listener) {
+            this.el.addEventListener.apply(this, arguments);
+        },
+
+        /**
+         * Removes an event listener fromt the media element.
+         * @param event
+         * @param listener
+         */
+        removeEventListener: function (event, listener) {
+            this.el.removeEventListener.apply(this, arguments);
+        },
+
+        load: function () {
+            this.el.load();
+        },
+
+        /**
+         * Plays the video from it’s current location.
+         */
+        play: function () {
+            this.el.play();
+        },
+
+        /**
+         * Pauses the video at the then-current time.
+         */
+        pause: function () {
+            this.el.pause();
+        },
+
+        /**
          * Destroys the player instance.
          */
         destroy: function () {}
@@ -54,6 +88,13 @@
         /**
          * Initialization.
          * @param {object} options - Options passed into instance
+         * @extends BasePlayer
+         * @param {HTMLVideoElement} options.el - The video element
+         * @param {string} [options.autoplay] - A boolean of whether to automatically play the video once player is loaded
+         * @param {string} [options.width] - The width of the player
+         * @param {string} [options.height] - The height of the player
+         * @param {string} [options.playingCssClass] - The css class that will be applied when a video starts playing
+         * @param {string} [options.loadingCssClass] - The css class that will be applied when the player is loading
          */
         initialize: function (options) {
 
@@ -64,12 +105,18 @@
                 autoplay: el.getAttribute('autoplay'),
                 width: el.getAttribute('width'),
                 height: el.getAttribute('height'),
-                playingCssClass: 'video-playing'
+                playingCssClass: 'video-playing',
+                loadingCssClass: 'video-loading'
             }, options);
 
             BasePlayer.prototype.initialize.call(this, this.options);
 
+            YoutubePlayer.prototype.players = YoutubePlayer.prototype.players || {};
+
             this.el = this.options.el;
+
+            // create parent div
+            this._container = this.el.kit.appendOuterHtml('<div id="vplayer' + this.vpid + '-container"></div>');
         },
 
         /**
@@ -96,9 +143,11 @@
          * @param callback
          */
         load: function (callback) {
+            this._container.kit.classList.add(this.options.loadingCssClass);
             this._loadScript(function () {
                 this._buildPlayer(function (player) {
                     this.player = player;
+                    this._container.kit.classList.remove(this.options.loadingCssClass);
                     if (callback) {
                         callback(player);
                     }
@@ -129,24 +178,31 @@
          * @private
          */
         _createPlayer: function (onComplete) {
-            // create parent div
             var id = 'vplayer' + this.vpid;
 
-            this._container = this.el.kit.appendOuterHtml('<div id="' + id + '"></div>');
-            // hide video element now that we have a div for our player
+            // create youtube element
+            this._ytEl = document.createElement('div');
+            this._ytEl.setAttribute('id', id);
+            this._container.appendChild(this._ytEl);
 
+            // hide video element now that we have a div for our player
             this._container.removeChild(this.el);
 
-            return new YT.Player(id, {
+            var instance = new YT.Player(id, {
                 height: this.options.height,
                 width: this.options.width,
                 videoId: this.extractVideoIdFromUrl(this.getSourceUrl()),
                 events: {
                     onReady: function (e) {
                         onComplete(e.target);
-                    }
+                    },
+                    onStateChange: this._onStateChange.bind(this)
                 }
             });
+
+            YoutubePlayer.prototype.players[this.vpid] = this;
+
+            return instance;
         },
 
         /**
@@ -187,13 +243,45 @@
         },
 
         /**
+         * When the video's state changes.
+         * @param {Number} state - The number representing the state of the video
+         * @private
+         */
+        _onStateChange: function (state) {
+            var stateMap = {
+                '-1': {name: 'unstarted'},
+                '0': {name: 'ended', method: this.onEnd},
+                '1': {name: 'playing', method: this.onPlay},
+                '2': {name: 'paused', method: this.onPause},
+                '3': {name: 'buffering'},
+                '5': {name: 'cued'}
+            };
+
+            state = '' + state; // to string
+            if (stateMap[state].method) {
+                stateMap[state].method.call(this);
+            }
+        },
+
+        /**
+         * Creates a new event and triggers it on the video element.
+         * @param {String} event - The name of the event to trigger
+         * @private
+         */
+        _triggerEvent: function (event) {
+            // use old-way of constructing custom events for IE9 and IE10
+            var e = document.createEvent('CustomEvent');
+            e.initCustomEvent(event, false, false, null);
+            this.el.dispatchEvent(e);
+        },
+
+        /**
          * Plays the video from it’s current location.
          */
         play: function () {
             // add class so things like play button image,
             // thumbnail/poster image, etc can be manipulated if needed
             if (this.getSourceUrl()) {
-                this.el.classList.add(this.options.playingCssClass);
                 this.player.playVideo();
             } else {
                 console.warn('youtube video error: you cannot call play() method on a video element that has no youtube source url');
@@ -201,11 +289,28 @@
         },
 
         /**
+         * Plays the video from it’s current location.
+         */
+        onPlay: function () {
+            // add class so things like play button image,
+            // thumbnail/poster image, etc can be manipulated if needed
+            this._container.classList.add(this.options.playingCssClass);
+            this._triggerEvent('play');
+        },
+
+        /**
          * Pauses the video at the then-current time.
          */
         pause: function () {
             this.player.pauseVideo();
-            this.el.classList.remove(this.options.playingCssClass);
+        },
+
+        /**
+         * When the video is paused.
+         */
+        onPause: function () {
+            this._container.classList.remove(this.options.playingCssClass);
+            this._triggerEvent('pause');
         },
 
         /**
@@ -213,29 +318,33 @@
          */
         stop: function () {
             this.player.stopVideo();
-            this.el.classList.remove(this.options.playingCssClass);
         },
 
         /**
-         * Transitions the video to a certain time.
-         * @param {Number} time - The second that should
+         * When the video has finished playing.
          */
-        seekTo: function (time) {
+        onEnd: function () {
+            this._container.classList.remove(this.options.playingCssClass);
+            this._triggerEvent('ended');
         },
 
         /**
          * Destroys the video instance.
          */
         destroy: function () {
-            var script = YoutubePlayer.prototype._script;
-            if (script) {
+            var script = YoutubePlayer.prototype._script,
+                cachedPlayers = YoutubePlayer.prototype.players;
+
+            // remove from cache
+            delete cachedPlayers[this.vpid];
+
+            if (script && !_.keys(cachedPlayers).length) {
                 script.parentNode.removeChild(script);
                 YoutubePlayer.prototype._script = null;
             }
             // get rid of container and place video element back in the dom exactly the way we found it
-            if (this._container) {
-                this._container.parentNode.replaceChild(this.el, this._container);
-            }
+            this._container.parentNode.replaceChild(this.el, this._container);
+
             BasePlayer.prototype.destroy.call(this);
         }
     });

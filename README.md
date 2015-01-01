@@ -11,7 +11,7 @@ which can be a lot easier when there are already so many video API's to deal wit
 
 ##Usage
 
-Suppose you have the following HTML in the DOM.
+Suppose you have the following HTML in the DOM (A Youtube Video).
 
 ```html
 <video width="640" height="360">
@@ -19,27 +19,41 @@ Suppose you have the following HTML in the DOM.
 </video>
 ```
 
-To control the video with javascript all you need to do is the following:
+To start controlling the video player with javascript all you need to do is [require](http://requirejs.org) the built [video-player.js file](https://github.com/mkay581/video-player/tree/master/dist) and instantiate a new instance using a `<video>` element on the page:
 
 ```javascript
 require(['path/to/video-player/file'], function (VideoPlayer) {
-    var videoEl = document.getElementsByTagName('video')[0];
-
     // start a youtube video
-    var player = new VideoPlayer.Youtube({
-        el: videoEl
-    });
+    var video = new VideoPlayer.Youtube({
+          el: document.getElementsByTagName('video')[0]
+      })
+});
+```
+Once instantiated, the player instance exposes the [same methods that are available on the new HTML5 `<video>` element](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video#Controlling_media_playback).
 
-    // load the video
-    player.load(function () {
+```javascript
+// load the video
+video.load(function () {
 
-        // play the video
-        player.play();
+    // play the video
+    video.play();
 
-        // stop the video
-        player.stop();
+    // stop the video
+    video.stop();
 
-    });
+});
+```
+
+You can also subscribe to [MediaEvents](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events) provided by the <video> element:
+
+```javascript
+
+video.addEventListener('play', function () {
+    // video has started!
+});
+
+video.addEventListener('ended', function () {
+    // video has finished!
 });
 ```
 
