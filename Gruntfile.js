@@ -42,14 +42,14 @@ module.exports = function(grunt) {
                         cwd: 'bower_components/requirejs',
                         src: ['require.js'],
                         dest: 'libs/requirejs'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'src',
+                        src: ['video.js'],
+                        dest: 'dist'
                     }
                 ]
-            }
-        },
-        concat: {
-            dist: {
-                src: ['src/video.js', 'libs/element-kit/element-kit.js'],
-                dest: 'dist/video.js'
             }
         },
         uglify: {
@@ -75,7 +75,7 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ['src/video.js'],
-                tasks: ['copy:all', 'concat'],
+                tasks: ['copy:all'],
                 options: {
                     spawn: false
                 }
@@ -137,17 +137,21 @@ module.exports = function(grunt) {
         ]);
     });
 
-    // Default grunt
-    grunt.registerTask( "build", [
+    grunt.registerTask( "build-files", [
         "clean",
         "copy:all",
-        "concat",
         "uglify",
-        "usebanner:all",
+        "usebanner:all"
+    ]);
+
+    // Default grunt
+    grunt.registerTask( "build", [
+        "build-files",
         "test"
     ]);
 
     grunt.registerTask( "server", [
+        "build-files",
         "connect:local",
         "watch"
     ]);
