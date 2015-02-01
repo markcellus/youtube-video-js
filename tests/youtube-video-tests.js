@@ -31,14 +31,14 @@ define([
         ytPlayerStub.returns(stubbedPlayer);
         var videoEl = document.getElementById('player1');
         var loadingCssClass = 'v-loading';
-        var video = new Video.Youtube({
+        var player = new Video.Youtube({
             el: videoEl,
             loadingCssClass: loadingCssClass
         });
         // setup server
-        QUnit.deepEqual(videoEl.parentNode, video._container, 'after initialization, a new container was created that now encapsulates the video element');
-        video.load(loadSpy);
-        QUnit.ok(video._container.classList.contains(loadingCssClass), 'after calling load(), loading css class was added to container');
+        QUnit.deepEqual(videoEl.parentNode, player._container, 'after initialization, a new container was created that now encapsulates the video element');
+        player.load(loadSpy);
+        QUnit.ok(player._container.classList.contains(loadingCssClass), 'after calling load(), loading css class was added to container');
         QUnit.equal(loadSpy.callCount, 0, 'load callback was not yet fired because javascript file hasnt finished loading yet');
         // trigger script loaded
         window.onYouTubeIframeAPIReady();
@@ -52,14 +52,43 @@ define([
         QUnit.equal(ytPlayerConstructorOptions.height, 360, 'YouTube player constructor was passed height of video element');
         QUnit.equal(ytPlayerConstructorOptions.videoId, videoId, 'YouTube player constructor was passed correct video id');
         QUnit.equal(loadSpy.callCount, 0, 'load callback was STILL not fired yet because player hasnt finished loading');
-        QUnit.ok(video._container.classList.contains(loadingCssClass), 'container still has loading css class');
+        QUnit.ok(player._container.classList.contains(loadingCssClass), 'container still has loading css class');
         // trigger player ready
         ytPlayerConstructorOptions.events.onReady({target: stubbedPlayer});
         QUnit.deepEqual(loadSpy.args[0], [stubbedPlayer], 'after player is done loading, load callback was fired with the player instance as the first arg');
-        QUnit.ok(!video._container.classList.contains(loadingCssClass), 'container no longer has loading css class');
-        video.destroy();
+        QUnit.ok(!player._container.classList.contains(loadingCssClass), 'container no longer has loading css class');
+        player.destroy();
         QUnit.equal(document.getElementById(youtubeElId), null, 'video container was removed from the DOM');
         QUnit.equal(videoEl.parentNode, fixture, 'video element was put back in the DOM inside of its original parent');
+        window.YT = origYT;
+    });
+
+    QUnit.test('script loading', function () {
+        QUnit.expect(6);
+        var videoId = 'nOEw9iiopwI';
+        var html = '<video width="640" height="360" id="player1">' +
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />' +
+            '</video>';
+        var fixture = document.getElementById('qunit-fixture');
+        var origYT = window.YT;
+        var ytPlayerStub = Sinon.stub();
+        window.YT = {Player: ytPlayerStub};
+        fixture.innerHTML = html;
+        var videoEl = document.getElementById('player1');
+        var firstPlayer = new Video.Youtube({el: videoEl});
+        var scriptUrl = 'https://www.youtube.com/iframe_api';
+        // setup server
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'script element has NOT been added to DOM because load() hasnt been called');
+        firstPlayer.load();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called, script element is added to DOM');
+        QUnit.ok(document.querySelectorAll('script[src="' + scriptUrl + '"]')[0].async, 'script has truthy async value');
+        var secondPlayer = new Video.Youtube({el: videoEl});
+        secondPlayer.load();
+        firstPlayer.destroy();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after destroying instance, script element is still left hanging out in the DOM because there is another instance present');
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called on a second instance, script element is NOT added to the DOM a second time');
+        secondPlayer.destroy();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'after destroying last instance, script element is finally removed from the DOM');
         window.YT = origYT;
     });
 
@@ -104,30 +133,4 @@ define([
         QUnit.equal(Video.Youtube.prototype.extractVideoIdFromUrl('https://www.youtube.com/embed/nCJJdW20uZI'), 'nCJJdW20uZI', 'correct video id was returned');
     });
 
-    QUnit.test('test removing script from page when there are are multiple video instances', function () {
-        QUnit.expect(3);
-        var html = '<video width="640" height="360" id="player1"></video><video width="640" height="360" id="player2"></video>';
-        var fixture = document.getElementById('qunit-fixture');
-        fixture.innerHTML = html;
-        var firstVideoEl = document.getElementById('player1');
-        var secondVideoEl = document.getElementById('player2');
-        var playingClass = 'vid-playing';
-        var firstPlayer = new Video.Youtube({el: firstVideoEl});
-        var secondPlayer = new Video.Youtube({el: secondVideoEl});
-        var origYT = window.YT;
-        var ytPlayerStub = Sinon.stub();
-        window.YT = {Player: ytPlayerStub};
-        var stubbedPlayer = {playVideo: Sinon.spy()};
-        ytPlayerStub.returns(stubbedPlayer);
-
-        firstPlayer.load();
-        QUnit.equal(document.querySelectorAll('script[src="https://www.youtube.com/iframe_api"]').length, 1, 'after loading first video, youtube script exists in page');
-        window.onYouTubeIframeAPIReady(); // trigger script loaded
-        secondPlayer.load();
-        firstPlayer.destroy();
-        QUnit.equal(document.querySelectorAll('script[src="https://www.youtube.com/iframe_api"]').length, 1, 'after destroying first video, youtube script still exists in page');
-        secondPlayer.destroy();
-        QUnit.equal(document.querySelectorAll('script[src="https://www.youtube.com/iframe_api"]').length, 0, 'after destroying last existing video, youtube script is removed from page');
-        window.YT = origYT;
-    });
 });
