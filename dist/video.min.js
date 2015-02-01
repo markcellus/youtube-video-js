@@ -1,5 +1,5 @@
 /** 
-* video - v0.0.6.
+* video - v0.0.7.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
