@@ -340,7 +340,7 @@
 
             // just in case destroy is called before youtube script callback happens
             this._container.kit.classList.remove(this.options.loadingCssClass);
-            window.onYouTubeIframeAPIReady = function()();
+            window.onYouTubeIframeAPIReady = function(){};
 
             // remove from cache
             delete cachedPlayers[this.vpid];

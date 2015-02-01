@@ -1,5 +1,5 @@
 /** 
-* video - v0.0.7.
+* video - v0.0.8.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
@@ -236,6 +236,7 @@
                 // Load the IFrame Player API code asynchronously.
                 var script = document.createElement('script');
                 script.src = 'https://www.youtube.com/iframe_api';
+                script.async = true;
                 var firstScriptTag = document.getElementsByTagName('script')[0];
                 firstScriptTag.parentNode.insertBefore(script, firstScriptTag);
 
@@ -341,6 +342,10 @@
         destroy: function () {
             var script = YoutubeVideo.prototype._script,
                 cachedPlayers = YoutubeVideo.prototype.players;
+
+            // just in case destroy is called before youtube script callback happens
+            this._container.kit.classList.remove(this.options.loadingCssClass);
+            window.onYouTubeIframeAPIReady = function(){};
 
             // remove from cache
             delete cachedPlayers[this.vpid];
