@@ -284,10 +284,10 @@
         play: function () {
             // add class so things like play button image,
             // thumbnail/poster image, etc can be manipulated if needed
-            if (this.getSourceUrl()) {
-                this.player.playVideo();
-            } else {
+            if (!this.getSourceUrl()) {
                 console.warn('youtube video error: you cannot call play() method on a video element that has no youtube source url');
+            } else if (this.player) {
+                this.player.playVideo();
             }
         },
 
@@ -305,7 +305,7 @@
          * Pauses the video at the then-current time.
          */
         pause: function () {
-            this.player.pauseVideo();
+            this.player ? this.player.pauseVideo() : null;
         },
 
         /**
@@ -320,7 +320,7 @@
          * Stops and cancels loading of the current video.
          */
         stop: function () {
-            this.player.stopVideo();
+            this.player ? this.player.stopVideo() : null;
         },
 
         /**
