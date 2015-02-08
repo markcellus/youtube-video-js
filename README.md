@@ -9,6 +9,16 @@ This library aims to mimick the methods and properties of HTML5's new `<video>` 
 which can be a lot easier when there are already so many video API's to deal with (i.e. Youtube, Facebook, Vine, Vimeo, etc).
 
 
+## Dependencies
+
+To use Video class, you'll need:
+
+* [RequireJS](http://requirejs.org/) - AMD and dependency management
+* [ElementKit](https://github.com/mkay581/element-kit) - Fast DOM manipulation for Elements
+* [Underscore](http://underscorejs.org/) - For programming goodies
+
+Of course, if you use [Bower's](http://bower.io/) `bower install` to install this project, it will automatically inject all of the above dependencies for you.
+
 ##Usage
 
 ### Setup a Youtube Video

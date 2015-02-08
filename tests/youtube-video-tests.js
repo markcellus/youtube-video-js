@@ -2,7 +2,7 @@ define([
     'sinon',
     'qunit',
     'test-utils',
-    'dist/video'
+    'src/video'
 ], function(
     Sinon,
     QUnit,
@@ -131,6 +131,46 @@ define([
         QUnit.expect(2);
         QUnit.equal(Video.Youtube.prototype.extractVideoIdFromUrl('http://www.youtube.com/watch?v=nOEw9i3opwI'), 'nOEw9i3opwI', 'correct video id was returned');
         QUnit.equal(Video.Youtube.prototype.extractVideoIdFromUrl('https://www.youtube.com/embed/nCJJdW20uZI'), 'nCJJdW20uZI', 'correct video id was returned');
+    });
+
+    QUnit.test('attempting to play/pause a video before player has loaded', function () {
+        QUnit.expect(3);
+        var html = '<video width="640" height="360" id="player1">' +
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />' +
+            '</video>';
+        var fixture = document.getElementById('qunit-fixture');
+        fixture.innerHTML = html;
+        var playingClass = 'vid-playing';
+        var origYT = window.YT;
+        var ytPlayerStub = Sinon.stub();
+        window.YT = {Player: ytPlayerStub};
+        var stubbedPlayer = {playVideo: Sinon.spy()};
+        ytPlayerStub.returns(stubbedPlayer);
+        var videoEl = document.getElementById('player1');
+        var player = new Video.Youtube({el: videoEl, playingCssClass: playingClass});
+        var playSpy = Sinon.spy(player, 'play');
+        var stopSpy = Sinon.spy(player, 'stop');
+        var pauseSpy = Sinon.spy(player, 'pause');
+        // load player
+        player.load();
+        player.play();
+        QUnit.ok(!playSpy.threw('TypeError'), 'calling play() before player\'s script has loaded does NOT throw error');
+        player.pause();
+        QUnit.ok(!pauseSpy.threw('TypeError'), 'calling pause() before player\'s script has loaded does NOT throw error');
+        player.stop();
+        QUnit.ok(!stopSpy.threw('TypeError'), 'calling stop() before player\'s script has loaded does NOT throw error');
+        // trigger script loaded
+        window.onYouTubeIframeAPIReady();
+        player.play();
+        // trigger player loaded
+        ytPlayerStub.args[0][1].events.onReady({target: stubbedPlayer});
+        player.play();
+        // test
+        playSpy.restore();
+        stopSpy.restore();
+        pauseSpy.restore();
+        player.destroy();
+        window.YT = origYT;
     });
 
 });
