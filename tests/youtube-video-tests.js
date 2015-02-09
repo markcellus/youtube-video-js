@@ -64,6 +64,30 @@ define([
     });
 
     QUnit.test('script loading', function () {
+        QUnit.expect(4);
+        var videoId = 'nOEw9iiopwI';
+        var html = '<video width="640" height="360" id="player1">' +
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />' +
+            '</video>';
+        var fixture = document.getElementById('qunit-fixture');
+        var origYT = window.YT;
+        var ytPlayerStub = Sinon.stub();
+        window.YT = {Player: ytPlayerStub};
+        fixture.innerHTML = html;
+        var videoEl = document.getElementById('player1');
+        var player = new Video.Youtube({el: videoEl});
+        var scriptUrl = 'https://www.youtube.com/iframe_api';
+        // setup server
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'script element has NOT been added to DOM because load() hasnt been called');
+        player.load();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called, script element is added to DOM');
+        QUnit.ok(document.querySelectorAll('script[src="' + scriptUrl + '"]')[0].async, 'script has truthy async value');
+        player.destroy();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'after destroying last instance, script element is finally removed from the DOM');
+        window.YT = origYT;
+    });
+
+    QUnit.test('script existence when there are multiple instances', function () {
         QUnit.expect(6);
         var videoId = 'nOEw9iiopwI';
         var html = '<video width="640" height="360" id="player1">' +
@@ -78,16 +102,20 @@ define([
         var firstPlayer = new Video.Youtube({el: videoEl});
         var scriptUrl = 'https://www.youtube.com/iframe_api';
         // setup server
-        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'script element has NOT been added to DOM because load() hasnt been called');
         firstPlayer.load();
-        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called, script element is added to DOM');
-        QUnit.ok(document.querySelectorAll('script[src="' + scriptUrl + '"]')[0].async, 'script has truthy async value');
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() on first instance is called, script element is added to DOM');
         var secondPlayer = new Video.Youtube({el: videoEl});
         secondPlayer.load();
-        firstPlayer.destroy();
-        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after destroying instance, script element is still left hanging out in the DOM because there is another instance present');
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called on a second instance, script element is NOT added to the DOM a second time');
+        firstPlayer.destroy();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after destroying first instance, script element is still left hanging out in the DOM, even when it hasnt finished loading yet, because there is another instance present');
+        var thirdPlayer = new Video.Youtube({el: videoEl});
+        thirdPlayer.load();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called on a third instance, script element is NOT added to the DOM a second time');
+        window.onYouTubeIframeAPIReady(); // trigger script loaded
         secondPlayer.destroy();
+        QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after destroying second instance after script has loaded, script element is still left hanging out in the DOM because there is another instance present');
+        thirdPlayer.destroy();
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'after destroying last instance, script element is finally removed from the DOM');
         window.YT = origYT;
     });
