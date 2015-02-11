@@ -194,6 +194,9 @@
             return new YT.Player(id, {
                 height: this.options.height,
                 width: this.options.width,
+                playerVars: {
+                    autoplay: this.options.autoplay ? 1 : 0
+                },
                 videoId: this.extractVideoIdFromUrl(this.getSourceUrl()),
                 events: {
                     onReady: function (e) {
