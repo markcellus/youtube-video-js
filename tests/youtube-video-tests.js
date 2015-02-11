@@ -201,4 +201,26 @@ define([
         window.YT = origYT;
     });
 
+    QUnit.test('autoplay', function () {
+        QUnit.expect(1);
+        var html = '<video width="640" height="360" id="player1">' +
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />' +
+            '</video>';
+        var fixture = document.getElementById('qunit-fixture');
+        fixture.innerHTML = html;
+        var origYT = window.YT;
+        var ytPlayerStub = Sinon.stub();
+        window.YT = {Player: ytPlayerStub};
+        var stubbedPlayer = {playVideo: Sinon.spy()};
+        ytPlayerStub.returns(stubbedPlayer);
+        var videoEl = document.getElementById('player1');
+        videoEl.setAttribute('autoplay', 'true'); // add autoplay
+        var player = new Video.Youtube({el: videoEl});
+        player.load(); // load player
+        window.onYouTubeIframeAPIReady(); // trigger script loaded
+        QUnit.equal(ytPlayerStub.args[0][1].playerVars.autoplay, 1, 'when video element has autoplay attribute, new Youtube Video constructor is passed playerVars.autoplay set to 1');
+        player.destroy();
+        window.YT = origYT;
+    });
+
 });
