@@ -1,5 +1,5 @@
 /** 
-* video - v0.0.8.
+* video - v0.0.10.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
@@ -119,6 +119,7 @@
             BaseVideo.prototype.initialize.call(this, this.options);
 
             YoutubeVideo.prototype.players = YoutubeVideo.prototype.players || {};
+            YoutubeVideo.prototype.players[this.vpid] = this;
 
             this.el = this.options.el;
 
@@ -195,9 +196,12 @@
             // hide video element now that we have a div for our player
             this._container.removeChild(this.el);
 
-            var instance = new YT.Player(id, {
+            return new YT.Player(id, {
                 height: this.options.height,
                 width: this.options.width,
+                playerVars: {
+                    autoplay: this.options.autoplay ? 1 : 0
+                },
                 videoId: this.extractVideoIdFromUrl(this.getSourceUrl()),
                 events: {
                     onReady: function (e) {
@@ -206,10 +210,6 @@
                     onStateChange: this._onStateChange.bind(this)
                 }
             });
-
-            YoutubeVideo.prototype.players[this.vpid] = this;
-
-            return instance;
         },
 
         /**
@@ -230,24 +230,23 @@
          * @private
          */
         _loadScript: function (callback) {
-            if (YoutubeVideo.prototype._script) {
-                callback ? callback() : null;
-            } else {
+            if (YoutubeVideo.prototype._scriptLoaded) {
+                return callback ? callback() : null;
+            }
+
+            if (!YoutubeVideo.prototype._script) {
                 // Load the IFrame Player API code asynchronously.
                 var script = document.createElement('script');
                 script.src = 'https://www.youtube.com/iframe_api';
                 script.async = true;
                 var firstScriptTag = document.getElementsByTagName('script')[0];
                 firstScriptTag.parentNode.insertBefore(script, firstScriptTag);
-
                 YoutubeVideo.prototype._script = script;
-
-                // Replace the 'ytplayer' element with an <iframe> and
-                // YouTube player after the API code downloads.
-                window.onYouTubeIframeAPIReady = function () {
-                    callback ? callback() : null;
-                }.bind(this)
             }
+            window.onYouTubeIframeAPIReady = function () {
+                callback ? callback() : null;
+                YoutubeVideo.prototype._scriptLoaded = true;
+            }.bind(this)
         },
 
         /**
@@ -289,10 +288,10 @@
         play: function () {
             // add class so things like play button image,
             // thumbnail/poster image, etc can be manipulated if needed
-            if (this.getSourceUrl()) {
-                this.player.playVideo();
-            } else {
+            if (!this.getSourceUrl()) {
                 console.warn('youtube video error: you cannot call play() method on a video element that has no youtube source url');
+            } else if (this.player) {
+                this.player.playVideo();
             }
         },
 
@@ -310,7 +309,7 @@
          * Pauses the video at the then-current time.
          */
         pause: function () {
-            this.player.pauseVideo();
+            this.player ? this.player.pauseVideo() : null;
         },
 
         /**
@@ -325,7 +324,7 @@
          * Stops and cancels loading of the current video.
          */
         stop: function () {
-            this.player.stopVideo();
+            this.player ? this.player.stopVideo() : null;
         },
 
         /**
@@ -345,14 +344,15 @@
 
             // just in case destroy is called before youtube script callback happens
             this._container.kit.classList.remove(this.options.loadingCssClass);
-            window.onYouTubeIframeAPIReady = function(){};
 
             // remove from cache
             delete cachedPlayers[this.vpid];
+            window.onYouTubeIframeAPIReady = function(){};
 
             if (script && !_.keys(cachedPlayers).length) {
                 script.parentNode.removeChild(script);
                 YoutubeVideo.prototype._script = null;
+                YoutubeVideo.prototype._scriptLoaded = null;
             }
             // get rid of container and place video element back in the dom exactly the way we found it
             this._container.parentNode.replaceChild(this.el, this._container);
