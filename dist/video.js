@@ -1,5 +1,5 @@
 /** 
-* video - v0.0.10.
+* video - v0.1.1.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
@@ -122,9 +122,14 @@
             YoutubeVideo.prototype.players[this.vpid] = this;
 
             this.el = this.options.el;
+            this._origParent = this.el.parentNode;
+            this._sourceUrl = this.getSourceUrl();
 
-            // create parent div
-            this._container = this.el.kit.appendOuterHtml('<div id="vplayer' + this.vpid + '-container"></div>');
+            // build player vars
+            this._playerVars = _.extend({
+                autoplay: this.options.autoplay ? 1 : 0
+            }, this.getPlayerVars());
+
         },
 
         /**
@@ -151,6 +156,14 @@
          * @param callback
          */
         load: function (callback) {
+            // create parent div to show loading state
+            this._container = document.createElement('div');
+            this._container.setAttribute('id', 'vplayer' + this.vpid + '-container');
+            
+            if (this._origParent) {
+                this._origParent.replaceChild(this._container, this.el);
+            }
+
             this._container.kit.classList.add(this.options.loadingCssClass);
             this._loadScript(function () {
                 this._buildPlayer(function (player) {
@@ -193,16 +206,11 @@
             this._ytEl.setAttribute('id', id);
             this._container.appendChild(this._ytEl);
 
-            // hide video element now that we have a div for our player
-            this._container.removeChild(this.el);
-
             return new YT.Player(id, {
                 height: this.options.height,
                 width: this.options.width,
-                playerVars: {
-                    autoplay: this.options.autoplay ? 1 : 0
-                },
-                videoId: this.extractVideoIdFromUrl(this.getSourceUrl()),
+                playerVars: this._playerVars,
+                videoId: this.getVideoId(),
                 events: {
                     onReady: function (e) {
                         onComplete(e.target);
@@ -213,15 +221,35 @@
         },
 
         /**
-         * Extracts the video id from a youtube url.
+         * Generates playerVars from a Youtube URL and puts it into a neat little object.
+         * @returns {Object}
+         */
+        getPlayerVars: function () {
+            var queryString = this._sourceUrl.split('?')[1] || '',
+                    a = queryString.split('&');
+            if (a == '') return {};
+            var b = {};
+            for (var i = 0; i < a.length; ++i)
+            {
+                var p=a[i].split('=', 2);
+                if (p.length == 1)
+                    b[p[0]] = '';
+                else
+                    b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, ' '));
+            }
+            return b;
+        },
+
+        /**
+         * Gets the current video id from a youtube url and returns it.
          * @returns {Number|string} - The video id extracted
          */
-        extractVideoIdFromUrl: function (text) {
-            if (text) {
+        getVideoId: function () {
+            if (!this._videoId) {
                 var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
-                text = text.replace(re, '$1');
+                this._videoId = this._sourceUrl.replace(re, '$1');
             }
-            return text;
+            return this._videoId;
         },
 
         /**
@@ -343,7 +371,9 @@
                 cachedPlayers = YoutubeVideo.prototype.players;
 
             // just in case destroy is called before youtube script callback happens
-            this._container.kit.classList.remove(this.options.loadingCssClass);
+            if (this._container) {
+                this._container.kit.classList.remove(this.options.loadingCssClass);
+            }
 
             // remove from cache
             delete cachedPlayers[this.vpid];
@@ -353,9 +383,13 @@
                 script.parentNode.removeChild(script);
                 YoutubeVideo.prototype._script = null;
                 YoutubeVideo.prototype._scriptLoaded = null;
+
             }
+
             // get rid of container and place video element back in the dom exactly the way we found it
-            this._container.parentNode.replaceChild(this.el, this._container);
+            if (this._origParent && this._origParent.contains(this._container)) {
+                this._origParent.replaceChild(this.el, this._container);
+            }
 
             BaseVideo.prototype.destroy.call(this);
         }
