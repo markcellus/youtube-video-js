@@ -118,7 +118,6 @@
 
             this.el = this.options.el;
             this._origParent = this.el.parentNode;
-            this._sourceUrl = this.getSourceUrl();
 
             // build player vars
             this._playerVars = _.extend({
@@ -129,19 +128,12 @@
 
         /**
          * Gets the source url of the youtube video.
-         * @returns {String|undefined} Returns the source url string if there is one
+         * @returns {String} Returns the source url string if there is one
          */
         getSourceUrl: function () {
-            var sources = this.el.getElementsByTagName('source'),
-                i, count = sources.length, source;
-            if (!this.src) {
-                for (i = 0; i < count; i++) {
-                    source = sources[i];
-                    if (source.getAttribute('type') === 'video/youtube') {
-                        this.src = source.getAttribute('src');
-                        break;
-                    }
-                }
+            var sourceEl = this.el.querySelectorAll('source[type="video/youtube"]')[0];
+            if (!this.src && sourceEl) {
+                this.src = sourceEl.src || '';
             }
             return this.src;
         },
@@ -220,7 +212,7 @@
          * @returns {Object}
          */
         getPlayerVars: function () {
-            var queryString = this._sourceUrl.split('?')[1] || '',
+            var queryString = this.getSourceUrl().split('?')[1] || '',
                     a = queryString.split('&');
             if (a == '') return {};
             var b = {};
@@ -242,7 +234,7 @@
         getVideoId: function () {
             if (!this._videoId) {
                 var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
-                this._videoId = this._sourceUrl.replace(re, '$1');
+                this._videoId = this.getSourceUrl().replace(re, '$1');
             }
             return this._videoId;
         },
@@ -378,7 +370,6 @@
                 script.parentNode.removeChild(script);
                 YoutubeVideo.prototype._script = null;
                 YoutubeVideo.prototype._scriptLoaded = null;
-
             }
 
             // get rid of container and place video element back in the dom exactly the way we found it
