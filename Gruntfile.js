@@ -4,9 +4,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
         bt: {
-            uglifyFiles: {
-                'dist/video.min.js': ['dist/video.js']
-            },
+            dist: 'dist',
             testRequireConfig: {
                 'paths': {
                     'underscore': 'libs/underscore/underscore',
@@ -18,5 +16,9 @@ module.exports = function(grunt) {
 
     // Load grunt tasks from node modules
     require("load-grunt-tasks")(grunt);
+
+    grunt.registerTask('build', [
+        'bt:build'
+    ]);
 
 };
