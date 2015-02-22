@@ -5,6 +5,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON("package.json"),
         bt: {
             dist: 'dist',
+            src: ['src/youtube-video.js'],
             tests: {
                 qunit: ['tests/*.js']
             }
