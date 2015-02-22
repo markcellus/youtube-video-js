@@ -13,7 +13,6 @@ which can be a lot easier when there are already so many video API's to deal wit
 
 To use Video class, you'll need:
 
-* [RequireJS](http://requirejs.org/) - AMD and dependency management
 * [ElementKit](https://github.com/mkay581/element-kit) - Fast DOM manipulation for Elements
 * [Underscore](http://underscorejs.org/) - For programming goodies
 
