@@ -5,11 +5,8 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON("package.json"),
         bt: {
             dist: 'dist',
-            testRequireConfig: {
-                'paths': {
-                    'underscore': 'libs/underscore/underscore',
-                    'element-kit': 'libs/element-kit/element-kit'
-                }
+            tests: {
+                qunit: ['tests/*.js']
             }
         }
     });
@@ -19,6 +16,10 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [
         'bt:build'
+    ]);
+
+    grunt.registerTask('test', [
+        'bt:test'
     ]);
 
 };

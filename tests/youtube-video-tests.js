@@ -1,15 +1,10 @@
-define([
-    'sinon',
-    'qunit',
-    'test-utils',
-    'src/video'
-], function(
-    Sinon,
-    QUnit,
-    TestUtils,
-    Video
-){
-    "use strict";
+var Sinon = require('sinon');
+var QUnit = require('qunit');
+var TestUtils = require('test-utils');
+var Youtube = require('../src/youtube-video');
+
+module.exports = (function () {
+    'use strict';
 
     QUnit.module('Youtube Video Tests');
 
@@ -18,7 +13,7 @@ define([
         var videoId = 'nOEw9iiopwI';
         var html = '<video width="640" height="360" id="player776">' +
             '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />' +
-        '</video>';
+            '</video>';
         var fixture = document.getElementById('qunit-fixture');
         fixture.innerHTML = html;
         var loadSpy = Sinon.spy();
@@ -31,7 +26,7 @@ define([
         ytPlayerStub.returns(stubbedPlayer);
         var videoEl = document.getElementById('player776');
         var loadingCssClass = 'v-loading';
-        var player = new Video.Youtube({
+        var player = new Youtube({
             el: videoEl,
             loadingCssClass: loadingCssClass
         });
@@ -69,7 +64,7 @@ define([
         window.YT = {Player: ytPlayerStub};
         fixture.innerHTML = html;
         var videoEl = document.getElementById('player77');
-        var player = new Video.Youtube({el: videoEl});
+        var player = new Youtube({el: videoEl});
         var scriptUrl = 'https://www.youtube.com/iframe_api';
         // setup server
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 0, 'script element has NOT been added to DOM because load() hasnt been called');
@@ -93,17 +88,17 @@ define([
         window.YT = {Player: ytPlayerStub};
         fixture.innerHTML = html;
         var videoEl = document.getElementById('player32');
-        var firstPlayer = new Video.Youtube({el: videoEl});
+        var firstPlayer = new Youtube({el: videoEl});
         var scriptUrl = 'https://www.youtube.com/iframe_api';
         // setup server
         firstPlayer.load();
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() on first instance is called, script element is added to DOM');
-        var secondPlayer = new Video.Youtube({el: videoEl});
+        var secondPlayer = new Youtube({el: videoEl});
         secondPlayer.load();
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called on a second instance, script element is NOT added to the DOM a second time');
         firstPlayer.destroy();
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after destroying first instance, script element is still left hanging out in the DOM, even when it hasnt finished loading yet, because there is another instance present');
-        var thirdPlayer = new Video.Youtube({el: videoEl});
+        var thirdPlayer = new Youtube({el: videoEl});
         thirdPlayer.load();
         QUnit.equal(document.querySelectorAll('script[src="' + scriptUrl + '"]').length, 1, 'after load() is called on a third instance, script element is NOT added to the DOM a second time');
         window.onYouTubeIframeAPIReady(); // trigger script loaded
@@ -117,8 +112,8 @@ define([
     QUnit.test('when a video is played', function () {
         QUnit.expect(4);
         var html = '<video width="640" height="360" id="player45">' +
-                        '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />' +
-                    '</video>';
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />' +
+            '</video>';
         var fixture = document.getElementById('qunit-fixture');
         fixture.innerHTML = html;
         var playingClass = 'vid-playing';
@@ -129,7 +124,7 @@ define([
         ytPlayerStub.returns(stubbedPlayer);
         var videoEl = document.getElementById('player45');
 
-        var player = new Video.Youtube({
+        var player = new Youtube({
             el: videoEl,
             playingCssClass: playingClass
         });
@@ -156,13 +151,13 @@ define([
         var fixture = document.getElementById('qunit-fixture');
         fixture.appendChild(videoEl);
         // test url
-        videoEl.getElementsByTagName('source')[0].src = 'http://www.youtube.com/watch?v=nOEw9iiopwI';
-        var player = new Video.Youtube({el: videoEl});
+        videoEl.getElementsByTagName('source')[0].setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        var player = new Youtube({el: videoEl});
         QUnit.equal(player.getVideoId(), 'nOEw9iiopwI', 'correct video id was returned');
         player.destroy();
         // test url
-        videoEl.getElementsByTagName('source')[0].src = 'https://www.youtube.com/embed/nCJJdW20uZI';
-        var player = new Video.Youtube({el: videoEl});
+        videoEl.getElementsByTagName('source')[0].setAttribute('src', 'https://www.youtube.com/embed/nCJJdW20uZI');
+        var player = new Youtube({el: videoEl});
         QUnit.equal(player.getVideoId(), 'nCJJdW20uZI', 'correct video id was returned');
         player.destroy();
     });
@@ -174,13 +169,13 @@ define([
         var fixture = document.getElementById('qunit-fixture');
         fixture.appendChild(videoEl);
         // test url
-        videoEl.getElementsByTagName('source')[0].src = 'http://www.youtube.com/watch?v=nOEw9i3opwI&rel=0';
-        var player = new Video.Youtube({el: videoEl});
+        videoEl.getElementsByTagName('source')[0].setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9i3opwI&rel=0');
+        var player = new Youtube({el: videoEl});
         QUnit.deepEqual(player.getPlayerVars(), {v: 'nOEw9i3opwI', rel: "0"}, 'correct video id was returned');
         player.destroy();
         // test url
-        videoEl.getElementsByTagName('source')[0].src = 'https://www.youtube.com/embed/nCJJdW20uZI?autoplay=true&blah';
-        var player = new Video.Youtube({el: videoEl});
+        videoEl.getElementsByTagName('source')[0].setAttribute('src', 'https://www.youtube.com/embed/nCJJdW20uZI?autoplay=true&blah');
+        var player = new Youtube({el: videoEl});
         QUnit.deepEqual(player.getPlayerVars(), {autoplay: 'true', blah: ''}, 'correct video id was returned');
         player.destroy();
     });
@@ -199,7 +194,7 @@ define([
         var stubbedPlayer = {playVideo: Sinon.spy()};
         ytPlayerStub.returns(stubbedPlayer);
         var videoEl = document.getElementById('player89');
-        var player = new Video.Youtube({el: videoEl, playingCssClass: playingClass});
+        var player = new Youtube({el: videoEl, playingCssClass: playingClass});
         var playSpy = Sinon.spy(player, 'play');
         var stopSpy = Sinon.spy(player, 'stop');
         var pauseSpy = Sinon.spy(player, 'pause');
@@ -239,7 +234,7 @@ define([
         ytPlayerStub.returns(stubbedPlayer);
         var videoEl = document.getElementById('player87');
         videoEl.setAttribute('autoplay', 'true'); // add autoplay
-        var player = new Video.Youtube({el: videoEl});
+        var player = new Youtube({el: videoEl});
         player.load(); // load player
         window.onYouTubeIframeAPIReady(); // trigger script loaded
         QUnit.equal(ytPlayerStub.args[0][1].playerVars.autoplay, 1, 'when video element has autoplay attribute, new Youtube Video constructor is passed playerVars.autoplay set to 1');
@@ -247,4 +242,5 @@ define([
         window.YT = origYT;
     });
 
-});
+})();
+
