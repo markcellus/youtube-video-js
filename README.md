@@ -13,7 +13,6 @@ which can be a lot easier when there are already so many video API's to deal wit
 
 To use Video class, you'll need:
 
-* [RequireJS](http://requirejs.org/) - AMD and dependency management
 * [ElementKit](https://github.com/mkay581/element-kit) - Fast DOM manipulation for Elements
 * [Underscore](http://underscorejs.org/) - For programming goodies
 
@@ -32,24 +31,24 @@ Suppose you have the following HTML in the DOM (A Youtube Video).
 ```
 ### Load and play the video
 
-To start controlling the video with javascript all you need to do is [require](http://requirejs.org) the built
-[video.js file](https://github.com/mkay581/video/tree/master/dist) and instantiate a new instance, passing it the `<video>`
-element. Once instantiated, the instance exposes the [same methods that are available on the new
+To start controlling the video with javascript all you need is one of the [video files](https://github.com/mkay581/video/tree/master/dist)
+ and instantiate a new instance, passing it a `<video>` element. Once instantiated, the instance exposes the [same methods that are available on the new
 HTML5 `<video>` element](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video#Controlling_media_playback).
 
+*This example assumes you already have the Video class loaded as a dependency assigned to a `YoutubeVideo` variable.*
+
 ```javascript
-require(['path/to/video'], function (Video) {
-    // start a youtube video
-    var video = new Video.Youtube({
-        el: document.getElementsByTagName('video')[0]
-    })
 
-    video.load(function () {
-        video.play();
-        video.pause();
-    });
+// start a youtube video
+var video = new YoutubeVideo({
+    el: document.getElementsByTagName('video')[0]
+})
 
+video.load(function () {
+    video.play();
+    video.pause();
 });
+
 ```
 
 ### Listen to the video's events
@@ -67,6 +66,10 @@ video.addEventListener('ended', function () {
 ```
 
 ## Version History
+
+*0.2.0 (02.22.15)*
+
+* Youtube video class can now be used as a standalone dependency.
 
 *0.0.1 (12.30.14)*
 
