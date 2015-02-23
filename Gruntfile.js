@@ -5,9 +5,25 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON("package.json"),
         bt: {
             dist: 'dist',
-            src: ['src/youtube-video.js'],
+            uglify: {
+                files: {
+                    'dist/youtube-video.js': ['src/youtube-video.js']
+                }
+            },
+            browserify: {
+                options: {
+                    browserifyOptions: {
+                        standalone: 'Video'
+                    }
+                },
+                files: {
+                    'dist/youtube-video-min.js': ['dist/youtube-video.js']
+                }
+            },
             tests: {
-                qunit: ['tests/*.js']
+                qunit: {
+                    src: ['tests/*.js']
+                }
             }
         }
     });
