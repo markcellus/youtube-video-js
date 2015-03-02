@@ -7,7 +7,7 @@ module.exports = function(grunt) {
             dist: 'dist',
             uglify: {
                 files: {
-                    'dist/youtube-video.js': ['src/youtube-video.js']
+                    'dist/youtube-video-min.js': ['dist/youtube-video.js']
                 }
             },
             browserify: {
@@ -17,13 +17,29 @@ module.exports = function(grunt) {
                     }
                 },
                 files: {
-                    'dist/youtube-video-min.js': ['dist/youtube-video.js']
+                    'dist/youtube-video.js': ['src/youtube-video.js']
                 }
             },
             tests: {
                 qunit: {
                     src: ['tests/*.js']
                 }
+            }
+        },
+        copy: {
+            lib: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'bower_components/element-kit/src',
+                        src: ['**/*'],
+                        dest: 'src/libs/element-kit/'
+                    },
+                    {
+                        src: 'bower_components/underscore/underscore.js',
+                        dest: 'src/libs/underscore/underscore.js'
+                    }
+                ]
             }
         }
     });
@@ -32,6 +48,7 @@ module.exports = function(grunt) {
     require("load-grunt-tasks")(grunt);
 
     grunt.registerTask('build', [
+        'copy',
         'bt:build'
     ]);
 

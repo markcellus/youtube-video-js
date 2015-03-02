@@ -1,8 +1,8 @@
 'use strict';
 
 var BaseVideo = require('./base-video');
-var _ = require('./../libs/underscore/underscore');
-var ElementKit = require('./../libs/element-kit/element-kit');
+var _ = require('./libs/underscore/underscore');
+var ElementKit = require('./libs/element-kit/element-kit');
 
 var Youtube = function (options) {
     this.initialize(options);
