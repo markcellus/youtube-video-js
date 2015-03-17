@@ -27,5 +27,8 @@
   "dependencies": {
     "element-kit": "^0.5.0",
     "underscore": "^1.8.2"
+  },
+  "scripts": {
+    "test": "grunt test"
   }
 }
