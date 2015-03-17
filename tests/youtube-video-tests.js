@@ -144,21 +144,22 @@ module.exports = (function () {
         window.YT = origYT;
     });
 
-    QUnit.test('extracting video id from a url', function () {
-        QUnit.expect(2);
+    QUnit.test('extracting video id from a url that begins with a direct link', function () {
+        QUnit.expect(1);
         var videoEl = document.createElement('video');
-        videoEl.innerHTML = '<source type="video/youtube" />';
-        var fixture = document.getElementById('qunit-fixture');
-        fixture.appendChild(videoEl);
-        // test url
-        videoEl.getElementsByTagName('source')[0].setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
         var player = new Youtube({el: videoEl});
-        QUnit.equal(player.getVideoId(), 'nOEw9iiopwI', 'correct video id was returned');
+        var videoId = 'nOEw9iiopwI';
+        QUnit.equal(player.getVideoId('http://www.youtube.com/watch?v=' + videoId), videoId, 'correct video id was returned');
         player.destroy();
+    });
+
+    QUnit.test('extracting video id from a youtube url that is a embed link', function () {
+        QUnit.expect(1);
+        var videoEl = document.createElement('video');
         // test url
-        videoEl.getElementsByTagName('source')[0].setAttribute('src', 'https://www.youtube.com/embed/nCJJdW20uZI');
         var player = new Youtube({el: videoEl});
-        QUnit.equal(player.getVideoId(), 'nCJJdW20uZI', 'correct video id was returned');
+        var videoId = 'nCJJdW20uZI';
+        QUnit.equal(player.getVideoId('https://www.youtube.com/embed/' + videoId), videoId, 'correct video id was returned');
         player.destroy();
     });
 

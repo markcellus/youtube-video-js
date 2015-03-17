@@ -1,87 +1,9 @@
 /** 
-* video - v0.2.3.
+* video - v0.3.0.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Video = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-
-var _ = require('./libs/underscore/underscore');
-
-var BaseVideo = function () {};
-
-BaseVideo.prototype = {
-
-    /**
-     * Initialization.
-     * @param {object} options - Options passed into instance
-     */
-    initialize: function (options) {
-
-        var el = options.el || document.createDocumentFragment();
-
-        this.options = _.extend({
-            el: el,
-            src: el.getAttribute('src'),
-            autoplay: el.getAttribute('autoplay')
-        }, options);
-
-        BaseVideo.prototype.vidCount = BaseVideo.prototype.vidCount || 0;
-        BaseVideo.prototype.vidCount++;
-
-        this.vpid = 'v' + BaseVideo.prototype.vidCount;
-
-    },
-
-    /**
-     * Adds an event listener to the media element.
-     * @param event
-     * @param listener
-     * @param useCapture
-     */
-    addEventListener: function (event, listener, useCapture) {
-        this.el.addEventListener(event, listener, useCapture);
-    },
-
-    /**
-     * Removes an event listener fromt the media element.
-     * @param event
-     * @param listener
-     * @param useCapture
-     */
-    removeEventListener: function (event, listener, useCapture) {
-        this.el.removeEventListener(event, listener, useCapture);
-    },
-
-    load: function () {
-        this.el.load();
-    },
-
-    /**
-     * Plays the video from it’s current location.
-     */
-    play: function () {
-        this.el.play();
-    },
-
-    /**
-     * Pauses the video at the then-current time.
-     */
-    pause: function () {
-        this.el.pause();
-    },
-
-    /**
-     * Destroys the player instance.
-     */
-    destroy: function () {}
-
-};
-
-window.Video = window.Video || {};
-
-module.exports = BaseVideo;
-},{"./libs/underscore/underscore":6}],2:[function(require,module,exports){
 'use strict';
 
 var Element = require('./element');
@@ -139,7 +61,7 @@ module.exports = (function () {
     return new ElementKit();
 
 })();
-},{"./element":3,"./image-element":4}],3:[function(require,module,exports){
+},{"./element":2,"./image-element":3}],2:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -586,7 +508,7 @@ Element.prototype = /** @lends Element */{
 };
 
 module.exports = Element;
-},{"./element-kit":2,"./utils":5}],4:[function(require,module,exports){
+},{"./element-kit":1,"./utils":4}],3:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -604,12 +526,12 @@ var ImageElement = function (el) {
 ImageElement.prototype = utils.extend({}, Element.prototype, {
     /**
      * Loads the image asset from a provided source url.
-     * @param {string} srcAttr - The attribute on the element which has the image source url
+     * @param {string} srcAttr - The attribute on the element which has the image source url or any url
      * @param {Function} [callback] - The callback fired when the image has loaded
      */
     load: function (srcAttr, callback) {
         var el = this.el,
-            src = el.getAttribute(srcAttr);
+            src = el.getAttribute(srcAttr) || srcAttr;
 
         if (!src) {
             console.warn('ElementKit error: ImageElement has no "' + srcAttr + '" attribute to load');
@@ -627,15 +549,14 @@ ImageElement.prototype = utils.extend({}, Element.prototype, {
      * Loads an image in a virtual DOM which will be cached in the browser and shown.
      * @param {string} src - The image source url
      * @param {Function} callback - Function that is called when image has loaded
-     * @param {HTMLImageElement} [el] - Optional image element to load the image onto
-     * @returns {string} Returns the image url source
      * @private
      */
     _loadImage: function (src, callback) {
         var img = this.el;
-        img.onload = callback || function(){};
+        img.onload = function () {
+            callback ? callback(img) : null;
+        };
         img.src = src;
-        return src;
     },
 
     /**
@@ -697,7 +618,7 @@ ImageElement.prototype = utils.extend({}, Element.prototype, {
 });
 
 module.exports = ImageElement;
-},{"./element":3,"./utils":5}],5:[function(require,module,exports){
+},{"./element":2,"./utils":4}],4:[function(require,module,exports){
 module.exports = {
     /**
      * Creates an HTML Element from an html string.
@@ -735,7 +656,7 @@ module.exports = {
         return merged;
     }
 };
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 //     Underscore.js 1.8.2
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -2273,12 +2194,90 @@ module.exports = {
   }
 }.call(this));
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+'use strict';
+
+var _ = require('underscore');
+
+var BaseVideo = function () {};
+
+BaseVideo.prototype = {
+
+    /**
+     * Initialization.
+     * @param {object} options - Options passed into instance
+     */
+    initialize: function (options) {
+
+        var el = options.el || document.createDocumentFragment();
+
+        this.options = _.extend({
+            el: el,
+            src: el.getAttribute('src'),
+            autoplay: el.getAttribute('autoplay')
+        }, options);
+
+        BaseVideo.prototype.vidCount = BaseVideo.prototype.vidCount || 0;
+        BaseVideo.prototype.vidCount++;
+
+        this.vpid = 'v' + BaseVideo.prototype.vidCount;
+
+    },
+
+    /**
+     * Adds an event listener to the media element.
+     * @param event
+     * @param listener
+     * @param useCapture
+     */
+    addEventListener: function (event, listener, useCapture) {
+        this.el.addEventListener(event, listener, useCapture);
+    },
+
+    /**
+     * Removes an event listener fromt the media element.
+     * @param event
+     * @param listener
+     * @param useCapture
+     */
+    removeEventListener: function (event, listener, useCapture) {
+        this.el.removeEventListener(event, listener, useCapture);
+    },
+
+    load: function () {
+        this.el.load();
+    },
+
+    /**
+     * Plays the video from it’s current location.
+     */
+    play: function () {
+        this.el.play();
+    },
+
+    /**
+     * Pauses the video at the then-current time.
+     */
+    pause: function () {
+        this.el.pause();
+    },
+
+    /**
+     * Destroys the player instance.
+     */
+    destroy: function () {}
+
+};
+
+window.Video = window.Video || {};
+
+module.exports = BaseVideo;
+},{"underscore":5}],7:[function(require,module,exports){
 'use strict';
 
 var BaseVideo = require('./base-video');
-var _ = require('./libs/underscore/underscore');
-var ElementKit = require('./libs/element-kit/element-kit');
+var _ = require('underscore');
+var ElementKit = require('element-kit');
 
 var Youtube = function (options) {
     this.initialize(options);
@@ -2354,7 +2353,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         this._container = document.createElement('div');
         this._container.setAttribute('id', 'vplayer' + this.vpid + '-container');
 
-        if (this._origParent) {
+        if (this._origParent && this._origParent.contains(this.el)) {
             this._origParent.replaceChild(this._container, this.el);
         }
 
@@ -2400,11 +2399,13 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         this._ytEl.setAttribute('id', id);
         this._container.appendChild(this._ytEl);
 
+        this._videoId = this.getVideoId(this.getSourceUrl());
+
         return new YT.Player(id, {
             height: this.options.height,
             width: this.options.width,
             playerVars: this._playerVars,
-            videoId: this.getVideoId(),
+            videoId: this._videoId,
             events: {
                 onReady: function (e) {
                     onComplete(e.target);
@@ -2436,14 +2437,12 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
 
     /**
      * Gets the current video id from a youtube url and returns it.
-     * @returns {Number|string} - The video id extracted
+     * @param {String} url - The video url
+     * @returns {Number|string|*|Youtube._videoId} - The video id extracted
      */
-    getVideoId: function () {
-        if (!this._videoId) {
-            var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
-            this._videoId = this.getSourceUrl().replace(re, '$1');
-        }
-        return this._videoId;
+    getVideoId: function (url) {
+        var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
+        return url.replace(re, '$1');
     },
 
     /**
@@ -2589,5 +2588,5 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
 });
 
 module.exports = window.Video.Youtube = Youtube;
-},{"./base-video":1,"./libs/element-kit/element-kit":2,"./libs/underscore/underscore":6}]},{},[7])(7)
+},{"./base-video":6,"element-kit":1,"underscore":5}]},{},[7])(7)
 });

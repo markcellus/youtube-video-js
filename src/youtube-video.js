@@ -1,8 +1,8 @@
 'use strict';
 
 var BaseVideo = require('./base-video');
-var _ = require('./libs/underscore/underscore');
-var ElementKit = require('./libs/element-kit/element-kit');
+var _ = require('underscore');
+var ElementKit = require('element-kit');
 
 var Youtube = function (options) {
     this.initialize(options);
@@ -78,7 +78,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         this._container = document.createElement('div');
         this._container.setAttribute('id', 'vplayer' + this.vpid + '-container');
 
-        if (this._origParent) {
+        if (this._origParent && this._origParent.contains(this.el)) {
             this._origParent.replaceChild(this._container, this.el);
         }
 
@@ -124,11 +124,13 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         this._ytEl.setAttribute('id', id);
         this._container.appendChild(this._ytEl);
 
+        this._videoId = this.getVideoId(this.getSourceUrl());
+
         return new YT.Player(id, {
             height: this.options.height,
             width: this.options.width,
             playerVars: this._playerVars,
-            videoId: this.getVideoId(),
+            videoId: this._videoId,
             events: {
                 onReady: function (e) {
                     onComplete(e.target);
@@ -160,14 +162,12 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
 
     /**
      * Gets the current video id from a youtube url and returns it.
-     * @returns {Number|string} - The video id extracted
+     * @param {String} url - The video url
+     * @returns {Number|string|*|Youtube._videoId} - The video id extracted
      */
-    getVideoId: function () {
-        if (!this._videoId) {
-            var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
-            this._videoId = this.getSourceUrl().replace(re, '$1');
-        }
-        return this._videoId;
+    getVideoId: function (url) {
+        var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
+        return url.replace(re, '$1');
     },
 
     /**
