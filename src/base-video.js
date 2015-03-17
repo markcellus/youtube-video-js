@@ -1,6 +1,6 @@
 'use strict';
 
-var _ = require('./libs/underscore/underscore');
+var _ = require('underscore');
 
 var BaseVideo = function () {};
 
