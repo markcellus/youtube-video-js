@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mkay581/video.svg?branch=master)](https://travis-ci.org/mkay581/video)
+
 #Video
 
 A lightweight library that allows you to easily play and control social network videos using the new HTML5 [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos
