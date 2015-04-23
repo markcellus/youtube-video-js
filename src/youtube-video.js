@@ -20,6 +20,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param {string} [options.height] - The height of the player
      * @param {string} [options.playingCssClass] - The css class that will be applied when a video starts playing
      * @param {string} [options.loadingCssClass] - The css class that will be applied when the player is loading
+     * @param {string} [options.customWrapperClass] - The css class that will be applied to the parent element of the video element
      */
     initialize: function (options) {
 
@@ -31,7 +32,8 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
             width: el.getAttribute('width'),
             height: el.getAttribute('height'),
             playingCssClass: 'video-playing',
-            loadingCssClass: 'video-loading'
+            loadingCssClass: 'video-loading',
+            customWrapperClass: 'video-wrapper'
         }, options);
 
         BaseVideo.prototype.initialize.call(this, this.options);
@@ -77,6 +79,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         // create parent div to show loading state
         this._container = document.createElement('div');
         this._container.setAttribute('id', 'vplayer' + this.vpid + '-container');
+        this._container.setAttribute('class', this.options.customWrapperClass);
 
         if (this._origParent && this._origParent.contains(this.el)) {
             this._origParent.replaceChild(this._container, this.el);
