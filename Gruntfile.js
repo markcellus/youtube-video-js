@@ -8,7 +8,7 @@ module.exports = function(grunt) {
             dist: 'dist',
             build: {
                 files: {
-                    'dist/youtube-video-min.js': ['dist/youtube-video.js']
+                    'dist/youtube-video-min.js': ['src/youtube-video.js']
                 },
                 browserifyOptions: {
                     standalone: 'Video'
@@ -27,32 +27,11 @@ module.exports = function(grunt) {
                     src: ['tests/*.js']
                 }
             }
-        },
-        copy: {
-            lib: {
-                files: [
-                    {
-                        expand: true,
-                        cwd: 'bower_components/element-kit/src',
-                        src: ['**/*'],
-                        dest: 'src/libs/element-kit/'
-                    },
-                    {
-                        src: 'bower_components/underscore/underscore.js',
-                        dest: 'src/libs/underscore/underscore.js'
-                    }
-                ]
-            }
         }
     });
 
     // Load grunt tasks from node modules
     require("load-grunt-tasks")(grunt, {pattern: ['build-tools', 'grunt-*']});
-
-    grunt.registerTask('build', [
-        'copy',
-        'bt:build'
-    ]);
 
     grunt.registerTask('test', [
         'bt:test'
