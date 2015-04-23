@@ -244,7 +244,7 @@ module.exports = (function () {
     });
 
     QUnit.test('applying a custom wrapper class to video', function () {
-        QUnit.expect(12);
+        QUnit.expect(1);
         var videoId = 'nOEw9iiopwI';
         var html = '<video width="640" height="360" id="player776">' +
             '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />' +
@@ -260,33 +260,20 @@ module.exports = (function () {
         };
         ytPlayerStub.returns(stubbedPlayer);
         var videoEl = document.getElementById('player776');
-        var loadingCssClass = 'v-loading';
         var customWrapperClass = 'v-wrapper';
         var player = new Youtube({
             el: videoEl,
-            loadingCssClass: loadingCssClass,
             customWrapperClass: customWrapperClass
         });
         // setup server
         player.load(loadSpy);
-        QUnit.ok(player._container.classList.contains(loadingCssClass), 'after calling load(), loading css class was added to container');
         QUnit.ok(player._container.classList.contains(customWrapperClass), 'after calling load(), custom wrapper css class was added to container');
-        QUnit.equal(loadSpy.callCount, 0, 'load callback was not yet fired because javascript file hasnt finished loading yet');
         // trigger script loaded
         window.onYouTubeIframeAPIReady();
-        QUnit.ok(!videoEl.parentNode, 'the original video element has been removed from the DOM');
         var ytPlayerConstructorOptions = ytPlayerStub.args[0][1];
-        QUnit.equal(ytPlayerConstructorOptions.width, 640, 'YouTube player constructor was passed width of video element');
-        QUnit.equal(ytPlayerConstructorOptions.height, 360, 'YouTube player constructor was passed height of video element');
-        QUnit.equal(ytPlayerConstructorOptions.videoId, videoId, 'YouTube player constructor was passed correct video id');
-        QUnit.equal(loadSpy.callCount, 0, 'load callback was STILL not fired yet because player hasnt finished loading');
-        QUnit.ok(player._container.classList.contains(loadingCssClass), 'container still has loading css class');
         // trigger player ready
         ytPlayerConstructorOptions.events.onReady({target: stubbedPlayer});
-        QUnit.deepEqual(loadSpy.args[0], [stubbedPlayer], 'after player is done loading, load callback was fired with the player instance as the first arg');
-        QUnit.ok(!player._container.classList.contains(loadingCssClass), 'container no longer has loading css class');
         player.destroy();
-        QUnit.equal(fixture.childNodes[0], videoEl, 'video element was put back in the DOM inside of its original parent');
         window.YT = origYT;
     });
 
