@@ -243,5 +243,39 @@ module.exports = (function () {
         window.YT = origYT;
     });
 
+    QUnit.test('applying a custom wrapper class to video', function () {
+        QUnit.expect(1);
+        var videoId = 'nOEw9iiopwI';
+        var html = '<video width="640" height="360" id="player776">' +
+            '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />' +
+            '</video>';
+        var fixture = document.getElementById('qunit-fixture');
+        fixture.innerHTML = html;
+        var loadSpy = Sinon.spy();
+        var origYT = window.YT;
+        var ytPlayerStub = Sinon.stub();
+        window.YT = {Player: ytPlayerStub};
+        var stubbedPlayer = {
+            playVideo: function (){}
+        };
+        ytPlayerStub.returns(stubbedPlayer);
+        var videoEl = document.getElementById('player776');
+        var customWrapperClass = 'v-wrapper';
+        var player = new Youtube({
+            el: videoEl,
+            customWrapperClass: customWrapperClass
+        });
+        // setup server
+        player.load(loadSpy);
+        QUnit.ok(player._container.classList.contains(customWrapperClass), 'after calling load(), custom wrapper css class was added to container');
+        // trigger script loaded
+        window.onYouTubeIframeAPIReady();
+        var ytPlayerConstructorOptions = ytPlayerStub.args[0][1];
+        // trigger player ready
+        ytPlayerConstructorOptions.events.onReady({target: stubbedPlayer});
+        player.destroy();
+        window.YT = origYT;
+    });
+
 })();
 
