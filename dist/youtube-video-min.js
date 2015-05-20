@@ -1,5 +1,5 @@
 /** 
-* video - v0.4.0.
+* video-js - v0.4.1.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
@@ -2367,7 +2367,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
                 this.player = player;
                 this._container.kit.classList.remove(this.options.loadingCssClass);
                 if (callback) {
-                    callback(player);
+                    callback(player, this._container);
                 }
             }.bind(this));
         }.bind(this));

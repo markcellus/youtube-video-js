@@ -45,7 +45,7 @@ module.exports = (function () {
         QUnit.ok(player._container.classList.contains(loadingCssClass), 'container still has loading css class');
         // trigger player ready
         ytPlayerConstructorOptions.events.onReady({target: stubbedPlayer});
-        QUnit.deepEqual(loadSpy.args[0], [stubbedPlayer], 'after player is done loading, load callback was fired with the player instance as the first arg');
+        QUnit.deepEqual(loadSpy.args[0][0], stubbedPlayer, 'after player is done loading, load callback was fired with the player instance as the first arg');
         QUnit.ok(!player._container.classList.contains(loadingCssClass), 'container no longer has loading css class');
         player.destroy();
         QUnit.equal(fixture.childNodes[0], videoEl, 'video element was put back in the DOM inside of its original parent');

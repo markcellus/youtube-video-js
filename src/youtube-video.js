@@ -91,7 +91,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
                 this.player = player;
                 this._container.kit.classList.remove(this.options.loadingCssClass);
                 if (callback) {
-                    callback(player);
+                    callback(player, this._container);
                 }
             }.bind(this));
         }.bind(this));
