@@ -29,7 +29,7 @@
     "tests"
   ],
   "dependencies": {
-    "element-kit": "~0.3.2",
+    "element-kit": "~1.0.4",
     "underscore": "~1.8.2"
   }
 }
