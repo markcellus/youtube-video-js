@@ -1,6 +1,6 @@
 {
   "name": "video",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "homepage": "https://github.com/mkay581/video",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "moduleType": [
@@ -29,7 +29,7 @@
     "tests"
   ],
   "dependencies": {
-    "element-kit": "~0.3.2",
+    "element-kit": "~1.0.4",
     "underscore": "~1.8.2"
   }
 }

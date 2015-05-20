@@ -1,5 +1,5 @@
 /** 
-* video-js - v0.4.1.
+* video-js - v0.5.0.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
