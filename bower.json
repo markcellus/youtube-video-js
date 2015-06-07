@@ -8,9 +8,6 @@
     "es6",
     "node"
   ],
-  "main": [
-    "dist/video.js"
-  ],
   "keywords": [
     "video",
     "video player",
@@ -29,7 +26,8 @@
     "tests"
   ],
   "dependencies": {
-    "element-kit": "~1.0.4",
-    "underscore": "~1.8.2"
+    "element-kit": "~1.0.5",
+    "underscore": "~1.8.2",
+    "promise": "~0.2.2"
   }
 }
