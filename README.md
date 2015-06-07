@@ -1,11 +1,11 @@
-[![Build Status](https://travis-ci.org/mkay581/video.svg?branch=master)](https://travis-ci.org/mkay581/video)
+[![Build Status](https://travis-ci.org/mkay581/video-js.svg?branch=master)](https://travis-ci.org/mkay581/video-js)
 
 #Video
 
 A lightweight library that allows you to easily play and control social network videos using the new HTML5 [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos
 can be played, stopped, paused, and more all with simple html markup or with javascript.
 
-Supports [Youtube](youtube.com) videos currently. More players will be added in the next few weeks.
+Supports [Youtube](youtube.com) videos currently. More players will be added soon.
 
 This library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, easy-to-use API
 which can be a lot easier when there are already so many video API's to deal with (i.e. Youtube, Facebook, Vine, Vimeo, etc).
@@ -66,16 +66,5 @@ video.addEventListener('ended', function () {
     // video has finished!
 });
 ```
-
-## Version History
-
-*0.2.0 (02.22.15)*
-
-* Youtube video class can now be used as a standalone dependency.
-
-*0.0.1 (12.30.14)*
-
-* Youtube videos are supported for initial release.
-
 
 
