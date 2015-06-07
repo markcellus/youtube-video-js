@@ -1,5 +1,5 @@
 {
-  "name": "video-js",
+  "name": "video",
   "version": "0.6.0",
   "homepage": "https://github.com/mkay581/video",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
