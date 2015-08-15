@@ -1,6 +1,6 @@
 {
   "name": "video-js",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "A lightweight framework that allows you to easily control videos using javascript.",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "social video"
   ],
   "devDependencies": {
-    "build-tools": "^1.5.2",
+    "build-tools": "^1.6.0",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-copy": "^0.8.0",
