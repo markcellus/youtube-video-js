@@ -1,5 +1,5 @@
 /** 
-* video-js - v0.6.1.
+* video-js - v0.6.2.
 * https://github.com/mkay581/video.git
 * Copyright 2015 Mark Kennedy. Licensed MIT.
 */
@@ -441,7 +441,7 @@ var utils = require('./src/utils');
 var elementKit = require('./src/element-kit');
 elementKit.utils = utils;
 module.exports = elementKit;
-},{"./src/element-kit":7,"./src/utils":10}],5:[function(require,module,exports){
+},{"./src/element-kit":9,"./src/utils":12}],5:[function(require,module,exports){
 function count(self, substr) {
   var count = 0
   var pos = self.indexOf(substr)
@@ -456,6 +456,68 @@ function count(self, substr) {
 
 module.exports = count
 },{}],6:[function(require,module,exports){
+function splitLeft(self, sep, maxSplit, limit) {
+
+  if (typeof maxSplit === 'undefined') {
+    var maxSplit = -1;
+  }
+
+  var splitResult = self.split(sep);
+  var splitPart1 = splitResult.slice(0, maxSplit);
+  var splitPart2 = splitResult.slice(maxSplit);
+
+  if (splitPart2.length === 0) {
+    splitResult = splitPart1;
+  } else {
+    splitResult = splitPart1.concat(splitPart2.join(sep));
+  }
+
+  if (typeof limit === 'undefined') {
+    return splitResult;
+  } else if (limit < 0) {
+    return splitResult.slice(limit);
+  } else {
+    return splitResult.slice(0, limit);
+  }
+
+}
+
+module.exports = splitLeft;
+
+},{}],7:[function(require,module,exports){
+function splitRight(self, sep, maxSplit, limit) {
+
+  if (typeof maxSplit === 'undefined') {
+    var maxSplit = -1;
+  }
+  if (typeof limit === 'undefined') {
+    var limit = 0;
+  }
+
+  var splitResult = [self];
+
+  for (var i = self.length-1; i >= 0; i--) {
+
+    if (
+      splitResult[0].slice(i).indexOf(sep) === 0 &&
+      (splitResult.length <= maxSplit || maxSplit === -1)
+    ) {
+      splitResult.splice(1, 0, splitResult[0].slice(i+sep.length)); // insert
+      splitResult[0] = splitResult[0].slice(0, i)
+    }
+  }
+
+  if (limit >= 0) {
+    return splitResult.slice(-limit);
+  } else {
+    return splitResult.slice(0, -limit);
+  }
+
+}
+
+module.exports = splitRight;
+
+},{}],8:[function(require,module,exports){
 /*
 string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
 */
@@ -463,7 +525,7 @@ string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
 !(function() {
   "use strict";
 
-  var VERSION = '3.2.0';
+  var VERSION = '3.3.1';
 
   var ENTITIES = {};
 
@@ -805,6 +867,14 @@ string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
       return new this.constructor(s);
     },
 
+    splitLeft: function(sep, maxSplit, limit) {
+      return require('./_splitLeft')(this.s, sep, maxSplit, limit)
+    },
+
+    splitRight: function(sep, maxSplit, limit) {
+      return require('./_splitRight')(this.s, sep, maxSplit, limit)
+    },
+
     strip: function() {
       var ss = this.s;
       for(var i= 0, n=arguments.length; i<n; i++) {
@@ -909,11 +979,11 @@ string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
     times: function(n) {
       return new this.constructor(new Array(n + 1).join(this.s));
     },
-    
+
     titleCase: function() {
       var s = this.s;
       if (s) {
-        s = s.replace(/(^[a-z]| [a-z]|-[a-z]|_[a-z])/g, 
+        s = s.replace(/(^[a-z]| [a-z]|-[a-z]|_[a-z])/g,
           function($1){
             return $1.toUpperCase();
           }
@@ -1170,10 +1240,10 @@ string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
 
     for (var i = 0; i < names.length; ++i) {
       var name = names[i];
+      if (name === 'to' || name === 'toEnd') continue;       // get rid of the shelljs prototype messup
       var func = __nsp[name];
       try {
-        // #127: pass extra parameter to keep shelljs happy
-        var type = typeof func.apply('test', ['string']);
+        var type = typeof func.apply('teststring');
         retObj[name] = type;
       } catch (e) {}
     }
@@ -1552,7 +1622,7 @@ string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
 
 }).call(this);
 
-},{"./_count":5}],7:[function(require,module,exports){
+},{"./_count":5,"./_splitLeft":6,"./_splitRight":7}],9:[function(require,module,exports){
 'use strict';
 
 var Element = require('./element');
@@ -1610,7 +1680,7 @@ module.exports = (function () {
     return new ElementKit();
 
 })();
-},{"./element":8,"./image-element":9}],8:[function(require,module,exports){
+},{"./element":10,"./image-element":11}],10:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -2059,7 +2129,7 @@ Element.prototype = /** @lends Element */{
 };
 
 module.exports = Element;
-},{"./element-kit":7,"./utils":10,"string":6}],9:[function(require,module,exports){
+},{"./element-kit":9,"./utils":12,"string":8}],11:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -2178,7 +2248,7 @@ ImageElement.prototype = utils.extend({}, Element.prototype, {
 });
 
 module.exports = ImageElement;
-},{"./element":8,"./utils":10,"promise":11}],10:[function(require,module,exports){
+},{"./element":10,"./utils":12,"promise":13}],12:[function(require,module,exports){
 module.exports = {
     /**
      * Creates an HTML Element from an html string.
@@ -2232,12 +2302,12 @@ module.exports = {
     }
 
 };
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib')
 
-},{"./lib":16}],12:[function(require,module,exports){
+},{"./lib":18}],14:[function(require,module,exports){
 'use strict';
 
 var asap = require('asap/raw');
@@ -2298,13 +2368,13 @@ function Promise(fn) {
   if (typeof fn !== 'function') {
     throw new TypeError('not a function');
   }
-  this._32 = 0;
-  this._8 = null;
-  this._89 = [];
+  this._37 = 0;
+  this._12 = null;
+  this._59 = [];
   if (fn === noop) return;
   doResolve(fn, this);
 }
-Promise._83 = noop;
+Promise._99 = noop;
 
 Promise.prototype.then = function(onFulfilled, onRejected) {
   if (this.constructor !== Promise) {
@@ -2323,24 +2393,24 @@ function safeThen(self, onFulfilled, onRejected) {
   });
 };
 function handle(self, deferred) {
-  while (self._32 === 3) {
-    self = self._8;
+  while (self._37 === 3) {
+    self = self._12;
   }
-  if (self._32 === 0) {
-    self._89.push(deferred);
+  if (self._37 === 0) {
+    self._59.push(deferred);
     return;
   }
   asap(function() {
-    var cb = self._32 === 1 ? deferred.onFulfilled : deferred.onRejected;
+    var cb = self._37 === 1 ? deferred.onFulfilled : deferred.onRejected;
     if (cb === null) {
-      if (self._32 === 1) {
-        resolve(deferred.promise, self._8);
+      if (self._37 === 1) {
+        resolve(deferred.promise, self._12);
       } else {
-        reject(deferred.promise, self._8);
+        reject(deferred.promise, self._12);
       }
       return;
     }
-    var ret = tryCallOne(cb, self._8);
+    var ret = tryCallOne(cb, self._12);
     if (ret === IS_ERROR) {
       reject(deferred.promise, LAST_ERROR);
     } else {
@@ -2368,8 +2438,8 @@ function resolve(self, newValue) {
       then === self.then &&
       newValue instanceof Promise
     ) {
-      self._32 = 3;
-      self._8 = newValue;
+      self._37 = 3;
+      self._12 = newValue;
       finale(self);
       return;
     } else if (typeof then === 'function') {
@@ -2377,21 +2447,21 @@ function resolve(self, newValue) {
       return;
     }
   }
-  self._32 = 1;
-  self._8 = newValue;
+  self._37 = 1;
+  self._12 = newValue;
   finale(self);
 }
 
 function reject(self, newValue) {
-  self._32 = 2;
-  self._8 = newValue;
+  self._37 = 2;
+  self._12 = newValue;
   finale(self);
 }
 function finale(self) {
-  for (var i = 0; i < self._89.length; i++) {
-    handle(self, self._89[i]);
+  for (var i = 0; i < self._59.length; i++) {
+    handle(self, self._59[i]);
   }
-  self._89 = null;
+  self._59 = null;
 }
 
 function Handler(onFulfilled, onRejected, promise){
@@ -2423,7 +2493,7 @@ function doResolve(fn, promise) {
   }
 }
 
-},{"asap/raw":20}],13:[function(require,module,exports){
+},{"asap/raw":22}],15:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -2438,13 +2508,12 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
   });
 };
 
-},{"./core.js":12}],14:[function(require,module,exports){
+},{"./core.js":14}],16:[function(require,module,exports){
 'use strict';
 
 //This file contains the ES6 extensions to the core Promises/A+ API
 
 var Promise = require('./core.js');
-var asap = require('asap/raw');
 
 module.exports = Promise;
 
@@ -2458,9 +2527,9 @@ var ZERO = valuePromise(0);
 var EMPTYSTRING = valuePromise('');
 
 function valuePromise(value) {
-  var p = new Promise(Promise._83);
-  p._32 = 1;
-  p._8 = value;
+  var p = new Promise(Promise._99);
+  p._37 = 1;
+  p._12 = value;
   return p;
 }
 Promise.resolve = function (value) {
@@ -2497,11 +2566,11 @@ Promise.all = function (arr) {
     function res(i, val) {
       if (val && (typeof val === 'object' || typeof val === 'function')) {
         if (val instanceof Promise && val.then === Promise.prototype.then) {
-          while (val._32 === 3) {
-            val = val._8;
+          while (val._37 === 3) {
+            val = val._12;
           }
-          if (val._32 === 1) return res(i, val._8);
-          if (val._32 === 2) reject(val._8);
+          if (val._37 === 1) return res(i, val._12);
+          if (val._37 === 2) reject(val._12);
           val.then(function (val) {
             res(i, val);
           }, reject);
@@ -2548,7 +2617,7 @@ Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
 };
 
-},{"./core.js":12,"asap/raw":20}],15:[function(require,module,exports){
+},{"./core.js":14}],17:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -2566,7 +2635,7 @@ Promise.prototype['finally'] = function (f) {
   });
 };
 
-},{"./core.js":12}],16:[function(require,module,exports){
+},{"./core.js":14}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./core.js');
@@ -2575,7 +2644,7 @@ require('./finally.js');
 require('./es6-extensions.js');
 require('./node-extensions.js');
 
-},{"./core.js":12,"./done.js":13,"./es6-extensions.js":14,"./finally.js":15,"./node-extensions.js":17}],17:[function(require,module,exports){
+},{"./core.js":14,"./done.js":15,"./es6-extensions.js":16,"./finally.js":17,"./node-extensions.js":19}],19:[function(require,module,exports){
 'use strict';
 
 // This file contains then/promise specific extensions that are only useful
@@ -2592,11 +2661,9 @@ Promise.denodeify = function (fn, argumentCount) {
   argumentCount = argumentCount || Infinity;
   return function () {
     var self = this;
-    var args = Array.prototype.slice.call(arguments);
+    var args = Array.prototype.slice.call(arguments, 0,
+        argumentCount > 0 ? argumentCount : 0);
     return new Promise(function (resolve, reject) {
-      while (args.length && args.length > argumentCount) {
-        args.pop();
-      }
       args.push(function (err, res) {
         if (err) reject(err);
         else resolve(res);
@@ -2650,7 +2717,7 @@ Promise.prototype.nodeify = function (callback, ctx) {
   });
 }
 
-},{"./core.js":12,"asap":18}],18:[function(require,module,exports){
+},{"./core.js":14,"asap":20}],20:[function(require,module,exports){
 "use strict";
 
 // rawAsap provides everything we need except exception management.
@@ -2718,7 +2785,7 @@ RawTask.prototype.call = function () {
     }
 };
 
-},{"./raw":19}],19:[function(require,module,exports){
+},{"./raw":21}],21:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -2942,7 +3009,7 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 // https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 (function (process){
 "use strict";
 
@@ -3047,7 +3114,7 @@ function requestFlush() {
 }
 
 }).call(this,require('_process'))
-},{"_process":3,"domain":1}],21:[function(require,module,exports){
+},{"_process":3,"domain":1}],23:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4597,7 +4664,7 @@ function requestFlush() {
   }
 }.call(this));
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -4675,7 +4742,7 @@ BaseVideo.prototype = {
 window.Video = window.Video || {};
 
 module.exports = BaseVideo;
-},{"underscore":21}],23:[function(require,module,exports){
+},{"underscore":23}],25:[function(require,module,exports){
 'use strict';
 
 var BaseVideo = require('./base-video');
@@ -4994,5 +5061,5 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
 });
 
 module.exports = window.Video.Youtube = Youtube;
-},{"./base-video":22,"element-kit":4,"underscore":21}]},{},[23])(23)
+},{"./base-video":24,"element-kit":4,"underscore":23}]},{},[25])(25)
 });
