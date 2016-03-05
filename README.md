@@ -10,17 +10,10 @@ Supports [Youtube](youtube.com) videos currently. More players will be added soo
 This library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, easy-to-use API
 which can be a lot easier when there are already so many video API's to deal with (i.e. Youtube, Facebook, Vine, Vimeo, etc).
 
+## Usage
 
-## Dependencies
-
-To use Video class, you'll need:
-
-* [ElementKit](https://github.com/mkay581/element-kit) - Fast DOM manipulation for Elements
-* [Underscore](http://underscorejs.org/) - For programming goodies
-
-Of course, if you use [Bower's](http://bower.io/) `bower install` to install this project, it will automatically inject all of the above dependencies for you.
-
-##Usage
+You can quickly start using the Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
+Alternatively, you can also use the [source files](/src) directly if you are running your own build processes.
 
 ### Setup a Youtube Video
 
