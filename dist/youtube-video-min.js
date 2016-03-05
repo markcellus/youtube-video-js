@@ -1,447 +1,16 @@
 /** 
-* video-js - v0.6.2.
+* video-js - v0.7.0.
 * https://github.com/mkay581/video.git
-* Copyright 2015 Mark Kennedy. Licensed MIT.
+* Copyright 2016 Mark Kennedy. Licensed MIT.
 */
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.Video = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*global define:false require:false */
-module.exports = (function(){
-	// Import Events
-	var events = require('events')
-
-	// Export Domain
-	var domain = {}
-	domain.createDomain = domain.create = function(){
-		var d = new events.EventEmitter()
-
-		function emitError(e) {
-			d.emit('error', e)
-		}
-
-		d.add = function(emitter){
-			emitter.on('error', emitError)
-		}
-		d.remove = function(emitter){
-			emitter.removeListener('error', emitError)
-		}
-		d.bind = function(fn){
-			return function(){
-				var args = Array.prototype.slice.call(arguments)
-				try {
-					fn.apply(null, args)
-				}
-				catch (err){
-					emitError(err)
-				}
-			}
-		}
-		d.intercept = function(fn){
-			return function(err){
-				if ( err ) {
-					emitError(err)
-				}
-				else {
-					var args = Array.prototype.slice.call(arguments, 1)
-					try {
-						fn.apply(null, args)
-					}
-					catch (err){
-						emitError(err)
-					}
-				}
-			}
-		}
-		d.run = function(fn){
-			try {
-				fn()
-			}
-			catch (err) {
-				emitError(err)
-			}
-			return this
-		};
-		d.dispose = function(){
-			this.removeAllListeners()
-			return this
-		};
-		d.enter = d.exit = function(){
-			return this
-		}
-		return d
-	};
-	return domain
-}).call(this)
-},{"events":2}],2:[function(require,module,exports){
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-function EventEmitter() {
-  this._events = this._events || {};
-  this._maxListeners = this._maxListeners || undefined;
-}
-module.exports = EventEmitter;
-
-// Backwards-compat with node 0.10.x
-EventEmitter.EventEmitter = EventEmitter;
-
-EventEmitter.prototype._events = undefined;
-EventEmitter.prototype._maxListeners = undefined;
-
-// By default EventEmitters will print a warning if more than 10 listeners are
-// added to it. This is a useful default which helps finding memory leaks.
-EventEmitter.defaultMaxListeners = 10;
-
-// Obviously not all Emitters should be limited to 10. This function allows
-// that to be increased. Set to zero for unlimited.
-EventEmitter.prototype.setMaxListeners = function(n) {
-  if (!isNumber(n) || n < 0 || isNaN(n))
-    throw TypeError('n must be a positive number');
-  this._maxListeners = n;
-  return this;
-};
-
-EventEmitter.prototype.emit = function(type) {
-  var er, handler, len, args, i, listeners;
-
-  if (!this._events)
-    this._events = {};
-
-  // If there is no 'error' event listener then throw.
-  if (type === 'error') {
-    if (!this._events.error ||
-        (isObject(this._events.error) && !this._events.error.length)) {
-      er = arguments[1];
-      if (er instanceof Error) {
-        throw er; // Unhandled 'error' event
-      }
-      throw TypeError('Uncaught, unspecified "error" event.');
-    }
-  }
-
-  handler = this._events[type];
-
-  if (isUndefined(handler))
-    return false;
-
-  if (isFunction(handler)) {
-    switch (arguments.length) {
-      // fast cases
-      case 1:
-        handler.call(this);
-        break;
-      case 2:
-        handler.call(this, arguments[1]);
-        break;
-      case 3:
-        handler.call(this, arguments[1], arguments[2]);
-        break;
-      // slower
-      default:
-        len = arguments.length;
-        args = new Array(len - 1);
-        for (i = 1; i < len; i++)
-          args[i - 1] = arguments[i];
-        handler.apply(this, args);
-    }
-  } else if (isObject(handler)) {
-    len = arguments.length;
-    args = new Array(len - 1);
-    for (i = 1; i < len; i++)
-      args[i - 1] = arguments[i];
-
-    listeners = handler.slice();
-    len = listeners.length;
-    for (i = 0; i < len; i++)
-      listeners[i].apply(this, args);
-  }
-
-  return true;
-};
-
-EventEmitter.prototype.addListener = function(type, listener) {
-  var m;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events)
-    this._events = {};
-
-  // To avoid recursion in the case that type === "newListener"! Before
-  // adding it to the listeners, first emit "newListener".
-  if (this._events.newListener)
-    this.emit('newListener', type,
-              isFunction(listener.listener) ?
-              listener.listener : listener);
-
-  if (!this._events[type])
-    // Optimize the case of one listener. Don't need the extra array object.
-    this._events[type] = listener;
-  else if (isObject(this._events[type]))
-    // If we've already got an array, just append.
-    this._events[type].push(listener);
-  else
-    // Adding the second element, need to change to array.
-    this._events[type] = [this._events[type], listener];
-
-  // Check for listener leak
-  if (isObject(this._events[type]) && !this._events[type].warned) {
-    var m;
-    if (!isUndefined(this._maxListeners)) {
-      m = this._maxListeners;
-    } else {
-      m = EventEmitter.defaultMaxListeners;
-    }
-
-    if (m && m > 0 && this._events[type].length > m) {
-      this._events[type].warned = true;
-      console.error('(node) warning: possible EventEmitter memory ' +
-                    'leak detected. %d listeners added. ' +
-                    'Use emitter.setMaxListeners() to increase limit.',
-                    this._events[type].length);
-      if (typeof console.trace === 'function') {
-        // not supported in IE 10
-        console.trace();
-      }
-    }
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.on = EventEmitter.prototype.addListener;
-
-EventEmitter.prototype.once = function(type, listener) {
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  var fired = false;
-
-  function g() {
-    this.removeListener(type, g);
-
-    if (!fired) {
-      fired = true;
-      listener.apply(this, arguments);
-    }
-  }
-
-  g.listener = listener;
-  this.on(type, g);
-
-  return this;
-};
-
-// emits a 'removeListener' event iff the listener was removed
-EventEmitter.prototype.removeListener = function(type, listener) {
-  var list, position, length, i;
-
-  if (!isFunction(listener))
-    throw TypeError('listener must be a function');
-
-  if (!this._events || !this._events[type])
-    return this;
-
-  list = this._events[type];
-  length = list.length;
-  position = -1;
-
-  if (list === listener ||
-      (isFunction(list.listener) && list.listener === listener)) {
-    delete this._events[type];
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-
-  } else if (isObject(list)) {
-    for (i = length; i-- > 0;) {
-      if (list[i] === listener ||
-          (list[i].listener && list[i].listener === listener)) {
-        position = i;
-        break;
-      }
-    }
-
-    if (position < 0)
-      return this;
-
-    if (list.length === 1) {
-      list.length = 0;
-      delete this._events[type];
-    } else {
-      list.splice(position, 1);
-    }
-
-    if (this._events.removeListener)
-      this.emit('removeListener', type, listener);
-  }
-
-  return this;
-};
-
-EventEmitter.prototype.removeAllListeners = function(type) {
-  var key, listeners;
-
-  if (!this._events)
-    return this;
-
-  // not listening for removeListener, no need to emit
-  if (!this._events.removeListener) {
-    if (arguments.length === 0)
-      this._events = {};
-    else if (this._events[type])
-      delete this._events[type];
-    return this;
-  }
-
-  // emit removeListener for all listeners on all events
-  if (arguments.length === 0) {
-    for (key in this._events) {
-      if (key === 'removeListener') continue;
-      this.removeAllListeners(key);
-    }
-    this.removeAllListeners('removeListener');
-    this._events = {};
-    return this;
-  }
-
-  listeners = this._events[type];
-
-  if (isFunction(listeners)) {
-    this.removeListener(type, listeners);
-  } else {
-    // LIFO order
-    while (listeners.length)
-      this.removeListener(type, listeners[listeners.length - 1]);
-  }
-  delete this._events[type];
-
-  return this;
-};
-
-EventEmitter.prototype.listeners = function(type) {
-  var ret;
-  if (!this._events || !this._events[type])
-    ret = [];
-  else if (isFunction(this._events[type]))
-    ret = [this._events[type]];
-  else
-    ret = this._events[type].slice();
-  return ret;
-};
-
-EventEmitter.listenerCount = function(emitter, type) {
-  var ret;
-  if (!emitter._events || !emitter._events[type])
-    ret = 0;
-  else if (isFunction(emitter._events[type]))
-    ret = 1;
-  else
-    ret = emitter._events[type].length;
-  return ret;
-};
-
-function isFunction(arg) {
-  return typeof arg === 'function';
-}
-
-function isNumber(arg) {
-  return typeof arg === 'number';
-}
-
-function isObject(arg) {
-  return typeof arg === 'object' && arg !== null;
-}
-
-function isUndefined(arg) {
-  return arg === void 0;
-}
-
-},{}],3:[function(require,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    draining = true;
-    var currentQueue;
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
-        }
-        len = queue.length;
-    }
-    draining = false;
-}
-process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],4:[function(require,module,exports){
 'use strict';
 var utils = require('./src/utils');
 var elementKit = require('./src/element-kit');
 elementKit.utils = utils;
 module.exports = elementKit;
-},{"./src/element-kit":9,"./src/utils":12}],5:[function(require,module,exports){
+},{"./src/element-kit":6,"./src/utils":9}],2:[function(require,module,exports){
 function count(self, substr) {
   var count = 0
   var pos = self.indexOf(substr)
@@ -455,7 +24,7 @@ function count(self, substr) {
 }
 
 module.exports = count
-},{}],6:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 function splitLeft(self, sep, maxSplit, limit) {
 
   if (typeof maxSplit === 'undefined') {
@@ -484,7 +53,7 @@ function splitLeft(self, sep, maxSplit, limit) {
 
 module.exports = splitLeft;
 
-},{}],7:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 function splitRight(self, sep, maxSplit, limit) {
 
   if (typeof maxSplit === 'undefined') {
@@ -517,7 +86,7 @@ function splitRight(self, sep, maxSplit, limit) {
 
 module.exports = splitRight;
 
-},{}],8:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*
 string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
 */
@@ -1622,7 +1191,7 @@ string.js - Copyright (C) 2012-2014, JP Richardson <jprichardson@gmail.com>
 
 }).call(this);
 
-},{"./_count":5,"./_splitLeft":6,"./_splitRight":7}],9:[function(require,module,exports){
+},{"./_count":2,"./_splitLeft":3,"./_splitRight":4}],6:[function(require,module,exports){
 'use strict';
 
 var Element = require('./element');
@@ -1680,7 +1249,7 @@ module.exports = (function () {
     return new ElementKit();
 
 })();
-},{"./element":10,"./image-element":11}],10:[function(require,module,exports){
+},{"./element":7,"./image-element":8}],7:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -2129,7 +1698,7 @@ Element.prototype = /** @lends Element */{
 };
 
 module.exports = Element;
-},{"./element-kit":9,"./utils":12,"string":8}],11:[function(require,module,exports){
+},{"./element-kit":6,"./utils":9,"string":5}],8:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -2248,7 +1817,7 @@ ImageElement.prototype = utils.extend({}, Element.prototype, {
 });
 
 module.exports = ImageElement;
-},{"./element":10,"./utils":12,"promise":13}],12:[function(require,module,exports){
+},{"./element":7,"./utils":9,"promise":10}],9:[function(require,module,exports){
 module.exports = {
     /**
      * Creates an HTML Element from an html string.
@@ -2302,12 +1871,12 @@ module.exports = {
     }
 
 };
-},{}],13:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./lib')
 
-},{"./lib":18}],14:[function(require,module,exports){
+},{"./lib":15}],11:[function(require,module,exports){
 'use strict';
 
 var asap = require('asap/raw');
@@ -2493,7 +2062,7 @@ function doResolve(fn, promise) {
   }
 }
 
-},{"asap/raw":22}],15:[function(require,module,exports){
+},{"asap/raw":18}],12:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -2508,7 +2077,7 @@ Promise.prototype.done = function (onFulfilled, onRejected) {
   });
 };
 
-},{"./core.js":14}],16:[function(require,module,exports){
+},{"./core.js":11}],13:[function(require,module,exports){
 'use strict';
 
 //This file contains the ES6 extensions to the core Promises/A+ API
@@ -2617,7 +2186,7 @@ Promise.prototype['catch'] = function (onRejected) {
   return this.then(null, onRejected);
 };
 
-},{"./core.js":14}],17:[function(require,module,exports){
+},{"./core.js":11}],14:[function(require,module,exports){
 'use strict';
 
 var Promise = require('./core.js');
@@ -2635,7 +2204,7 @@ Promise.prototype['finally'] = function (f) {
   });
 };
 
-},{"./core.js":14}],18:[function(require,module,exports){
+},{"./core.js":11}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = require('./core.js');
@@ -2644,7 +2213,7 @@ require('./finally.js');
 require('./es6-extensions.js');
 require('./node-extensions.js');
 
-},{"./core.js":14,"./done.js":15,"./es6-extensions.js":16,"./finally.js":17,"./node-extensions.js":19}],19:[function(require,module,exports){
+},{"./core.js":11,"./done.js":12,"./es6-extensions.js":13,"./finally.js":14,"./node-extensions.js":16}],16:[function(require,module,exports){
 'use strict';
 
 // This file contains then/promise specific extensions that are only useful
@@ -2717,7 +2286,7 @@ Promise.prototype.nodeify = function (callback, ctx) {
   });
 }
 
-},{"./core.js":14,"asap":20}],20:[function(require,module,exports){
+},{"./core.js":11,"asap":17}],17:[function(require,module,exports){
 "use strict";
 
 // rawAsap provides everything we need except exception management.
@@ -2785,7 +2354,7 @@ RawTask.prototype.call = function () {
     }
 };
 
-},{"./raw":21}],21:[function(require,module,exports){
+},{"./raw":18}],18:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -3009,112 +2578,7 @@ rawAsap.makeRequestCallFromTimer = makeRequestCallFromTimer;
 // https://github.com/tildeio/rsvp.js/blob/cddf7232546a9cf858524b75cde6f9edf72620a7/lib/rsvp/asap.js
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],22:[function(require,module,exports){
-(function (process){
-"use strict";
-
-var domain; // The domain module is executed on demand
-var hasSetImmediate = typeof setImmediate === "function";
-
-// Use the fastest means possible to execute a task in its own turn, with
-// priority over other events including network IO events in Node.js.
-//
-// An exception thrown by a task will permanently interrupt the processing of
-// subsequent tasks. The higher level `asap` function ensures that if an
-// exception is thrown by a task, that the task queue will continue flushing as
-// soon as possible, but if you use `rawAsap` directly, you are responsible to
-// either ensure that no exceptions are thrown from your task, or to manually
-// call `rawAsap.requestFlush` if an exception is thrown.
-module.exports = rawAsap;
-function rawAsap(task) {
-    if (!queue.length) {
-        requestFlush();
-        flushing = true;
-    }
-    // Avoids a function call
-    queue[queue.length] = task;
-}
-
-var queue = [];
-// Once a flush has been requested, no further calls to `requestFlush` are
-// necessary until the next `flush` completes.
-var flushing = false;
-// The position of the next task to execute in the task queue. This is
-// preserved between calls to `flush` so that it can be resumed if
-// a task throws an exception.
-var index = 0;
-// If a task schedules additional tasks recursively, the task queue can grow
-// unbounded. To prevent memory excaustion, the task queue will periodically
-// truncate already-completed tasks.
-var capacity = 1024;
-
-// The flush function processes all tasks that have been scheduled with
-// `rawAsap` unless and until one of those tasks throws an exception.
-// If a task throws an exception, `flush` ensures that its state will remain
-// consistent and will resume where it left off when called again.
-// However, `flush` does not make any arrangements to be called again if an
-// exception is thrown.
-function flush() {
-    while (index < queue.length) {
-        var currentIndex = index;
-        // Advance the index before calling the task. This ensures that we will
-        // begin flushing on the next task the task throws an error.
-        index = index + 1;
-        queue[currentIndex].call();
-        // Prevent leaking memory for long chains of recursive calls to `asap`.
-        // If we call `asap` within tasks scheduled by `asap`, the queue will
-        // grow, but to avoid an O(n) walk for every task we execute, we don't
-        // shift tasks off the queue after they have been executed.
-        // Instead, we periodically shift 1024 tasks off the queue.
-        if (index > capacity) {
-            // Manually shift all values starting at the index back to the
-            // beginning of the queue.
-            for (var scan = 0, newLength = queue.length - index; scan < newLength; scan++) {
-                queue[scan] = queue[scan + index];
-            }
-            queue.length -= index;
-            index = 0;
-        }
-    }
-    queue.length = 0;
-    index = 0;
-    flushing = false;
-}
-
-rawAsap.requestFlush = requestFlush;
-function requestFlush() {
-    // Ensure flushing is not bound to any domain.
-    // It is not sufficient to exit the domain, because domains exist on a stack.
-    // To execute code outside of any domain, the following dance is necessary.
-    var parentDomain = process.domain;
-    if (parentDomain) {
-        if (!domain) {
-            // Lazy execute the domain module.
-            // Only employed if the user elects to use domains.
-            domain = require("domain");
-        }
-        domain.active = process.domain = null;
-    }
-
-    // `setImmediate` is slower that `process.nextTick`, but `process.nextTick`
-    // cannot handle recursion.
-    // `requestFlush` will only be called recursively from `asap.js`, to resume
-    // flushing after an error is thrown into a domain.
-    // Conveniently, `setImmediate` was introduced in the same version
-    // `process.nextTick` started throwing recursion errors.
-    if (flushing && hasSetImmediate) {
-        setImmediate(flush);
-    } else {
-        process.nextTick(flush);
-    }
-
-    if (parentDomain) {
-        domain.active = process.domain = parentDomain;
-    }
-}
-
-}).call(this,require('_process'))
-},{"_process":3,"domain":1}],23:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 //     Underscore.js 1.8.3
 //     http://underscorejs.org
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -4664,12 +4128,12 @@ function requestFlush() {
   }
 }.call(this));
 
-},{}],24:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
 
-var BaseVideo = function () {};
+var BaseVideo = function BaseVideo() {};
 
 BaseVideo.prototype = {
 
@@ -4677,7 +4141,7 @@ BaseVideo.prototype = {
      * Initialization.
      * @param {object} options - Options passed into instance
      */
-    initialize: function (options) {
+    initialize: function initialize(options) {
 
         var el = options.el || document.createDocumentFragment();
 
@@ -4691,7 +4155,6 @@ BaseVideo.prototype = {
         BaseVideo.prototype.vidCount++;
 
         this.vpid = 'v' + BaseVideo.prototype.vidCount;
-
     },
 
     /**
@@ -4700,7 +4163,7 @@ BaseVideo.prototype = {
      * @param listener
      * @param useCapture
      */
-    addEventListener: function (event, listener, useCapture) {
+    addEventListener: function addEventListener(event, listener, useCapture) {
         this.el.addEventListener(event, listener, useCapture);
     },
 
@@ -4710,46 +4173,47 @@ BaseVideo.prototype = {
      * @param listener
      * @param useCapture
      */
-    removeEventListener: function (event, listener, useCapture) {
+    removeEventListener: function removeEventListener(event, listener, useCapture) {
         this.el.removeEventListener(event, listener, useCapture);
     },
 
-    load: function () {
+    load: function load() {
         this.el.load();
     },
 
     /**
      * Plays the video from it’s current location.
      */
-    play: function () {
+    play: function play() {
         this.el.play();
     },
 
     /**
      * Pauses the video at the then-current time.
      */
-    pause: function () {
+    pause: function pause() {
         this.el.pause();
     },
 
     /**
      * Destroys the player instance.
      */
-    destroy: function () {}
+    destroy: function destroy() {}
 
 };
 
 window.Video = window.Video || {};
 
 module.exports = BaseVideo;
-},{"underscore":23}],25:[function(require,module,exports){
+
+},{"underscore":19}],21:[function(require,module,exports){
 'use strict';
 
 var BaseVideo = require('./base-video');
 var _ = require('underscore');
 var ElementKit = require('element-kit');
 
-var Youtube = function (options) {
+var Youtube = function Youtube(options) {
     this.initialize(options);
 };
 
@@ -4767,7 +4231,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param {string} [options.loadingCssClass] - The css class that will be applied when the player is loading
      * @param {string} [options.customWrapperClass] - The css class that will be applied to the parent element of the video element
      */
-    initialize: function (options) {
+    initialize: function initialize(options) {
 
         var el = options.el || document.createDocumentFragment();
 
@@ -4793,16 +4257,17 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         this._playerVars = _.extend({
             autoplay: this.options.autoplay ? 1 : 0
         }, this.getPlayerVars());
-
     },
 
     /**
      * Gets the source url of the youtube video.
      * @returns {String} Returns the source url string if there is one
      */
-    getSourceUrl: function () {
+    getSourceUrl: function getSourceUrl() {
         var sources = this.el.getElementsByTagName('source'),
-            i, count = sources.length, source;
+            i,
+            count = sources.length,
+            source;
         if (!this.src) {
             for (i = 0; i < count; i++) {
                 source = sources[i];
@@ -4820,7 +4285,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * Loads the video and reset the play head to the beginning of the video.
      * @param callback
      */
-    load: function (callback) {
+    load: function load(callback) {
         // create parent div to show loading state
         this._container = document.createElement('div');
         this._container.setAttribute('id', 'vplayer' + this.vpid + '-container');
@@ -4846,8 +4311,8 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * Builds the player instance (creates it if doesnt already exist).
      * @param {Function} callback - The API will call this function when the video player is ready.
      */
-    _buildPlayer: function (callback) {
-        var done = function (player) {
+    _buildPlayer: function _buildPlayer(callback) {
+        var done = function done(player) {
             if (callback) {
                 callback(player);
             }
@@ -4864,7 +4329,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param onComplete
      * @private
      */
-    _createPlayer: function (onComplete) {
+    _createPlayer: function _createPlayer(onComplete) {
         var id = 'vplayer' + this.vpid;
 
         // create youtube element
@@ -4880,7 +4345,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
             playerVars: this._playerVars,
             videoId: this._videoId,
             events: {
-                onReady: function (e) {
+                onReady: function onReady(e) {
                     onComplete(e.target);
                 },
                 onStateChange: this._onStateChange.bind(this)
@@ -4892,18 +4357,14 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * Generates playerVars from a Youtube URL and puts it into a neat little object.
      * @returns {Object}
      */
-    getPlayerVars: function () {
+    getPlayerVars: function getPlayerVars() {
         var queryString = this.getSourceUrl().split('?')[1] || '',
             a = queryString.split('&');
         if (a == '') return {};
         var b = {};
-        for (var i = 0; i < a.length; ++i)
-        {
-            var p=a[i].split('=', 2);
-            if (p.length == 1)
-                b[p[0]] = '';
-            else
-                b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, ' '));
+        for (var i = 0; i < a.length; ++i) {
+            var p = a[i].split('=', 2);
+            if (p.length == 1) b[p[0]] = '';else b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, ' '));
         }
         return b;
     },
@@ -4913,7 +4374,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param {String} url - The video url
      * @returns {Number|string|*|Youtube._videoId} - The video id extracted
      */
-    getVideoId: function (url) {
+    getVideoId: function getVideoId(url) {
         var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
         return url.replace(re, '$1');
     },
@@ -4923,7 +4384,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param callback
      * @private
      */
-    _loadScript: function (callback) {
+    _loadScript: function _loadScript(callback) {
         if (Youtube.prototype._scriptLoaded) {
             return callback ? callback() : null;
         }
@@ -4940,7 +4401,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
         window.onYouTubeIframeAPIReady = function () {
             callback ? callback() : null;
             Youtube.prototype._scriptLoaded = true;
-        }.bind(this)
+        }.bind(this);
     },
 
     /**
@@ -4949,15 +4410,15 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param {Number} obj.state - The number representing the state of the video
      * @private
      */
-    _onStateChange: function (obj) {
+    _onStateChange: function _onStateChange(obj) {
         var stateMap = {
-                '-1': {name: 'unstarted'},
-                '0': {name: 'ended', method: this.onEnd},
-                '1': {name: 'playing', method: this.onPlay},
-                '2': {name: 'paused', method: this.onPause},
-                '3': {name: 'buffering'},
-                '5': {name: 'cued'}
-            },
+            '-1': { name: 'unstarted' },
+            '0': { name: 'ended', method: this.onEnd },
+            '1': { name: 'playing', method: this.onPlay },
+            '2': { name: 'paused', method: this.onPause },
+            '3': { name: 'buffering' },
+            '5': { name: 'cued' }
+        },
             state = '' + obj.data; // to string
         if (stateMap[state].method) {
             stateMap[state].method.call(this);
@@ -4969,7 +4430,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
      * @param {String} event - The name of the event to trigger
      * @private
      */
-    _triggerEvent: function (event) {
+    _triggerEvent: function _triggerEvent(event) {
         // use old-way of constructing custom events for IE9 and IE10
         var e = document.createEvent('CustomEvent');
         e.initCustomEvent(event, false, false, null);
@@ -4979,7 +4440,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
     /**
      * Plays the video from it’s current location.
      */
-    play: function () {
+    play: function play() {
         // add class so things like play button image,
         // thumbnail/poster image, etc can be manipulated if needed
         if (!this.getSourceUrl()) {
@@ -4992,7 +4453,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
     /**
      * Plays the video from it’s current location.
      */
-    onPlay: function () {
+    onPlay: function onPlay() {
         // add class so things like play button image,
         // thumbnail/poster image, etc can be manipulated if needed
         this._container.classList.add(this.options.playingCssClass);
@@ -5002,14 +4463,14 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
     /**
      * Pauses the video at the then-current time.
      */
-    pause: function () {
+    pause: function pause() {
         this.player ? this.player.pauseVideo() : null;
     },
 
     /**
      * When the video is paused.
      */
-    onPause: function () {
+    onPause: function onPause() {
         this._container.classList.remove(this.options.playingCssClass);
         this._triggerEvent('pause');
     },
@@ -5017,14 +4478,14 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
     /**
      * Stops and cancels loading of the current video.
      */
-    stop: function () {
+    stop: function stop() {
         this.player ? this.player.stopVideo() : null;
     },
 
     /**
      * When the video has finished playing.
      */
-    onEnd: function () {
+    onEnd: function onEnd() {
         this._container.classList.remove(this.options.playingCssClass);
         this._triggerEvent('ended');
     },
@@ -5032,7 +4493,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
     /**
      * Destroys the video instance.
      */
-    destroy: function () {
+    destroy: function destroy() {
         var script = Youtube.prototype._script,
             cachedPlayers = Youtube.prototype.players;
 
@@ -5043,7 +4504,7 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
 
         // remove from cache
         delete cachedPlayers[this.vpid];
-        window.onYouTubeIframeAPIReady = function(){};
+        window.onYouTubeIframeAPIReady = function () {};
 
         if (script && !_.keys(cachedPlayers).length) {
             script.parentNode.removeChild(script);
@@ -5061,5 +4522,6 @@ Youtube.prototype = _.extend({}, BaseVideo.prototype, {
 });
 
 module.exports = window.Video.Youtube = Youtube;
-},{"./base-video":24,"element-kit":4,"underscore":23}]},{},[25])(25)
+
+},{"./base-video":20,"element-kit":1,"underscore":19}]},{},[21])(21)
 });
