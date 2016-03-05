@@ -11,7 +11,10 @@ Supports [Youtube](youtube.com) videos currently. But the following players will
 This library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, easy-to-use API
 which can be a lot easier when there are already so many video API's to deal with (i.e. Youtube, Facebook, Vine, Vimeo, etc).
 
-##Usage
+## Usage
+
+You can quickly start using the Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
+Alternatively, you can also use the [source files](/src) directly if you are running your own build processes.
 
 ### Setup a Youtube Video
 

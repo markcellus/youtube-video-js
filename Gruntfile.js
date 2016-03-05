@@ -12,15 +12,11 @@ module.exports = function(grunt) {
                 },
                 browserifyOptions: {
                     standalone: 'Video'
-                }
-            },
-            min: {
-                files: {
+                },
+                minifyFiles: {
                     'dist/youtube-video.js': ['src/youtube-video.js']
-                }
-            },
-            banner: {
-                files: ['dist/*']
+                },
+                bannerFiles: ['dist/*']
             },
             tests: {
                 qunit: {
