@@ -1,10 +1,10 @@
 {
-  "name": "video-js",
+  "name": "youtube-video-js",
   "version": "0.7.0",
-  "description": "A lightweight framework that allows you to easily control videos using javascript.",
+  "description": "Easily play and control Youtube video using javascript",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mkay581/video.git"
+    "url": "https://github.com/mkay581/youtube-video-js.git"
   },
   "author": {
     "name": "Mark Kennedy",
