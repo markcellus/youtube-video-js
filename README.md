@@ -1,22 +1,24 @@
 [![Build Status](https://travis-ci.org/mkay581/youtube-video-js.svg?branch=master)](https://travis-ci.org/mkay581/youtube-video-js)
 
-# Youtube Video
+# YouTube Video
 
-A lightweight video player that allows you to easily play and control [Youtube](youtube.com) videos with the new HTML5
-[`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos can be played, stopped,
+A lightweight video player that allows you to easily play and control [YouTube](youtube.com) videos using the HTML5
+[`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag and the HTML5
+[YouTube IFrame Player API](https://developers.google.com/youtube/iframe_api_reference). Videos can be played, stopped,
 paused, and more all with simple html markup or with javascript.
 
-This library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, standardized API
-that is easy to use and adheres to the latest video tag specifications.
+This library aims to mimick the methods and properties of HTML5's `<video>` tag to offer a simple, standardized API
+that is easy to use and adheres to the latest video tag specifications. It also supports all major
+[Video events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events).
 
 ## Usage
 
-You can quickly start using the Youtube Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
+You can quickly start using the YouTube Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
 Alternatively, you can also use the [source files](/src) directly if you are running your own build processes.
 
 ### Setup a Video
 
-Suppose you have the following HTML in the DOM for a Youtube video.
+Suppose you have the following HTML in the DOM for a YouTube video.
 
 ```html
 <video width="640" height="360">
@@ -37,7 +39,7 @@ var video = new YoutubeVideo({
     el: document.getElementsByTagName('video')[0]
 })
 
-video.load(function () {
+video.load().then(() => {
     video.play();
     video.pause();
 });
@@ -46,16 +48,60 @@ video.load(function () {
 
 ### Listen to the video's events
 
-You can also subscribe to [MediaEvents](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events) just as you would with a `<video>` element.
+You can also subscribe to [MediaEvents](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events) just as
+you would with a `<video>` element.
 
 ```javascript
-video.addEventListener('play', function () {
-    // video has started!
+let video = new YoutubeVideo({
+    el: document.getElementsByTagName('video')[0]
+})
+
+video.addEventListener('loadstart', function () {
+    // video has started loading!
 });
 
-video.addEventListener('ended', function () {
-    // video has finished!
+video.load();
+```
+
+### Multiple Videos
+
+When dealing with multiple videos that use this library (multiple videos on a single web page for instance),
+all other already-playing videos will automatically pause if a video is played. This ensures that no two YouTube videos
+will ever be playing at the exact same time, ensuring the best possible experience for your users.
+
+```javascript
+let video1 = new YoutubeVideo({
+    el: document.getElementsByTagName('video')[0]
+})
+
+let video2 = new YoutubeVideo({
+    el: document.getElementsByTagName('video')[1]
+})
+
+
+video1.addEventListener('pause', function () {
+    // video has been paused because video2 started playing!
 });
+
+// load and play video1, then load and play video2
+video1.load()
+    .then(() => {
+       video1.play();
+       return video2.load();
+    })
+    .then(() => {
+       // play video2 to trigger pausing of video1
+       video2.play();
+    });
+
 ```
 
 
+## Development
+
+Run tests:
+
+```
+npm install
+npm test
+```

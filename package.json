@@ -1,6 +1,6 @@
 {
   "name": "youtube-video-js",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Easily play and control Youtube video using javascript",
   "repository": {
     "type": "git",
@@ -19,18 +19,17 @@
     "social video"
   ],
   "devDependencies": {
-    "build-tools": "^2.5.0",
-    "grunt": "^0.4.5",
-    "grunt-cli": "^0.1.13",
-    "load-grunt-tasks": "0.6.0",
-    "sinon": "^1.12.2"
+    "babel-polyfill": "^6.7.4",
+    "build-tools": "^3.0.2",
+    "sinon": "^1.17.3"
   },
   "dependencies": {
-    "element-kit": "^1.0.5",
-    "promise": "^7.0.1",
-    "underscore": "^1.8.2"
+    "lodash": "^4.8.2",
+    "promise": "^7.1.1",
+    "resource-manager-js": "^1.2.1"
   },
   "scripts": {
-    "test": "grunt bt:test"
+    "test": "bt test",
+    "start": "bt server"
   }
 }
