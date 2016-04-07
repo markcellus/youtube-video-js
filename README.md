@@ -1,24 +1,22 @@
-[![Build Status](https://travis-ci.org/mkay581/video-js.svg?branch=master)](https://travis-ci.org/mkay581/video-js)
+[![Build Status](https://travis-ci.org/mkay581/youtube-video-js.svg?branch=master)](https://travis-ci.org/mkay581/youtube-video-js)
 
-#Video
+# Youtube Video
 
-A lightweight library that allows you to easily play and control social network videos using the new HTML5
-[`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos
-can be played, stopped, paused, and more all with simple html markup or with javascript.
+A lightweight video player that allows you to easily play and control [Youtube](youtube.com) videos with the new HTML5
+[`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag. Videos can be played, stopped,
+paused, and more all with simple html markup or with javascript.
 
-Supports [Youtube](youtube.com) videos currently. But the following players will be added soon.
-
-This library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, easy-to-use API
-which can be a lot easier when there are already so many video API's to deal with (i.e. Youtube, Facebook, Vine, Vimeo, etc).
+This library aims to mimick the methods and properties of HTML5's new `<video>` tag to offer a simple, standardized API
+that is easy to use and adheres to the latest video tag specifications.
 
 ## Usage
 
-You can quickly start using the Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
+You can quickly start using the Youtube Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
 Alternatively, you can also use the [source files](/src) directly if you are running your own build processes.
 
-### Setup a Youtube Video
+### Setup a Video
 
-Suppose you have the following HTML in the DOM (A Youtube Video).
+Suppose you have the following HTML in the DOM for a Youtube video.
 
 ```html
 <video width="640" height="360">
@@ -27,8 +25,8 @@ Suppose you have the following HTML in the DOM (A Youtube Video).
 ```
 ### Load and play the video
 
-To start controlling the video with javascript all you need is one of the [video files](https://github.com/mkay581/video/tree/master/dist)
- and instantiate a new instance, passing it a `<video>` element. Once instantiated, the instance exposes the [same methods that are available on the new
+To start controlling the video with javascript all you need is to pass the `<video>` element into the Youtube Video class.
+Once created (instantiated), the instance exposes the [same methods that are available on the new
 HTML5 `<video>` element](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video#Controlling_media_playback).
 
 *This example assumes you already have the Video class loaded as a dependency assigned to a `YoutubeVideo` variable.*
@@ -47,6 +45,7 @@ video.load(function () {
 ```
 
 ### Listen to the video's events
+
 You can also subscribe to [MediaEvents](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events) just as you would with a `<video>` element.
 
 ```javascript
