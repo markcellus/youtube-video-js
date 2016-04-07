@@ -1,6 +1,6 @@
 {
   "name": "youtube-video-js",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "Easily play and control Youtube video using javascript",
   "repository": {
     "type": "git",
