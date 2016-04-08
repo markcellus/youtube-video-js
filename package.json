@@ -18,6 +18,7 @@
     "youtube video",
     "social video"
   ],
+  "main": "src/youtube-video.js",
   "devDependencies": {
     "babel-polyfill": "^6.7.4",
     "build-tools": "^3.0.2",
