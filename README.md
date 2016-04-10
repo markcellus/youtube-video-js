@@ -95,7 +95,9 @@ video1.load()
     });
 
 ```
+## Examples
 
+More code samples can be viewed in the [examples](/examples) folder.
 
 ## Development
 

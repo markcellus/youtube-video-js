@@ -15,32 +15,6 @@ let scriptPath = 'https://www.youtube.com/iframe_api';
 let videoCount = 0;
 let scriptLoaded = false;
 
-/**
- * When the video starts playing.
- */
-let onPlay = function () {
-    // add class so things like play button image,
-    // thumbnail/poster image, etc can be manipulated if needed
-    let container = players.get(this).container;
-    container.classList.add(this.options.playingCssClass);
-    // TODO: pause all other youtube videos from playing!
-};
-
-/**
- * When the video is paused.
- */
-let onPause = function () {
-    let container = players.get(this).container;
-    container.classList.remove(this.options.playingCssClass);
-};
-
-/**
- * When the video has finished playing.
- */
-let onEnd = function () {
-    let container = players.get(this).container;
-    container.classList.remove(this.options.playingCssClass);
-};
 
 /**
  * Generates playerVars from a Youtube URL and puts it into a neat little object.
@@ -75,31 +49,6 @@ let createEvent = function (event) {
     return e;
 };
 
-/**
- * When the video's state changes via the Youtube API.
- * @param {Object} obj - Youtube's data object
- * @param {Number} obj.data - The number representing the state of the video
- */
-let onYTApiStateChange = function (obj) {
-    let stateMap = {
-        '-1': 'unstarted',
-        '0': 'ended',
-        '1': 'playing',
-        '2': 'pause',
-        '3': 'buffering',
-        '5': 'cued'
-    };
-    let state = stateMap[obj.data.toString()];
-    if (eventMethodMap[state]) {
-        let method = eventMethodMap[state];
-        if (method) {
-            method.call(this);
-            // TODO: trigger 'play' MediaEvent if the video has been paused at least once
-            this.el.dispatchEvent(createEvent(state));
-        }
-    }
-};
-
 class YoutubeVideo  {
 
     /**
@@ -130,18 +79,16 @@ class YoutubeVideo  {
         videoCount++;
         this.el = this.options.el;
         let privateProps = {
-            id: 'v' + videoCount,
-            origParent: this.el.parentNode,
-            // we are storing private methods in map to prevent external access
-            onYTApiStateChange: onYTApiStateChange.bind(this)
+            id: videoCount,
+            origParent: this.el.parentNode
         };
 
         // trigger our internal event handling method
         // whenever the youtube api player triggers an event
         eventMethodMap = {
-            ended: onEnd.bind(this),
-            playing: onPlay.bind(this),
-            pause: onPause.bind(this)
+            ended: this._onEnd,
+            playing: this._onPlay,
+            pause: this._onPause
         };
 
         // build player vars
@@ -290,11 +237,74 @@ class YoutubeVideo  {
                         resolve(e.target);
                     },
                     onStateChange: (obj) => {
-                        instance.onYTApiStateChange(obj);
+                        this._onYTApiStateChange(obj);
                     }
                 }
             });
         });
+    }
+
+    /**
+     * When the video starts playing.
+     * @private
+     */
+    _onPlay () {
+        let instance = players.get(this);
+        players.forEach((k, player) => {
+            // state of 1 means a video is currently playing
+            if (k !== instance && k.ytPlayer.getPlayerState() === 1) {
+                player.pause();
+            }
+        });
+        // add class so things like play button image,
+        // thumbnail/poster image, etc can be manipulated if needed
+        instance.container.classList.add(this.options.playingCssClass);
+
+        // TODO: pause all other youtube videos from playing!
+    }
+
+    /**
+     * When the video is paused.
+     * @private
+     */
+    _onPause () {
+        let container = players.get(this).container;
+        container.classList.remove(this.options.playingCssClass);
+    }
+
+    /**
+     * When the video has finished playing.
+     * @private
+     */
+    _onEnd () {
+        let container = players.get(this).container;
+        container.classList.remove(this.options.playingCssClass);
+    }
+
+    /**
+     * When the video's state changes via the Youtube API.
+     * @param {Object} obj - Youtube's data object
+     * @param {Number} obj.data - The number representing the state of the video
+     * @private
+     */
+    _onYTApiStateChange (obj) {
+        let stateMap = {
+            '-1': 'unstarted',
+            '0': 'ended',
+            '1': 'playing',
+            '2': 'pause',
+            '3': 'buffering',
+            '5': 'cued'
+        };
+        let state = stateMap[obj.data.toString()];
+        if (eventMethodMap[state]) {
+            let method = eventMethodMap[state];
+            if (method) {
+                method.call(this);
+                // TODO: trigger 'play' MediaEvent if the video has been paused at least once
+                this.el.dispatchEvent(createEvent(state));
+            }
+        }
     }
 
     /**
@@ -316,7 +326,9 @@ class YoutubeVideo  {
             ResourceManager.unloadScript(scriptPath);
             scriptLoaded = false;
             players.clear();
+            videoCount = 0;
         }
+
 
         eventMethodMap = {};
 

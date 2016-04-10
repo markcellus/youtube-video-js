@@ -1,0 +1,30 @@
+<html>
+<head>
+    <title>Youtube multiple video handling</title>
+</head>
+<style>
+    /* Hide the video tag since its just a placeholder */
+    video {display: none}
+</style>
+<body>
+<p>Interact with one of the multiple videos loaded below. Notice when playing one, other videos stop playing.</p>
+<video width="640" height="360" id="my-video1">
+    <source type="video/youtube" src="https://www.youtube.com/watch?v=k9EyPfc0FXc" />
+</video>
+<video width="640" height="360" id="my-video2">
+    <source type="video/youtube" src="https://www.youtube.com/watch?v=DcqJvYF1ewA" />
+</video>
+<script src="../dist/youtube-video.js"></script>
+<script>
+    var firstPlayer = new YoutubeVideo({
+        el: document.getElementById("my-video1")
+    });
+    var secondPlayer = new YoutubeVideo({
+        el: document.getElementById("my-video2")
+    });
+    firstPlayer.load();
+    secondPlayer.load();
+
+</script>
+</body>
+</html>

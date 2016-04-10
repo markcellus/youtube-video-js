@@ -11,7 +11,7 @@ describe('Youtube Video Tests', function () {
     var origYT;
     var resourceManagerLoadScriptStub;
     var resourceManagerUnloadScriptStub;
-    var stubbedYtPlayer;
+    var stubbedYtPlayerApi;
 
     // trigger script loaded
     var triggerScriptLoad = function () {
@@ -32,13 +32,15 @@ describe('Youtube Video Tests', function () {
     //
     /**
      * trigger player ready
-     * @param index - The index of the player that should be triggered
+     * @param ytPlayer - Custom stubbed ytPlayer (if applicable)
+     * @param ytPlayerApiObj - Optional object for api
      * @returns {Promise}
      */
-    var triggerPlayerReady = function (index) {
-        index = index || 0;
+    var triggerPlayerReady = function (ytPlayer, ytPlayerApiObj) {
+        ytPlayer = ytPlayer || window.YT.Player;
+        ytPlayerApiObj = ytPlayerApiObj || stubbedYtPlayerApi;
         return new Promise(function (resolve) {
-            window.YT.Player.args[index][1].events.onReady({target: stubbedYtPlayer});
+            ytPlayer.args[0][1].events.onReady({target: ytPlayerApiObj});
             // we are deferring to ensure promises are generated before testing
             _.defer(resolve);
         });
@@ -46,10 +48,10 @@ describe('Youtube Video Tests', function () {
 
     beforeEach(function () {
         origYT = window.YT;
-        stubbedYtPlayer = {
+        stubbedYtPlayerApi = {
             playVideo: sinon.stub()
         };
-        window.YT = {Player: sinon.stub().returns(stubbedYtPlayer)};
+        window.YT = {Player: sinon.stub().returns(stubbedYtPlayerApi)};
         origYouTubeIframeAPIReady = window.onYouTubeIframeAPIReady;
         window.onYouTubeIframeAPIReady = null;
         resourceManagerLoadScriptStub = sinon.stub(ResourceManager, 'loadScript');
@@ -82,11 +84,12 @@ describe('Youtube Video Tests', function () {
         videoEl.setAttribute('height', 360);
         videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
         var player = new Youtube({el: videoEl});
+        window.YT.Player.returns(stubbedYtPlayerApi);
         var loadSpy = sinon.spy();
         player.load().then(loadSpy);
         return triggerScriptLoad().then(function () {
             return triggerPlayerReady().then(function () {
-                assert.deepEqual(loadSpy.args[0][0], stubbedYtPlayer);
+                assert.deepEqual(loadSpy.args[0][0], stubbedYtPlayerApi);
                 player.destroy();
             });
         });
@@ -293,9 +296,9 @@ describe('Youtube Video Tests', function () {
         player.load();
         return triggerScriptLoad().then(function () {
             return triggerPlayerReady().then(function () {
-                assert.equal(stubbedYtPlayer.playVideo.callCount, 0);
+                assert.equal(stubbedYtPlayerApi.playVideo.callCount, 0);
                 player.play();
-                assert.equal(stubbedYtPlayer.playVideo.callCount, 1);
+                assert.equal(stubbedYtPlayerApi.playVideo.callCount, 1);
                 player.destroy();
             });
         });
@@ -429,17 +432,117 @@ describe('Youtube Video Tests', function () {
         secondVideoEl.setAttribute('width', 640);
         secondVideoEl.setAttribute('height', 360);
         secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
+        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
+        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
+        var secondStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
+        firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
+        secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
         var firstPlayer = new Youtube({el: firstVideoEl});
         var secondPlayer = new Youtube({el: firstVideoEl});
         firstPlayer.load();
         var secondPlayerLoadSpy = sinon.spy();
-        triggerScriptLoad().then(function () {
+        triggerScriptLoad(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
             triggerPlayerReady().then(function () {
                 secondPlayer.load().then(secondPlayerLoadSpy);
                 // defer to let all promises settle
                 _.defer(function () {
-                    return triggerPlayerReady(1).then(function () {
+                    triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
                         assert.equal(secondPlayerLoadSpy.callCount, 1);
+                        firstPlayer.destroy();
+                        secondPlayer.destroy();
+                        done();
+                    });
+                })
+            });
+        });
+    });
+
+    it('should call first player\'s pause() if it is playing when the second player is played', function (done) {
+        var firstVideoEl = document.createElement('video');
+        firstVideoEl.setAttribute('width', 640);
+        firstVideoEl.setAttribute('height', 360);
+        firstVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        var secondVideoEl = document.createElement('video');
+        secondVideoEl.setAttribute('width', 640);
+        secondVideoEl.setAttribute('height', 360);
+        secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
+        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
+        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstStubbedYtPlayerApi = {
+            getPlayerState: sinon.stub(),
+            pauseVideo: sinon.spy()
+        };
+        var secondStubbedYtPlayerApi = {
+            getPlayerState: sinon.stub(),
+            pauseVideo: sinon.spy()
+        };
+        firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
+        secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
+        var firstPlayer = new Youtube({el: firstVideoEl});
+        var secondPlayer = new Youtube({el: firstVideoEl});
+        // TODO: find a better way to distinguish youtube player instances instead of using the internal ids
+        firstPlayer.load();
+        var secondPlayerLoadSpy = sinon.spy();
+        triggerScriptLoad().then(function () {
+            triggerPlayerReady(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
+                secondPlayer.load().then(secondPlayerLoadSpy);
+                // defer to let all promises settle
+                _.defer(function () {
+                    triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
+                        assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 0);
+                        // ensure that first video is in a playing state
+                        firstStubbedYtPlayerApi.getPlayerState.returns(1);
+                        // trigger play on second player
+                        secondStubbedYtPlayer.args[0][1].events.onStateChange({data: 1});
+                        assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 1);
+                        assert.equal(secondStubbedYtPlayerApi.pauseVideo.callCount, 0);
+                        firstPlayer.destroy();
+                        secondPlayer.destroy();
+                        done();
+                    });
+                })
+            });
+        });
+    });
+
+    it('should NOT call first player\'s pause() if it is NOT playing when the second player is played', function (done) {
+        var firstVideoEl = document.createElement('video');
+        firstVideoEl.setAttribute('width', 640);
+        firstVideoEl.setAttribute('height', 360);
+        firstVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        var secondVideoEl = document.createElement('video');
+        secondVideoEl.setAttribute('width', 640);
+        secondVideoEl.setAttribute('height', 360);
+        secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
+        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
+        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstStubbedYtPlayerApi = {
+            getPlayerState: sinon.stub(),
+            pauseVideo: sinon.spy()
+        };
+        var secondStubbedYtPlayerApi = {
+            getPlayerState: sinon.stub(),
+            pauseVideo: sinon.spy()
+        };
+        firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
+        secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
+        var firstPlayer = new Youtube({el: firstVideoEl});
+        var secondPlayer = new Youtube({el: firstVideoEl});
+        // TODO: find a better way to distinguish youtube player instances instead of using the internal ids
+        firstPlayer.load();
+        var secondPlayerLoadSpy = sinon.spy();
+        triggerScriptLoad().then(function () {
+            triggerPlayerReady(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
+                secondPlayer.load().then(secondPlayerLoadSpy);
+                // defer to let all promises settle
+                _.defer(function () {
+                    triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
+                        // ensure that first video is in an unstarted state
+                        firstStubbedYtPlayerApi.getPlayerState.returns(-1);
+                        // trigger play on second player
+                        secondStubbedYtPlayer.args[0][1].events.onStateChange({data: 1});
+                        assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 0);
                         firstPlayer.destroy();
                         secondPlayer.destroy();
                         done();
