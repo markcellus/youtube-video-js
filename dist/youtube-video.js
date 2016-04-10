@@ -1,5 +1,5 @@
 /** 
-* youtube-video-js - v1.0.1.
+* youtube-video-js - v1.0.2.
 * https://github.com/mkay581/youtube-video-js.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -35039,33 +35039,7 @@ var eventMethodMap = {};
 var players = new Map();
 var scriptPath = 'https://www.youtube.com/iframe_api';
 var videoCount = 0;
-
-/**
- * When the video starts playing.
- */
-var onPlay = function onPlay() {
-    // add class so things like play button image,
-    // thumbnail/poster image, etc can be manipulated if needed
-    var container = players.get(this).container;
-    container.classList.add(this.options.playingCssClass);
-    // TODO: pause all other youtube videos from playing!
-};
-
-/**
- * When the video is paused.
- */
-var onPause = function onPause() {
-    var container = players.get(this).container;
-    container.classList.remove(this.options.playingCssClass);
-};
-
-/**
- * When the video has finished playing.
- */
-var onEnd = function onEnd() {
-    var container = players.get(this).container;
-    container.classList.remove(this.options.playingCssClass);
-};
+var scriptLoaded = false;
 
 /**
  * Generates playerVars from a Youtube URL and puts it into a neat little object.
@@ -35094,30 +35068,6 @@ var createEvent = function createEvent(event) {
     var e = document.createEvent('CustomEvent');
     e.initCustomEvent(event, false, false, null);
     return e;
-};
-
-/**
- * When the video's state changes via the Youtube API.
- * @param {Object} obj - Youtube's data object
- * @param {Number} obj.data - The number representing the state of the video
- */
-var onYTApiStateChange = function onYTApiStateChange(obj) {
-    var stateMap = {
-        '-1': 'unstarted',
-        '0': 'ended',
-        '1': 'playing',
-        '2': 'pause',
-        '3': 'buffering',
-        '5': 'cued'
-    };
-    var state = stateMap[obj.data.toString()];
-    if (eventMethodMap[state]) {
-        var method = eventMethodMap[state];
-        if (method) {
-            method.call(this);
-            this.el.dispatchEvent(createEvent(state));
-        }
-    }
 };
 
 var YoutubeVideo = function () {
@@ -35152,18 +35102,16 @@ var YoutubeVideo = function () {
         videoCount++;
         this.el = this.options.el;
         var privateProps = {
-            id: 'v' + videoCount,
-            origParent: this.el.parentNode,
-            // we are storing private methods in map to prevent external access
-            onYTApiStateChange: onYTApiStateChange.bind(this)
+            id: videoCount,
+            origParent: this.el.parentNode
         };
 
         // trigger our internal event handling method
         // whenever the youtube api player triggers an event
         eventMethodMap = {
-            ended: onEnd.bind(this),
-            playing: onPlay.bind(this),
-            pause: onPause.bind(this)
+            ended: this._onEnd,
+            playing: this._onPlay,
+            pause: this._onPause
         };
 
         // build player vars
@@ -35276,13 +35224,19 @@ var YoutubeVideo = function () {
         key: '_loadScript',
         value: function _loadScript() {
             // Load the IFrame Player API code asynchronously.
-            return _resourceManagerJs2.default.loadScript(scriptPath).then(function () {
-                return new _promise2.default(function (resolve) {
-                    window.onYouTubeIframeAPIReady = function () {
-                        resolve();
-                    };
+            if (!scriptLoaded) {
+                scriptLoaded = new _promise2.default(function (resolve) {
+                    // NOTE: youtube's iframe api ready only fires once after first script load
+                    if (!window.onYouTubeIframeAPIReady) {
+                        window.onYouTubeIframeAPIReady = function () {
+                            window.onYouTubeIframeAPIReady = null;
+                            resolve();
+                        };
+                    }
+                    return _resourceManagerJs2.default.loadScript(scriptPath);
                 });
-            });
+            }
+            return scriptLoaded;
         }
 
         /**
@@ -35296,7 +35250,7 @@ var YoutubeVideo = function () {
         value: function _buildPlayer() {
             var _this2 = this;
 
-            var instance = players.get(this);
+            var instance = players.get(this) || {};
 
             if (instance.ytPlayer) {
                 return _promise2.default.resolve(instance.ytPlayer);
@@ -35318,11 +35272,86 @@ var YoutubeVideo = function () {
                             resolve(e.target);
                         },
                         onStateChange: function onStateChange(obj) {
-                            instance.onYTApiStateChange(obj);
+                            _this2._onYTApiStateChange(obj);
                         }
                     }
                 });
             });
+        }
+
+        /**
+         * When the video starts playing.
+         * @private
+         */
+
+    }, {
+        key: '_onPlay',
+        value: function _onPlay() {
+            var instance = players.get(this);
+            players.forEach(function (k, player) {
+                // state of 1 means a video is currently playing
+                if (k !== instance && k.ytPlayer.getPlayerState() === 1) {
+                    player.pause();
+                }
+            });
+            // add class so things like play button image,
+            // thumbnail/poster image, etc can be manipulated if needed
+            instance.container.classList.add(this.options.playingCssClass);
+
+            // TODO: pause all other youtube videos from playing!
+        }
+
+        /**
+         * When the video is paused.
+         * @private
+         */
+
+    }, {
+        key: '_onPause',
+        value: function _onPause() {
+            var container = players.get(this).container;
+            container.classList.remove(this.options.playingCssClass);
+        }
+
+        /**
+         * When the video has finished playing.
+         * @private
+         */
+
+    }, {
+        key: '_onEnd',
+        value: function _onEnd() {
+            var container = players.get(this).container;
+            container.classList.remove(this.options.playingCssClass);
+        }
+
+        /**
+         * When the video's state changes via the Youtube API.
+         * @param {Object} obj - Youtube's data object
+         * @param {Number} obj.data - The number representing the state of the video
+         * @private
+         */
+
+    }, {
+        key: '_onYTApiStateChange',
+        value: function _onYTApiStateChange(obj) {
+            var stateMap = {
+                '-1': 'unstarted',
+                '0': 'ended',
+                '1': 'playing',
+                '2': 'pause',
+                '3': 'buffering',
+                '5': 'cued'
+            };
+            var state = stateMap[obj.data.toString()];
+            if (eventMethodMap[state]) {
+                var method = eventMethodMap[state];
+                if (method) {
+                    method.call(this);
+                    // TODO: trigger 'play' MediaEvent if the video has been paused at least once
+                    this.el.dispatchEvent(createEvent(state));
+                }
+            }
         }
 
         /**
@@ -35343,11 +35372,11 @@ var YoutubeVideo = function () {
             // remove from cache
             players.delete(this);
 
-            window.onYouTubeIframeAPIReady = function () {};
-
             if (!players.size) {
                 _resourceManagerJs2.default.unloadScript(scriptPath);
+                scriptLoaded = false;
                 players.clear();
+                videoCount = 0;
             }
 
             eventMethodMap = {};
