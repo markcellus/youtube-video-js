@@ -13,6 +13,7 @@ let eventMethodMap = {};
 let players = new Map();
 let scriptPath = 'https://www.youtube.com/iframe_api';
 let videoCount = 0;
+let scriptLoaded = false;
 
 /**
  * When the video starts playing.
@@ -81,18 +82,19 @@ let createEvent = function (event) {
  */
 let onYTApiStateChange = function (obj) {
     let stateMap = {
-            '-1': 'unstarted',
-            '0': 'ended',
-            '1': 'playing',
-            '2': 'pause',
-            '3': 'buffering',
-            '5': 'cued'
-        };
+        '-1': 'unstarted',
+        '0': 'ended',
+        '1': 'playing',
+        '2': 'pause',
+        '3': 'buffering',
+        '5': 'cued'
+    };
     let state = stateMap[obj.data.toString()];
     if (eventMethodMap[state]) {
         let method = eventMethodMap[state];
         if (method) {
             method.call(this);
+            // TODO: trigger 'play' MediaEvent if the video has been paused at least once
             this.el.dispatchEvent(createEvent(state));
         }
     }
@@ -245,13 +247,19 @@ class YoutubeVideo  {
      */
     _loadScript () {
         // Load the IFrame Player API code asynchronously.
-        return ResourceManager.loadScript(scriptPath).then(() => {
-            return new Promise((resolve) => {
-                window.onYouTubeIframeAPIReady = () => {
-                    resolve();
-                };
+        if (!scriptLoaded) {
+            scriptLoaded = new Promise((resolve) => {
+                // NOTE: youtube's iframe api ready only fires once after first script load
+                if (!window.onYouTubeIframeAPIReady) {
+                    window.onYouTubeIframeAPIReady = () => {
+                        window.onYouTubeIframeAPIReady = null;
+                        resolve();
+                    };
+                }
+                return ResourceManager.loadScript(scriptPath);
             });
-        });
+        }
+        return scriptLoaded;
     }
 
     /**
@@ -260,7 +268,7 @@ class YoutubeVideo  {
      * @private
      */
     _buildPlayer () {
-        let instance = players.get(this);
+        let instance = players.get(this) || {};
 
         if (instance.ytPlayer) {
             return Promise.resolve(instance.ytPlayer);
@@ -304,10 +312,9 @@ class YoutubeVideo  {
         // remove from cache
         players.delete(this);
 
-        window.onYouTubeIframeAPIReady = function(){};
-
         if (!players.size) {
             ResourceManager.unloadScript(scriptPath);
+            scriptLoaded = false;
             players.clear();
         }
 
