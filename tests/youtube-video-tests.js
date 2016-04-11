@@ -552,6 +552,55 @@ describe('Youtube Video Tests', function () {
         });
     });
 
+    it('should call youtube video player\'s playVideo method when calling play() method on the video element', function () {
+        var videoEl = document.createElement('video');
+        videoEl.setAttribute('width', 640);
+        videoEl.setAttribute('height', 360);
+        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        var player = new Youtube({el: videoEl});
+        player.load();
+        return triggerScriptLoad().then(function () {
+            return triggerPlayerReady(window.YT.Player, stubbedYtPlayerApi).then(function () {
+                assert.equal(stubbedYtPlayerApi.playVideo.callCount, 0);
+                videoEl.play();
+                assert.equal(stubbedYtPlayerApi.playVideo.callCount, 1);
+                player.destroy();
+            });
+        });
+    });
+
+    it('should call youtube video player\'s pauseVideo method when calling pause() method on the video element', function () {
+        var videoEl = document.createElement('video');
+        videoEl.setAttribute('width', 640);
+        videoEl.setAttribute('height', 360);
+        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        var player = new Youtube({el: videoEl});
+        player.load();
+        var ytPlayerApi = {pauseVideo: sinon.stub()};
+        return triggerScriptLoad().then(function () {
+            return triggerPlayerReady(window.YT.Player, ytPlayerApi).then(function () {
+                assert.equal(ytPlayerApi.pauseVideo.callCount, 0);
+                videoEl.pause();
+                assert.equal(ytPlayerApi.pauseVideo.callCount, 1);
+                player.destroy();
+            });
+        });
+    });
+
+    it('should call load() method when calling load() method on the video element', function () {
+        var videoEl = document.createElement('video');
+        videoEl.setAttribute('width', 640);
+        videoEl.setAttribute('height', 360);
+        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        var player = new Youtube({el: videoEl});
+        var loadStub = sinon.stub(player, 'load');
+        assert.equal(loadStub.callCount, 0);
+        videoEl.load();
+        assert.equal(loadStub.callCount, 1);
+        loadStub.restore();
+        player.destroy();
+    });
+
 });
 
 

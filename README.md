@@ -52,15 +52,16 @@ You can also subscribe to [MediaEvents](https://developer.mozilla.org/en-US/docs
 you would with a `<video>` element.
 
 ```javascript
-let video = new YoutubeVideo({
+let videoElement = document.getElementsByTagName('video')[0];
+let player = new YoutubeVideo({
     el: document.getElementsByTagName('video')[0]
 })
 
-video.addEventListener('loadstart', function () {
+videoElement.addEventListener('loadstart', function () {
     // video has started loading!
 });
 
-video.load();
+videoElement.load();
 ```
 
 ### Multiple Videos
@@ -70,28 +71,25 @@ all other already-playing videos will automatically pause if a video is played. 
 will ever be playing at the exact same time, ensuring the best possible experience for your users.
 
 ```javascript
-let video1 = new YoutubeVideo({
-    el: document.getElementsByTagName('video')[0]
-})
+let firstVideoElement = document.getElementsByTagName('video')[0];
+let firstVideoPlayer = new YoutubeVideo({el: firstVideoElement})
 
-let video2 = new YoutubeVideo({
-    el: document.getElementsByTagName('video')[1]
-})
+let secondVideoElement = document.getElementsByTagName('video')[1];
+let secondVideoPlayer = new YoutubeVideo({el: secondVideoElement})
 
 
-video1.addEventListener('pause', function () {
+firstVideoElement.addEventListener('pause', function () {
     // video has been paused because video2 started playing!
 });
 
-// load and play video1, then load and play video2
-video1.load()
+// load both videos
+Promise.all([firstVideoElement.load(), secondVideoElement.load()]
     .then(() => {
-       video1.play();
-       return video2.load();
+       firstVideoElement.play();
     })
     .then(() => {
        // play video2 to trigger pausing of video1
-       video2.play();
+       secondVideoElement.play();
     });
 
 ```

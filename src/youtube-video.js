@@ -97,6 +97,10 @@ class YoutubeVideo  {
         }, getPlayerVars(this.sourceUrl));
 
         players.set(this, privateProps);
+
+        this.el.play = () => this.play();
+        this.el.pause = () => this.pause();
+        this.el.load = () => this.load();
     }
 
     /**
