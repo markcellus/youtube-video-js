@@ -1,5 +1,5 @@
 /** 
-* youtube-video-js - v1.0.2.
+* youtube-video-js - v1.1.0.
 * https://github.com/mkay581/youtube-video-js.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -35085,6 +35085,8 @@ var YoutubeVideo = function () {
      */
 
     function YoutubeVideo(options) {
+        var _this = this;
+
         _classCallCheck(this, YoutubeVideo);
 
         var el = options.el || document.createDocumentFragment();
@@ -35120,6 +35122,16 @@ var YoutubeVideo = function () {
         }, getPlayerVars(this.sourceUrl));
 
         players.set(this, privateProps);
+
+        this.el.play = function () {
+            return _this.play();
+        };
+        this.el.pause = function () {
+            return _this.pause();
+        };
+        this.el.load = function () {
+            return _this.load();
+        };
     }
 
     /**
@@ -35137,7 +35149,7 @@ var YoutubeVideo = function () {
          * @returns {Promise}
          */
         value: function load() {
-            var _this = this;
+            var _this2 = this;
 
             // create parent div to show loading state
             var instance = players.get(this);
@@ -35153,11 +35165,11 @@ var YoutubeVideo = function () {
             container.classList.add(this.options.loadingCssClass);
             this.el.dispatchEvent(createEvent('loadstart'));
             return this._loadScript().then(function () {
-                return _this._buildPlayer().then(function (ytPlayer) {
-                    _this.ytPlayer = ytPlayer;
-                    container.classList.remove(_this.options.loadingCssClass);
-                    _this.el.dispatchEvent(createEvent('canplay'));
-                    return _this.ytPlayer;
+                return _this2._buildPlayer().then(function (ytPlayer) {
+                    _this2.ytPlayer = ytPlayer;
+                    container.classList.remove(_this2.options.loadingCssClass);
+                    _this2.el.dispatchEvent(createEvent('canplay'));
+                    return _this2.ytPlayer;
                 });
             });
         }
@@ -35248,7 +35260,7 @@ var YoutubeVideo = function () {
     }, {
         key: '_buildPlayer',
         value: function _buildPlayer() {
-            var _this2 = this;
+            var _this3 = this;
 
             var instance = players.get(this) || {};
 
@@ -35263,16 +35275,16 @@ var YoutubeVideo = function () {
             this.videoId = this.getVideoId(this.sourceUrl);
             return new _promise2.default(function (resolve) {
                 instance.ytPlayer = new YT.Player(id, {
-                    height: _this2.options.height,
-                    width: _this2.options.width,
+                    height: _this3.options.height,
+                    width: _this3.options.width,
                     playerVars: instance.playerVars,
-                    videoId: _this2.videoId,
+                    videoId: _this3.videoId,
                     events: {
                         onReady: function onReady(e) {
                             resolve(e.target);
                         },
                         onStateChange: function onStateChange(obj) {
-                            _this2._onYTApiStateChange(obj);
+                            _this3._onYTApiStateChange(obj);
                         }
                     }
                 });
