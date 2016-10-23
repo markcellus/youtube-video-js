@@ -63,6 +63,8 @@ describe('Youtube Video Tests', function () {
     afterEach(function () {
         window.YT = origYT;
         window.onYouTubeIframeAPIReady = origYouTubeIframeAPIReady;
+        // guarantee a fresh start with script (to fake initial loads)
+        Youtube.prototype._scriptLoaded = false;
         resourceManagerLoadScriptStub.restore();
         resourceManagerUnloadScriptStub.restore();
     });
@@ -223,7 +225,7 @@ describe('Youtube Video Tests', function () {
         });
     });
 
-    it('should call Resource Manager\'s unloadScript ONLY when there are no other video instances present', function () {
+    it('should NOT call Resource Manager\'s loadScript a second time but still resolve load call, even when there are no instances', function (done) {
         var videoId = 'nOEw9iiopwI';
         var videoEl = document.createElement('video');
         videoEl.setAttribute('width', 640);
@@ -231,21 +233,20 @@ describe('Youtube Video Tests', function () {
         videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + videoId + '" />';
         var firstPlayer = new Youtube({el: videoEl});
         firstPlayer.load();
-        return triggerScriptLoad().then(function () {
-            var secondPlayer = new Youtube({el: videoEl});
-            secondPlayer.load();
-            firstPlayer.destroy();
-            assert.equal(resourceManagerUnloadScriptStub.callCount, 0, 'after destroying first instance, script element is still not removed, even when it hasnt finished loading yet, because there is another instance present');
-            var thirdPlayer = new Youtube({el: videoEl});
-            thirdPlayer.load();
-            assert.equal(resourceManagerUnloadScriptStub.callCount, 0, 'script element is not removed from DOM because there is still an instance');
-            secondPlayer.destroy();
-            assert.equal(resourceManagerUnloadScriptStub.callCount, 0, 'after destroying second instance after script has loaded, script element is still left hanging out in the DOM because there is another instance present');
-            thirdPlayer.destroy();
-            assert.equal(resourceManagerUnloadScriptStub.callCount, 1, 'after destroying last instance, script element is finally removed from the DOM');
+        triggerScriptLoad().then(function () {
+            triggerPlayerReady().then(() => {
+                assert.equal(resourceManagerLoadScriptStub.callCount, 1);
+                firstPlayer.destroy();
+                var secondPlayer = new Youtube({el: videoEl});
+                secondPlayer.load();
+                triggerPlayerReady().then(() => {
+                    assert.equal(resourceManagerLoadScriptStub.callCount, 1);
+                    secondPlayer.destroy();
+                    done();
+                });
+            });
         });
     });
-
 
     it('should add css playing active class when youtube player api triggers play event', function () {
         var playingClass = 'vid-playing';

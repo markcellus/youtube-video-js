@@ -13,7 +13,6 @@ let eventMethodMap = {};
 let players = new Map();
 let scriptPath = 'https://www.youtube.com/iframe_api';
 let videoCount = 0;
-let scriptLoaded = false;
 
 
 /**
@@ -204,19 +203,23 @@ class YoutubeVideo  {
      */
     _loadScript () {
         // Load the IFrame Player API code asynchronously.
-        if (!scriptLoaded) {
-            scriptLoaded = new Promise((resolve) => {
-                // NOTE: youtube's iframe api ready only fires once after first script load
-                if (!window.onYouTubeIframeAPIReady) {
-                    window.onYouTubeIframeAPIReady = () => {
-                        window.onYouTubeIframeAPIReady = null;
-                        resolve();
-                    };
-                }
-                return ResourceManager.loadScript(scriptPath);
-            });
+        if (YoutubeVideo.prototype._scriptLoaded) {
+            return Promise.resolve();
         }
-        return scriptLoaded;
+        return new Promise((resolve) => {
+            // NOTE: youtube's iframe api ready only fires once after first script load
+            if (!window.onYouTubeIframeAPIReady) {
+                window.onYouTubeIframeAPIReady = () => {
+                    window.onYouTubeIframeAPIReady = null;
+                    // once the script loads once, we are guaranteed for it to
+                    // be ready even after destruction of all instances (if consumer
+                    // doesnt mangle with it)
+                    YoutubeVideo.prototype._scriptLoaded = true;
+                    resolve();
+                };
+            }
+            return ResourceManager.loadScript(scriptPath);
+        });
     }
 
     /**
@@ -333,8 +336,6 @@ class YoutubeVideo  {
         players.delete(this);
 
         if (!players.size) {
-            ResourceManager.unloadScript(scriptPath);
-            scriptLoaded = false;
             players.clear();
             videoCount = 0;
         }
