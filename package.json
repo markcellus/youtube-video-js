@@ -35,13 +35,13 @@
   ],
   "main": "src/youtube-video.js",
   "devDependencies": {
-    "babel-polyfill": "^6.16.0",
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
     "build-tools": "^5.0.0",
     "sinon": "^1.17.3"
   },
   "dependencies": {
+    "babel-polyfill": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
     "lodash": "^4.8.2",
     "promise": "^7.1.1",
