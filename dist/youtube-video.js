@@ -1,5 +1,5 @@
 /** 
-* youtube-video-js - v1.3.0.
+* youtube-video-js - v1.3.1.
 * https://github.com/mkay581/youtube-video-js.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
