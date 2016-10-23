@@ -1,6 +1,6 @@
 {
   "name": "youtube-video-js",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Easily play and control Youtube video using javascript",
   "browserify": {
     "transform": [
@@ -35,7 +35,7 @@
     "babel-polyfill": "^6.16.0",
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
-    "build-tools": "^4.1.3",
+    "build-tools": "^5.0.0",
     "sinon": "^1.17.3"
   },
   "dependencies": {
