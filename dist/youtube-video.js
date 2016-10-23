@@ -1,5 +1,5 @@
 /** 
-* youtube-video-js - v1.3.1.
+* youtube-video-js - v1.3.2.
 * https://github.com/mkay581/youtube-video-js.git
 * Copyright 2016 Mark Kennedy. Licensed MIT.
 */
@@ -36355,7 +36355,6 @@ var eventMethodMap = {};
 var players = new Map();
 var scriptPath = 'https://www.youtube.com/iframe_api';
 var videoCount = 0;
-var scriptLoaded = false;
 
 /**
  * Generates playerVars from a Youtube URL and puts it into a neat little object.
@@ -36473,14 +36472,16 @@ var YoutubeVideo = function () {
             container.setAttribute('class', this.options.customWrapperClass);
             instance.container = container;
 
-            // make original video element absolute or it will
-            // push the newly created video div down
-            this.options.el.style.position = 'absolute';
-
             if (origParent && origParent.contains(this.el)) {
                 origParent.replaceChild(container, this.el);
             }
             container.appendChild(this.el);
+            // make original video element absolute or it will
+            // push the newly created video div down out of view
+            this.options.el.style.position = 'absolute';
+            // dont allow it to cover the iframe video
+            this.options.el.style.zIndex = '-1';
+
             container.classList.add(this.options.loadingCssClass);
             this.el.dispatchEvent(createEvent('loadstart'));
             return this._loadScript().then(function () {
@@ -36555,19 +36556,23 @@ var YoutubeVideo = function () {
         key: '_loadScript',
         value: function _loadScript() {
             // Load the IFrame Player API code asynchronously.
-            if (!scriptLoaded) {
-                scriptLoaded = new _promise2.default(function (resolve) {
-                    // NOTE: youtube's iframe api ready only fires once after first script load
-                    if (!window.onYouTubeIframeAPIReady) {
-                        window.onYouTubeIframeAPIReady = function () {
-                            window.onYouTubeIframeAPIReady = null;
-                            resolve();
-                        };
-                    }
-                    return _resourceManagerJs2.default.loadScript(scriptPath);
-                });
+            if (YoutubeVideo.prototype._scriptLoaded) {
+                return _promise2.default.resolve();
             }
-            return scriptLoaded;
+            return new _promise2.default(function (resolve) {
+                // NOTE: youtube's iframe api ready only fires once after first script load
+                if (!window.onYouTubeIframeAPIReady) {
+                    window.onYouTubeIframeAPIReady = function () {
+                        window.onYouTubeIframeAPIReady = null;
+                        // once the script loads once, we are guaranteed for it to
+                        // be ready even after destruction of all instances (if consumer
+                        // doesnt mangle with it)
+                        YoutubeVideo.prototype._scriptLoaded = true;
+                        resolve();
+                    };
+                }
+                return _resourceManagerJs2.default.loadScript(scriptPath);
+            });
         }
 
         /**
@@ -36704,8 +36709,6 @@ var YoutubeVideo = function () {
             players.delete(this);
 
             if (!players.size) {
-                _resourceManagerJs2.default.unloadScript(scriptPath);
-                scriptLoaded = false;
                 players.clear();
                 videoCount = 0;
             }
