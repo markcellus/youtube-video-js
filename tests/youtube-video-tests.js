@@ -601,6 +601,28 @@ describe('Youtube Video Tests', function () {
         player.destroy();
     });
 
+    it('should set video element visually directly underneath the wrapper after calling load() to prevent video from being out of view', function () {
+        var videoEl = document.createElement('video');
+        videoEl.setAttribute('width', 640);
+        videoEl.setAttribute('height', 360);
+        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=89dsj" />';
+        document.body.appendChild(videoEl);
+        var customWrapperClass = 'v-wrapper';
+        var player = new Youtube({el: videoEl, customWrapperClass: customWrapperClass});
+        player.load();
+        return triggerScriptLoad().then(function () {
+            return triggerPlayerReady().then(function () {
+                let wrapper = videoEl.parentElement;
+                let generatedDiv = wrapper.childNodes[1];
+                let scrolledDownAmount = wrapper.offsetTop - generatedDiv.offsetTop;
+                console.log(scrolledDownAmount);
+                assert.equal(scrolledDownAmount, 0);
+                player.destroy();
+                document.body.removeChild(videoEl);
+            });
+        });
+    });
+
 });
 
 

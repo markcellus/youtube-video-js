@@ -135,14 +135,16 @@ class YoutubeVideo  {
         container.setAttribute('class', this.options.customWrapperClass);
         instance.container = container;
 
-        // make original video element absolute or it will
-        // push the newly created video div down
-        this.options.el.style.position = 'absolute';
-
         if (origParent && origParent.contains(this.el)) {
             origParent.replaceChild(container, this.el);
         }
         container.appendChild(this.el);
+        // make original video element absolute or it will
+        // push the newly created video div down out of view
+        this.options.el.style.position = 'absolute';
+        // dont allow it to cover the iframe video
+        this.options.el.style.zIndex = '-1';
+
         container.classList.add(this.options.loadingCssClass);
         this.el.dispatchEvent(createEvent('loadstart'));
         return this._loadScript().then(() => {
