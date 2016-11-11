@@ -1,9 +1,7 @@
 'use strict';
-import _ from 'lodash';
-import Promise from 'promise';
-import ResourceManager from 'resource-manager-js';
-import 'babel-polyfill';
-
+var _ = require('lodash');
+var Promise = require('promise');
+var ResourceManager = require('resource-manager-js');
 /**
  * A key-value map that maps the video element's MediaEvents to a handler method in this class
  * @type {Object}
@@ -13,7 +11,6 @@ let eventMethodMap = {};
 let players = new Map();
 let scriptPath = 'https://www.youtube.com/iframe_api';
 let videoCount = 0;
-
 
 /**
  * Generates playerVars from a Youtube URL and puts it into a neat little object.
@@ -69,6 +66,7 @@ class YoutubeVideo  {
             el: el,
             autoplay: el.getAttribute('autoplay'),
             width: el.getAttribute('width'),
+            forceSSL: false,
             height: el.getAttribute('height'),
             playingCssClass: 'video-playing',
             loadingCssClass: 'video-loading',
@@ -92,7 +90,8 @@ class YoutubeVideo  {
 
         // build player vars
         privateProps.playerVars = _.extend({
-            autoplay: this.options.autoplay ? 1 : 0
+            autoplay: this.options.autoplay ? 1 : 0,
+            forceSSL: this.options.forceSSL,
         }, getPlayerVars(this.sourceUrl));
 
         players.set(this, privateProps);
@@ -203,23 +202,22 @@ class YoutubeVideo  {
      */
     _loadScript () {
         // Load the IFrame Player API code asynchronously.
-        if (YoutubeVideo.prototype._scriptLoaded) {
-            return Promise.resolve();
+        if (!YoutubeVideo.prototype._scriptLoadPromise) {
+            YoutubeVideo.prototype._scriptLoadPromise = new Promise((resolve) => {
+                // NOTE: youtube's iframe api ready only fires once after first script load
+                if (!window.onYouTubeIframeAPIReady) {
+                    window.onYouTubeIframeAPIReady = () => {
+                        window.onYouTubeIframeAPIReady = null;
+                        // once the script loads once, we are guaranteed for it to
+                        // be ready even after destruction of all instances (if consumer
+                        // doesnt mangle with it)
+                        resolve();
+                    };
+                }
+                return ResourceManager.loadScript(scriptPath);
+            });
         }
-        return new Promise((resolve) => {
-            // NOTE: youtube's iframe api ready only fires once after first script load
-            if (!window.onYouTubeIframeAPIReady) {
-                window.onYouTubeIframeAPIReady = () => {
-                    window.onYouTubeIframeAPIReady = null;
-                    // once the script loads once, we are guaranteed for it to
-                    // be ready even after destruction of all instances (if consumer
-                    // doesnt mangle with it)
-                    YoutubeVideo.prototype._scriptLoaded = true;
-                    resolve();
-                };
-            }
-            return ResourceManager.loadScript(scriptPath);
-        });
+        return YoutubeVideo.prototype._scriptLoadPromise;
     }
 
     /**
@@ -331,6 +329,7 @@ class YoutubeVideo  {
         if (container) {
             container.classList.remove(this.options.loadingCssClass);
         }
+
 
         // remove from cache
         players.delete(this);

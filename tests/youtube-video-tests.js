@@ -64,7 +64,7 @@ describe('Youtube Video Tests', function () {
         window.YT = origYT;
         window.onYouTubeIframeAPIReady = origYouTubeIframeAPIReady;
         // guarantee a fresh start with script (to fake initial loads)
-        Youtube.prototype._scriptLoaded = false;
+        Youtube.prototype._scriptLoadPromise = null;
         resourceManagerLoadScriptStub.restore();
         resourceManagerUnloadScriptStub.restore();
     });
@@ -446,6 +446,43 @@ describe('Youtube Video Tests', function () {
         triggerScriptLoad(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
             triggerPlayerReady().then(function () {
                 secondPlayer.load().then(secondPlayerLoadSpy);
+                // defer to let all promises settle
+                _.defer(function () {
+                    triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
+                        assert.equal(secondPlayerLoadSpy.callCount, 1);
+                        firstPlayer.destroy();
+                        secondPlayer.destroy();
+                        done();
+                    });
+                })
+            });
+        });
+    });
+
+    it('should resolve first and second player\'s load() call if load() calls are made before the script has a chance to load', function (done) {
+        var firstVideoEl = document.createElement('video');
+        firstVideoEl.setAttribute('width', 640);
+        firstVideoEl.setAttribute('height', 360);
+        firstVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        var secondVideoEl = document.createElement('video');
+        secondVideoEl.setAttribute('width', 640);
+        secondVideoEl.setAttribute('height', 360);
+        secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
+        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
+        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
+        var secondStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
+        firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
+        secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
+        var firstPlayer = new Youtube({el: firstVideoEl});
+        var secondPlayer = new Youtube({el: firstVideoEl});
+        var firstPlayerLoadSpy = sinon.spy();
+        firstPlayer.load().then(firstPlayerLoadSpy);
+        var secondPlayerLoadSpy = sinon.spy();
+        secondPlayer.load().then(secondPlayerLoadSpy);
+        triggerScriptLoad(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
+            triggerPlayerReady().then(function () {
+                assert.equal(firstPlayerLoadSpy.callCount, 1);
                 // defer to let all promises settle
                 _.defer(function () {
                     triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
