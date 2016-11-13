@@ -1,6 +1,6 @@
 {
   "name": "youtube-video-js",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Easily play and control Youtube video using javascript",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
