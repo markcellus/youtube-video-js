@@ -1,5 +1,4 @@
 'use strict';
-var _ = require('lodash');
 var Promise = require('promise');
 var ResourceManager = require('resource-manager-js');
 /**
@@ -62,7 +61,7 @@ class YoutubeVideo  {
 
         var el = options.el || document.createDocumentFragment();
 
-        this.options = _.extend({
+        this.options = Object.assign({
             el: el,
             autoplay: el.getAttribute('autoplay'),
             width: el.getAttribute('width'),
@@ -89,7 +88,7 @@ class YoutubeVideo  {
         };
 
         // build player vars
-        privateProps.playerVars = _.extend({
+        privateProps.playerVars = Object.assign({
             autoplay: this.options.autoplay ? 1 : 0,
             forceSSL: this.options.forceSSL,
         }, getPlayerVars(this.sourceUrl));
