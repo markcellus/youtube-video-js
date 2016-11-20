@@ -1,6 +1,6 @@
 'use strict';
-var Promise = require('promise');
-var ResourceManager = require('resource-manager-js');
+import Promise from 'promise';
+import ResourceManager from 'resource-manager-js';
 /**
  * A key-value map that maps the video element's MediaEvents to a handler method in this class
  * @type {Object}
@@ -44,7 +44,7 @@ let createEvent = function (event) {
     return e;
 };
 
-class YoutubeVideo  {
+export default class YoutubeVideo  {
 
     /**
      * Initialization.
@@ -347,7 +347,3 @@ class YoutubeVideo  {
         }
     }
 }
-
-// NOTE: we are not using export default here because it causes
-// problems when attempting to import the pre-built standalone files in dist folder
-module.exports = YoutubeVideo;
