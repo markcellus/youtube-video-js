@@ -10,11 +10,11 @@ var transforms = [
                     "add-module-exports"
                 ],
                 [
-                    "transform-runtime",
-                    {
-                        "polyfill": true
-                    }
-                ]
+                    "transform-object-assign"
+                ],
+                [
+                    "transform-es2015-modules-commonjs"
+                ],
             ]
         }
     ]
@@ -27,7 +27,7 @@ module.exports = {
         },
         browserifyOptions: {
             standalone: 'YoutubeVideo',
-            transform: transforms
+            transform: transforms,
         },
         minifyFiles: {
             'dist/youtube-video-min.js': ['dist/youtube-video.js']

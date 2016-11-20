@@ -1,6 +1,7 @@
 'use strict';
-import Promise from 'promise';
+var Promise = require('es6-promise').Promise;
 import ResourceManager from 'resource-manager-js';
+require('es6-map-shim');
 /**
  * A key-value map that maps the video element's MediaEvents to a handler method in this class
  * @type {Object}
