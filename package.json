@@ -52,7 +52,7 @@
     "browserify": "^13.0.1",
     "es6-map-shim": "^0.2.1",
     "es6-promise": "^4.0.5",
-    "resource-manager-js": "^2.4.0"
+    "resource-manager-js": "^2.6.1"
   },
   "devDependencies": {
     "build-tools": "^6.0.7",
