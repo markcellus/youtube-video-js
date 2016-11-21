@@ -4291,6 +4291,7 @@ var YoutubeVideo = function () {
 }();
 
 exports.default = YoutubeVideo;
+
 module.exports = exports['default'];
 
 },{"es6-map-shim":1,"es6-promise":2,"resource-manager-js":3}],6:[function(require,module,exports){

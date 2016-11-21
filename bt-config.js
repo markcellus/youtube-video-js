@@ -1,25 +1,3 @@
-var transforms = [
-    [
-        "babelify",
-        {
-            "presets": [
-                "es2015"
-            ],
-            "plugins": [
-                [
-                    "add-module-exports"
-                ],
-                [
-                    "transform-object-assign"
-                ],
-                [
-                    "transform-es2015-modules-commonjs"
-                ],
-            ]
-        }
-    ]
-];
-
 module.exports = {
     build: {
         files: {
@@ -27,7 +5,16 @@ module.exports = {
         },
         browserifyOptions: {
             standalone: 'YoutubeVideo',
-            transform: transforms,
+            transform: [
+                [
+                    "babelify",
+                    {
+                        "plugins": [
+                            ["add-module-exports"]
+                        ]
+                    }
+                ]
+            ],
         },
         minifyFiles: {
             'dist/youtube-video-min.js': ['dist/youtube-video.js']
@@ -36,10 +23,7 @@ module.exports = {
     },
     tests: {
         mocha: {
-            files: ['tests/*.js'],
-            browserifyOptions: {
-                transform: transforms
-            },
+            files: ['tests/*.js']
         },
     }
 };

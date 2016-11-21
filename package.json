@@ -21,24 +21,43 @@
     "youtube video",
     "social video"
   ],
-  "main": "./dist/youtube-video.js",
-  "devDependencies": {
+  "main": "./src/youtube-video.js",
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ],
+          "plugins": [
+            [
+              "transform-object-assign"
+            ],
+            [
+              "transform-es2015-modules-commonjs"
+            ]
+          ]
+        }
+      ]
+    ]
+  },
+  "dependencies": {
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.18.0",
     "babel-plugin-transform-object-assign": "^6.8.0",
     "babel-polyfill": "^6.16.0",
     "babel-preset-es2015": "^6.16.0",
-    "babel-runtime": "^6.18.0",
     "babelify": "^7.3.0",
     "browserify": "^13.0.1",
-    "build-tools": "^6.0.7",
-    "lodash": "^4.17.2",
-    "sinon": "^1.17.3"
-  },
-  "dependencies": {
     "es6-map-shim": "^0.2.1",
     "es6-promise": "^4.0.5",
     "resource-manager-js": "^2.4.0"
+  },
+  "devDependencies": {
+    "build-tools": "^6.0.7",
+    "lodash": "^4.17.2",
+    "sinon": "^1.17.3"
   },
   "scripts": {
     "test": "bt test",

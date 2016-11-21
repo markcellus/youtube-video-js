@@ -12,10 +12,15 @@ This library aims to mimick the methods and properties of HTML5's `<video>` tag 
 that is easy to use and adheres to the latest video tag specifications. It also supports all major
 [Video events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events).
 
-## Usage
+## Installation
 
-You can quickly start using the YouTube Video class as a standalone package, by using one of the [pre-built javascript files](/dist).
-Alternatively, you can also use the [source files](/src) directly if you are running your own build processes.
+You can install as an npm package if using a build system like [Browserify](http://browserify.org/). 
+
+```
+npm install youtube-video-js --save-dev
+```
+
+## Usage
 
 ### Setup a Video
 
