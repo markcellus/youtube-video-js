@@ -433,30 +433,36 @@ describe('Youtube Video Tests', function () {
         secondVideoEl.setAttribute('width', 640);
         secondVideoEl.setAttribute('height', 360);
         secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
-        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
-        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstPlayerElement = document.createElement('div');
+        var secondPlayerElement = document.createElement('div');
+        let createPlayerStub = sinon.stub(Youtube.prototype, 'createPlayerElement');
+        createPlayerStub.onFirstCall().returns(firstPlayerElement);
+        createPlayerStub.onSecondCall().returns(secondPlayerElement);
+        var firstStubbedYtPlayer = window.YT.Player.withArgs(firstPlayerElement);
+        var secondStubbedYtPlayer = window.YT.Player.withArgs(secondPlayerElement);
         var firstStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
         var secondStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
         firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
         secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
         var firstPlayer = new Youtube({el: firstVideoEl});
         var secondPlayer = new Youtube({el: firstVideoEl});
-        firstPlayer.load();
-        var secondPlayerLoadSpy = sinon.spy();
-        triggerScriptLoad(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
-            triggerPlayerReady().then(function () {
-                secondPlayer.load().then(secondPlayerLoadSpy);
-                // defer to let all promises settle
-                _.defer(function () {
-                    triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
-                        assert.equal(secondPlayerLoadSpy.callCount, 1);
-                        firstPlayer.destroy();
-                        secondPlayer.destroy();
-                        done();
-                    });
-                })
-            });
-        });
+          firstPlayer.load();
+          var secondPlayerLoadSpy = sinon.spy();
+          triggerScriptLoad(firstStubbedYtPlayer, firstStubbedYtPlayerApi).then(function () {
+              triggerPlayerReady().then(function () {
+                  secondPlayer.load().then(secondPlayerLoadSpy);
+                  // defer to let all promises settle
+                  _.defer(function () {
+                      triggerPlayerReady(secondStubbedYtPlayer, secondStubbedYtPlayerApi).then(function () {
+                          assert.equal(secondPlayerLoadSpy.callCount, 1);
+                          firstPlayer.destroy();
+                          secondPlayer.destroy();
+                          createPlayerStub.restore();
+                          done();
+                      });
+                  });
+              });
+          });
     });
 
     it('should resolve first and second player\'s load() call if load() calls are made before the script has a chance to load', function (done) {
@@ -468,8 +474,13 @@ describe('Youtube Video Tests', function () {
         secondVideoEl.setAttribute('width', 640);
         secondVideoEl.setAttribute('height', 360);
         secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
-        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
-        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstPlayerElement = document.createElement('div');
+        var secondPlayerElement = document.createElement('div');
+        let createPlayerStub = sinon.stub(Youtube.prototype, 'createPlayerElement');
+        createPlayerStub.onFirstCall().returns(firstPlayerElement);
+        createPlayerStub.onSecondCall().returns(secondPlayerElement);
+        var firstStubbedYtPlayer = window.YT.Player.withArgs(firstPlayerElement);
+        var secondStubbedYtPlayer = window.YT.Player.withArgs(secondPlayerElement);
         var firstStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
         var secondStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
         firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
@@ -489,9 +500,10 @@ describe('Youtube Video Tests', function () {
                         assert.equal(secondPlayerLoadSpy.callCount, 1);
                         firstPlayer.destroy();
                         secondPlayer.destroy();
+                        createPlayerStub.restore();
                         done();
                     });
-                })
+                });
             });
         });
     });
@@ -505,8 +517,13 @@ describe('Youtube Video Tests', function () {
         secondVideoEl.setAttribute('width', 640);
         secondVideoEl.setAttribute('height', 360);
         secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
-        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
-        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstPlayerElement = document.createElement('div');
+        var secondPlayerElement = document.createElement('div');
+        let createPlayerStub = sinon.stub(Youtube.prototype, 'createPlayerElement');
+        createPlayerStub.onFirstCall().returns(firstPlayerElement);
+        createPlayerStub.onSecondCall().returns(secondPlayerElement);
+        var firstStubbedYtPlayer = window.YT.Player.withArgs(firstPlayerElement);
+        var secondStubbedYtPlayer = window.YT.Player.withArgs(secondPlayerElement);
         var firstStubbedYtPlayerApi = {
             getPlayerState: sinon.stub(),
             pauseVideo: sinon.spy()
@@ -537,9 +554,10 @@ describe('Youtube Video Tests', function () {
                         assert.equal(secondStubbedYtPlayerApi.pauseVideo.callCount, 0);
                         firstPlayer.destroy();
                         secondPlayer.destroy();
+                        createPlayerStub.restore();
                         done();
                     });
-                })
+                });
             });
         });
     });
@@ -553,8 +571,13 @@ describe('Youtube Video Tests', function () {
         secondVideoEl.setAttribute('width', 640);
         secondVideoEl.setAttribute('height', 360);
         secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
-        var firstStubbedYtPlayer = window.YT.Player.withArgs('vplayer1');
-        var secondStubbedYtPlayer = window.YT.Player.withArgs('vplayer2');
+        var firstPlayerElement = document.createElement('div');
+        var secondPlayerElement = document.createElement('div');
+        let createPlayerStub = sinon.stub(Youtube.prototype, 'createPlayerElement');
+        createPlayerStub.onFirstCall().returns(firstPlayerElement);
+        createPlayerStub.onSecondCall().returns(secondPlayerElement);
+        var firstStubbedYtPlayer = window.YT.Player.withArgs(firstPlayerElement);
+        var secondStubbedYtPlayer = window.YT.Player.withArgs(secondPlayerElement);
         var firstStubbedYtPlayerApi = {
             getPlayerState: sinon.stub(),
             pauseVideo: sinon.spy()
@@ -583,9 +606,10 @@ describe('Youtube Video Tests', function () {
                         assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 0);
                         firstPlayer.destroy();
                         secondPlayer.destroy();
+                        createPlayerStub.restore();
                         done();
                     });
-                })
+                });
             });
         });
     });

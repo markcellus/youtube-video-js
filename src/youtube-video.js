@@ -233,12 +233,12 @@ export default class YoutubeVideo  {
         }
         let id = 'vplayer' + instance.id;
         // create youtube element
-        let ytEl = document.createElement('div');
+        let ytEl = this.createPlayerElement();
         ytEl.setAttribute('id', id);
         instance.container.appendChild(ytEl);
         this.videoId = this.getVideoId(this.sourceUrl);
         return new Promise((resolve) => {
-            instance.ytPlayer = new YT.Player(id, {
+            instance.ytPlayer = new YT.Player(ytEl, {
                 height: this.options.height,
                 width: this.options.width,
                 playerVars: instance.playerVars,
@@ -253,6 +253,10 @@ export default class YoutubeVideo  {
                 }
             });
         });
+    }
+
+    createPlayerElement() {
+      return document.createElement('div');
     }
 
     /**
