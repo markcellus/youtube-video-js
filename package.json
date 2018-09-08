@@ -45,10 +45,11 @@
     "karma-rollup-preprocessor": "^6.0.1",
     "mocha": "^5.2.0",
     "rollup": "^0.65.2",
+    "rollup-plugin-node-resolve": "^3.4.0",
     "sinon": "^6.2.0",
     "uglify-es": "^3.3.9"
   },
   "dependencies": {
-    "resource-manager-js": "^5.0.5"
+    "resource-manager-js": "^5.0.6"
   }
 }

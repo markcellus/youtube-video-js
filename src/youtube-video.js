@@ -1,4 +1,4 @@
-import ResourceManager from '../node_modules/resource-manager-js/src/resource-manager.js';
+import ResourceManager from 'resource-manager-js';
 
 /**
  * A key-value map that maps the video element's MediaEvents to a handler method in this class

@@ -8,13 +8,14 @@ module.exports = function(config) {
 
         rollupPreprocessor: {
             output: {
-                format: 'umd',            // Helps prevent naming collisions.
-                sourcemap: 'inline'        // Sensible for testing.
-            }
+                format: 'umd',
+                sourcemap: 'inline'
+            },
+            plugins: [require('rollup-plugin-node-resolve')()]
         },
         reporters: ['progress'],
         frameworks: ['mocha'],
-        port: 9876,  // karma web server port
+        port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
         browsers: ['ChromeHeadless'],
