@@ -17,23 +17,26 @@
   "license": "MIT",
   "keywords": [
     "video",
-    "social media",
     "youtube",
     "youtube video",
-    "social video"
+    "youtube video element",
+    "youtube web component"
   ],
-  "main": "src/youtube-video.js",
+  "main": "dist/youtube-video.js",
+  "types": "src/youtube.video.ts",
   "scripts": {
-    "test": "karma start karma.conf.js && eslint ./",
+    "test": "karma start karma.conf.js && tslint src/**/*",
+    "test-server": "karma start karma.conf.js --single-run=false",
     "preversion": "npm test",
-    "minify": "uglifyjs dist/youtube-video.umd.js -o dist/youtube-video.umd.min.js",
+    "minify": "uglifyjs dist/youtube-video.js -o dist/youtube-video.min.js",
     "build-dist": "rm -rf dist/* && rollup -c && npm run minify",
     "version": "npm run build-dist && banner-cli dist/*.js && git add -A dist",
     "postversion": "git push && git push --tags",
-    "start": "bt server"
+    "start-dev": "rollup -c --watch"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
+    "@types/youtube": "0.0.34",
     "assert": "^1.4.1",
     "banner-cli": "0.11.1",
     "chai": "^4.1.2",
@@ -46,7 +49,10 @@
     "mocha": "^5.2.0",
     "rollup": "^0.65.2",
     "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-typescript": "^0.8.1",
     "sinon": "^6.2.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3",
     "uglify-es": "^3.3.9"
   },
   "dependencies": {
