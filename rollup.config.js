@@ -10,6 +10,7 @@ const configs = formats.map(({format, extension}) => {
         output: {
             name: 'YoutubeVideo ',
             format,
+            external: ['resource-manager-js'],
             file: `dist/${filePath}.${extension}`
         }
     };
