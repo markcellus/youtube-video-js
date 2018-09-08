@@ -5,4 +5,3 @@
 *.patch
 .idea/
 *.log
-dist/

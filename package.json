@@ -2,16 +2,14 @@
   "name": "youtube-video-js",
   "version": "1.6.2",
   "description": "Easily play and control Youtube video using javascript",
+  "author": "Mark Kennedy <mark@heyimmark.com> (heyimmark.com)",
+  "homepage": "https://github.com/mkay581/youtube-video-js#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/mkay581/youtube-video-js.git"
-  },
-  "author": {
-    "name": "Mark Kennedy",
-    "url": "http://heyimmark.com"
   },
   "engines": {
     "node": ">=8.11.0"
@@ -26,7 +24,7 @@
   ],
   "main": "./src/youtube-video.js",
   "scripts": {
-    "test": "karma start karma.conf.js && eslint ./ --ignore-path .gitignore",
+    "test": "karma start karma.conf.js && eslint ./",
     "preversion": "npm test",
     "minify": "uglifyjs dist/youtube-video.js -o dist/youtube-video.min.js",
     "build-dist": "rm -rf dist/* && rollup src/youtube-video.js --format umd --name YoutubeVideo --file dist/youtube-video.js && npm run minify",
@@ -47,10 +45,8 @@
     "karma-rollup-preprocessor": "^6.0.1",
     "mocha": "^5.2.0",
     "rollup": "^0.65.2",
-    "rollup-plugin-babel": "^4.0.3",
-    "rollup-plugin-buble": "^0.19.2",
     "sinon": "^6.2.0",
-    "uglify-js": "^3.4.9"
+    "uglify-es": "^3.3.9"
   },
   "dependencies": {
     "resource-manager-js": "^5.0.5"
