@@ -5,21 +5,19 @@
 <body>
 <p>Interact with one of the multiple videos loaded below. Notice when playing one, other videos stop playing.</p>
 <video width="640" height="360" id="my-video1">
-    <source type="video/youtube" src="https://www.youtube.com/watch?v=k9EyPfc0FXc" />
+    <source type="video/youtube" src="https://www.youtube.com/watch?v=Nu74oYVxTF4" />
 </video>
 <video width="640" height="360" id="my-video2">
     <source type="video/youtube" src="https://www.youtube.com/watch?v=DcqJvYF1ewA" />
 </video>
 <script src="../dist/youtube-video.js"></script>
 <script>
-    var firstPlayer = new YoutubeVideo({
-        el: document.getElementById("my-video1")
-    });
-    var secondPlayer = new YoutubeVideo({
-        el: document.getElementById("my-video2")
-    });
-    firstPlayer.load();
-    secondPlayer.load();
+    const video1 = document.getElementById("my-video1");
+    var firstPlayer = new YoutubeVideo({el: video1});
+    const video2 = document.getElementById("my-video2");
+    var secondPlayer = new YoutubeVideo({el: video2});
+    video1.load();
+    video2.load();
 
 </script>
 </body>
