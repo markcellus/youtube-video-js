@@ -22,12 +22,12 @@
     "youtube video",
     "social video"
   ],
-  "main": "./src/youtube-video.js",
+  "main": "src/youtube-video.js",
   "scripts": {
     "test": "karma start karma.conf.js && eslint ./",
     "preversion": "npm test",
-    "minify": "uglifyjs dist/youtube-video.js -o dist/youtube-video.min.js",
-    "build-dist": "rm -rf dist/* && rollup src/youtube-video.js --format umd --name YoutubeVideo --file dist/youtube-video.js && npm run minify",
+    "minify": "uglifyjs dist/youtube-video.umd.js -o dist/youtube-video.umd.min.js",
+    "build-dist": "rm -rf dist/* && rollup -c && npm run minify",
     "version": "npm run build-dist && banner-cli dist/*.js && git add -A dist",
     "postversion": "git push && git push --tags",
     "start": "bt server"
