@@ -1,7 +1,5 @@
-'use strict';
-var Promise = require('es6-promise').Promise;
-import ResourceManager from 'resource-manager-js';
-require('es6-map-shim');
+import ResourceManager from '../node_modules/resource-manager-js/src/resource-manager.js';
+
 /**
  * A key-value map that maps the video element's MediaEvents to a handler method in this class
  * @type {Object}
@@ -31,18 +29,6 @@ let getPlayerVars = function (sourceUrl) {
             b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, ' '));
     }
     return b;
-};
-
-/**
- * Creates a new custom event.
- * @param {String} event - The name of the event to trigger
- * @returns {Event} Returns the newly-created event
- */
-let createEvent = function (event) {
-    // use old-way of constructing custom events for IE9 and IE10
-    var e = document.createEvent('CustomEvent');
-    e.initCustomEvent(event, false, false, null);
-    return e;
 };
 
 export default class YoutubeVideo  {
@@ -96,9 +82,9 @@ export default class YoutubeVideo  {
 
         players.set(this, privateProps);
 
-        this.el.play = () => this.play();
-        this.el.pause = () => this.pause();
-        this.el.load = () => this.load();
+        this.el.play = () => this._play();
+        this.el.pause = () => this._pause();
+        this.el.load = () => this._load();
     }
 
     /**
@@ -124,8 +110,9 @@ export default class YoutubeVideo  {
     /**
      * Loads the video and reset the play head to the beginning of the video.
      * @returns {Promise}
+     * @private
      */
-    load () {
+    async _load () {
         // create parent div to show loading state
         let instance = players.get(this);
         let container = document.createElement('div');
@@ -144,15 +131,11 @@ export default class YoutubeVideo  {
         this.options.el.style.zIndex = '-1';
 
         container.classList.add(this.options.loadingCssClass);
-        this.el.dispatchEvent(createEvent('loadstart'));
-        return this._loadScript().then(() => {
-            return this._buildPlayer().then((ytPlayer) => {
-                this.ytPlayer = ytPlayer;
-                container.classList.remove(this.options.loadingCssClass);
-                this.el.dispatchEvent(createEvent('canplay'));
-                return this.ytPlayer;
-            });
-        })
+        this.el.dispatchEvent(new CustomEvent('loadstart'));
+        await this._loadScript();
+        this.ytPlayer = await this._buildPlayer();
+        container.classList.remove(this.options.loadingCssClass);
+        return this.ytPlayer;
     }
 
     /**
@@ -168,8 +151,9 @@ export default class YoutubeVideo  {
     /**
      * Plays the video from it’s current location.
      * TODO: make this function return a promise
+     * @private
      */
-    play () {
+    _play () {
         // add class so things like play button image,
         // thumbnail/poster image, etc can be manipulated if needed
         if (!this.sourceUrl) {
@@ -182,16 +166,18 @@ export default class YoutubeVideo  {
     /**
      * Pauses the video at the then-current time.
      * TODO: make this function return a promise
+     * @private
      */
-    pause () {
+    _pause () {
         this.ytPlayer ? this.ytPlayer.pauseVideo() : null;
     }
 
     /**
      * Stops and cancels loading of the current video.
      * TODO: make this function return a promise
+     * @private
      */
-    stop () {
+    _stop () {
         this.ytPlayer ? this.ytPlayer.stopVideo() : null;
     }
 
@@ -206,12 +192,13 @@ export default class YoutubeVideo  {
             YoutubeVideo.prototype._scriptLoadPromise = new Promise((resolve) => {
                 // NOTE: youtube's iframe api ready only fires once after first script load
                 if (!window.onYouTubeIframeAPIReady) {
+                    YoutubeVideo.prototype._triggerYoutubeIframeAPIReady = resolve;
                     window.onYouTubeIframeAPIReady = () => {
                         window.onYouTubeIframeAPIReady = null;
                         // once the script loads once, we are guaranteed for it to
                         // be ready even after destruction of all instances (if consumer
                         // doesnt mangle with it)
-                        resolve();
+                        YoutubeVideo.prototype._triggerYoutubeIframeAPIReady();
                     };
                 }
                 return ResourceManager.loadScript(scriptPath);
@@ -220,12 +207,17 @@ export default class YoutubeVideo  {
         return YoutubeVideo.prototype._scriptLoadPromise;
     }
 
+    _unloadScript() {
+        ResourceManager.unloadScript(scriptPath);
+        YoutubeVideo.prototype._scriptLoadPromise = null;
+    }
+
     /**
      * Builds the player instance.
      * @returns {Promise} Returns a single YouTube iFrame Player API instance
      * @private
      */
-    _buildPlayer () {
+    async _buildPlayer () {
         let instance = players.get(this) || {};
 
         if (instance.ytPlayer) {
@@ -245,6 +237,8 @@ export default class YoutubeVideo  {
                 videoId: this.videoId,
                 events: {
                     onReady: (e) => {
+                        this.el.dispatchEvent(new CustomEvent('canplay'));
+                        this._resolveBuildPlayerPromise = resolve;
                         resolve(e.target);
                     },
                     onStateChange: (obj) => {
@@ -256,7 +250,7 @@ export default class YoutubeVideo  {
     }
 
     createPlayerElement() {
-      return document.createElement('div');
+        return document.createElement('div');
     }
 
     /**
@@ -265,16 +259,17 @@ export default class YoutubeVideo  {
      */
     _onPlay () {
         let instance = players.get(this);
-        players.forEach((k, player) => {
+        players.forEach((playerInstance) => {
             // state of 1 means a video is currently playing
-            if (k !== instance && k.ytPlayer.getPlayerState() === 1) {
-                player.pause();
+            if (playerInstance !== instance && playerInstance.ytPlayer.getPlayerState() === 1) {
+                const videoElement = playerInstance.container.querySelector('video');
+                videoElement.pause();
             }
         });
         // add class so things like play button image,
         // thumbnail/poster image, etc can be manipulated if needed
         instance.container.classList.add(this.options.playingCssClass);
-
+        this.el.dispatchEvent(new CustomEvent('play'));
         // TODO: pause all other youtube videos from playing!
     }
 
@@ -317,7 +312,7 @@ export default class YoutubeVideo  {
             if (method) {
                 method.call(this);
                 // TODO: trigger 'play' MediaEvent if the video has been paused at least once
-                this.el.dispatchEvent(createEvent(state));
+                this.el.dispatchEvent(new CustomEvent(state));
             }
         }
     }
@@ -341,10 +336,15 @@ export default class YoutubeVideo  {
         if (!players.size) {
             players.clear();
             videoCount = 0;
+            this._unloadScript();
         }
 
 
         eventMethodMap = {};
+
+        if (this._resolveBuildPlayerPromise) {
+            this._resolveBuildPlayerPromise();
+        }
 
         // get rid of container and place video element back in the dom exactly the way we found it
         if (origParent && origParent.contains(container)) {

@@ -41,33 +41,48 @@ HTML5 `<video>` element](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML
 
 ```javascript
 // start a youtube video
-var video = new YoutubeVideo({
-    el: document.getElementsByTagName('video')[0]
+const videoElement = document.getElementsByTagName('video')[0];
+var youtubePlayer = new YoutubeVideo({
+    el: videoElement
 })
 
-video.load().then(() => {
-    video.play();
-    video.pause();
+videoElement.load().then(() => {
+    videoElement.play();
+    videoElement.pause();
 });
 
 ```
 
 ### Listen to the video's events
 
-You can also subscribe to [MediaEvents](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events) just as
+You can also subscribe to [MediaEvents](https://www.w3.org/TR/2011/WD-html5-20110113/video.html#mediaevents) just as
 you would with a `<video>` element.
 
 ```javascript
-let videoElement = document.getElementsByTagName('video')[0];
-let player = new YoutubeVideo({
-    el: document.getElementsByTagName('video')[0]
+let video = document.getElementsByTagName('video')[0];
+let youtubePlayer = new YoutubeVideo({
+    el: video
 })
 
-videoElement.addEventListener('loadstart', function () {
+video.addEventListener('loadstart', function () {
     // video has started loading!
 });
+video.load();
 
-videoElement.load();
+video.addEventListener('playing', function () {
+    // video has started playing!
+});
+video.play();
+
+video.addEventListener('pause', function () {
+    // video has been paused!
+});
+video.pause();
+
+video.addEventListener('ended', function () {
+    // video has ended!
+});
+
 ```
 
 ### Multiple Videos
