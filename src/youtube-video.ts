@@ -14,6 +14,7 @@ export class YoutubeVideoElement extends HTMLElement {
 
     ytPlayer: YT.Player;
     paused: boolean = true;
+    ended: boolean = false;
     ytPlayerContainer: HTMLElement = undefined;
 
     private resolveBuildPlayerPromise: () => void = null;
@@ -140,6 +141,7 @@ export class YoutubeVideoElement extends HTMLElement {
 
     private onPlay() {
         this.paused = false;
+        this.ended = false;
         // pause all other youtube videos from playing!
         videos.forEach((id, video) => {
             if (video !== this && !video.paused) {
@@ -155,10 +157,17 @@ export class YoutubeVideoElement extends HTMLElement {
 
     private onEnd() {
         this.paused = true;
+        this.ended = true;
+    }
+
+    private onCued() {
+        this.ended = false;
+        this.dispatchEvent(new CustomEvent('seeking'));
     }
 
     set error(error) {
         const { message } = error;
+        // TODO: dispatch a HTMLMediaElement.error here (https://html.spec.whatwg.org/multipage/media.html#dom-media-error)
         this.dispatchEvent(new ErrorEvent(message));
         this.mediaError = error;
         throw error;
@@ -181,6 +190,7 @@ export class YoutubeVideoElement extends HTMLElement {
         // trigger our internal event handling method
         // whenever the youtube api player triggers an event
         const eventMethodMap = {
+            cued: this.onCued,
             ended: this.onEnd,
             pause: this.onPause,
             playing: this.onPlay,
@@ -229,6 +239,7 @@ export class YoutubeVideoElement extends HTMLElement {
             const playerOptions = {
                 events: {
                     onError: () => {
+                        // TODO: update this to be a MediaError https://html.spec.whatwg.org/multipage/media.html#mediaerror) to adhere to spec
                         this.error = new Error('player could not be built');
                     },
                     onReady: (e: YT.PlayerEvent) => {
