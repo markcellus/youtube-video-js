@@ -50,6 +50,6 @@
     "uglify-es": "^3.3.9"
   },
   "dependencies": {
-    "resource-manager-js": "^5.0.6"
+    "resource-manager-js": "^5.0.7"
   }
 }
