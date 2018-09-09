@@ -11,7 +11,7 @@ rendering, videos can be played, stopped, paused, and more all with simple, nati
 This library aims to mimick the methods and properties of HTML5's 
 [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag to offer a simple, standardized API
 that is easy to use and adheres to the latest video tag specifications and supports all major 
-[Video events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Media_events).
+[media events](https://html.spec.whatwg.org/multipage/media.html#mediaevents).
 
 ## Installation
 
@@ -19,7 +19,7 @@ that is easy to use and adheres to the latest video tag specifications and suppo
 npm i youtube-video-js
 ```
 
-Then you can use reference the script via build script
+Then you can use reference before running your build script
 
 ```javascript
 import 'youtube-video-js';
@@ -34,8 +34,8 @@ Or you can load it using the `<script>` tag in your html page
 ## Usage
 
 To render a YouTube video, just declare the component in your HTML. Once created (instantiated), the instance 
-can be accessed by JavaScript and will have the [same methods that are available on an HTMLVideoElement 
-(`<video>`) element](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video#Controlling_media_playback).
+can be accessed by JavaScript and will have the [same methods that are available on the 
+HTMLMediaElement](https://html.spec.whatwg.org/multipage/media.html#htmlmediaelement).
 
 __Note: You MUST be requesting a YouTube video from a website that must be either a valid domain or localhost 
 (NOT an IP address) or video wont work! YouTube's requirement, not mine__ :)
