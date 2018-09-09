@@ -1,19 +1,17 @@
-const formats = [
-    {format: 'esm', extension: 'js'},
-    {format: 'umd', extension: 'umd.js'},
-];
+import typescript from 'rollup-plugin-typescript';
+import resolve from 'rollup-plugin-node-resolve';
 
-const configs = formats.map(({format, extension}) => {
-    const filePath = 'youtube-video';
-    return {
-        input: `src/${filePath}.js`,
-        output: {
-            name: 'YoutubeVideo ',
-            format,
-            external: ['resource-manager-js'],
-            file: `dist/${filePath}.${extension}`
-        }
-    };
-});
-
-export default configs;
+export default {
+    input: 'src/youtube-video.ts',
+    output: {
+        format: 'esm',
+        file: 'dist/youtube-video.js'
+    },
+    plugins: [
+        resolve(),
+        typescript()
+    ],
+    watch: {
+        include: 'src/**'
+    }
+};

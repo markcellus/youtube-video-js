@@ -1,4 +1,4 @@
-import Youtube from '../src/youtube-video.js';
+import { YoutubeVideoElement } from '../src/youtube-video';
 import sinon from '../node_modules/sinon/pkg/sinon-esm.js';
 import '../node_modules/chai/chai.js';
 
@@ -9,6 +9,7 @@ describe('Youtube Video Tests', function () {
     let origYouTubeIframeAPIReady;
     let fakePlayerConstructor;
     let stubbedYtPlayerApi;
+    let testContainer;
 
     function triggerYoutubeEvent(eventName) {
         const YOUTUBE_EVENTS = {
@@ -23,7 +24,8 @@ describe('Youtube Video Tests', function () {
     beforeEach(async function () {
         stubbedYtPlayerApi = {
             playVideo: sinon.stub(),
-            pauseVideo: sinon.stub()
+            pauseVideo: sinon.stub(),
+            destroy: sinon.stub(),
         };
         fakePlayerConstructor = sinon.stub();
         class FakePlayer {
@@ -37,39 +39,45 @@ describe('Youtube Video Tests', function () {
         origYouTubeIframeAPIReady = window.onYouTubeIframeAPIReady;
         Object.defineProperty(window, 'onYouTubeIframeAPIReady', {
             set() {
-                Youtube.prototype._triggerYoutubeIframeAPIReady();
+                YoutubeVideoElement.triggerYoutubeIframeAPIReady();
             },
             configurable: true,
         });
+        testContainer = document.createElement('div');
+        document.body.appendChild(testContainer)
     });
 
     afterEach(async function () {
+        document.body.removeChild(testContainer);
         window.onYouTubeIframeAPIReady = origYouTubeIframeAPIReady;
     });
 
-    it('should load proper iFrame player api script when load() is called', function() {
-        var videoEl = document.createElement('video');
+    it('should load proper iFrame player api script when load() is called and remove it from the dom when removed', async function() {
+        var videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var player = new Youtube({el: videoEl});
-        videoEl.load();
-        const ytScripts = document.querySelectorAll('script[src="https://www.youtube.com/iframe_api"]');
-        assert.equal(ytScripts.length, 1);
-        player.destroy();
+        videoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        testContainer.appendChild(videoEl);
+        const query = 'script[src="https://www.youtube.com/iframe_api"]';
+        await videoEl.load(); // wait for API to be ready
+        assert.equal(document.querySelectorAll(query).length, 1);
+        assert.equal(stubbedYtPlayerApi.destroy.callCount, 0);
+        testContainer.removeChild(videoEl);
+        assert.equal(document.querySelectorAll(query).length, 0);
+        assert.equal(stubbedYtPlayerApi.destroy.callCount, 1);
     });
 
     it('should pass the right options to the youtube player constructor when load is called and resolve load call with youtube player instance', async function () {
-        var videoEl = document.createElement('video');
+        const videoEl = document.createElement('youtube-video');
+        const videoId = 'nOEw9iiopwI';
         const playerWidth = 640;
         const playerHeight = 360;
         videoEl.setAttribute('width', playerWidth);
         videoEl.setAttribute('height', playerHeight);
-        const videoId = 'nOEw9iiopwI';
-        videoEl.innerHTML = `<source type="video/youtube" src="http://www.youtube.com/watch?v=${videoId}" />`;
+        videoEl.setAttribute('src', `http://www.youtube.com/watch?v=${videoId}`);
         const playerElement = document.createElement('div');
-        let createPlayerElementStub = sinon.stub(Youtube.prototype, 'createPlayerElement').returns(playerElement);
-        var player = new Youtube({el: videoEl});
+        let createPlayerElementStub = sinon.stub(YoutubeVideoElement.prototype, 'createYTPlayerElement').returns(playerElement);
+        testContainer.appendChild(videoEl);
         const resolvedValue = await videoEl.load();
         const [firstArg, constructorOptionArgs] = fakePlayerConstructor.args[0];
         assert.deepEqual(firstArg, playerElement);
@@ -80,103 +88,34 @@ describe('Youtube Video Tests', function () {
         assert.equal(constructorOptionArgs.playerVars.v, videoId);
         assert.deepEqual(resolvedValue, stubbedYtPlayerApi);
         createPlayerElementStub.restore();
-        player.destroy();
     });
-
-    it('should place video element back under its original parent on destruction after load() call', async function () {
-        var videoEl = document.createElement('video');
-        videoEl.setAttribute('width', 640);
-        videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var parent = document.createElement('div');
-        parent.appendChild(videoEl);
-        var player = new Youtube({el: videoEl});
-        await videoEl.load();
-        player.destroy();
-        assert.equal(parent.childNodes[0], videoEl);
-    });
-
-    it('should detach the original video element from its original parent and append it inside a newly-created container element that sits inside video element\'s original parent', async function () {
-        var videoEl = document.createElement('video');
-        videoEl.setAttribute('width', 640);
-        videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var fixture = document.createElement('div');
-        fixture.appendChild(videoEl);
-        var player = new Youtube({el: videoEl});
-        await videoEl.load();
-        assert.equal(fixture.childNodes[0].childNodes[0], videoEl);
-        player.destroy();
-        assert.equal(fixture.childNodes[0], videoEl, 'after destroy, video element was put back in the DOM inside of its original parent');
-    });
-
-    it('should apply loading css class when player is loading and remove it when done loading', function () {
-        var videoEl = document.createElement('video');
-        videoEl.setAttribute('width', 640);
-        videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var parent = document.createElement('div');
-        parent.appendChild(videoEl);
-        var loadingCssClass = 'v-loading';
-        var player = new Youtube({el: videoEl, loadingCssClass: loadingCssClass});
-        const loadPromise = videoEl.load();
-        assert.ok(videoEl.parentElement.classList.contains(loadingCssClass), 'loading css class is added after load call');
-        return loadPromise.then(() => {
-            assert.ok(!videoEl.parentElement.classList.contains(loadingCssClass), 'loading class is removed after player is ready');
-            player.destroy();
-        });
-    });
-
 
     it('should pass autoplay option of 1 to Youtube player constructor if autoplay attr is true on video element', async function () {
         var videoId = 'nOEw9iiopwI';
-        var videoEl = document.createElement('video');
+        const videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = `<source type="video/youtube" src="http://www.youtube.com/watch?v=${videoId}" />`;
+        videoEl.setAttribute('src', `http://www.youtube.com/watch?v=${videoId}`);
         videoEl.setAttribute('autoplay', true);
-        var player = new Youtube({el: videoEl});
+        testContainer.appendChild(videoEl);
         await videoEl.load();
         const [, constructorOptionArgs] = fakePlayerConstructor.args[0];
         assert.equal(constructorOptionArgs.playerVars.autoplay, 1);
-        player.destroy();
-    });
-
-
-    it('should add and remove css playing active class to/from the video container element per playing, pausing, and ending the video', async function () {
-        var playingClass = 'vid-playing';
-        var videoEl = document.createElement('video');
-        videoEl.setAttribute('width', 640);
-        videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var player = new Youtube({el: videoEl, playingCssClass: playingClass});
-        await videoEl.load();
-        assert.ok(!videoEl.parentElement.classList.contains(playingClass));
-        triggerYoutubeEvent('playing');
-        assert.ok(videoEl.parentElement.classList.contains(playingClass), 'when video is played, css class has been added');
-        triggerYoutubeEvent('pause');
-        assert.isNotOk(videoEl.parentElement.classList.contains(playingClass), 'when video is paused, css class has been removed');
-        // play again
-        triggerYoutubeEvent('playing');
-        assert.ok(videoEl.parentElement.classList.contains(playingClass), 'when video is played, css class has been added');
-        // trigger youtube end event
-        triggerYoutubeEvent('ended');
-        assert.isNotOk(videoEl.parentElement.classList.contains(playingClass), 'when video has ended, css class has been removed');
-        player.destroy();
     });
 
     it('should trigger appropriate events on video element when youtube player api triggers its events', async function () {
-        var videoEl = document.createElement('video');
+        const videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
+        videoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        testContainer.appendChild(videoEl);
         const loadStartSpy = sinon.spy();
         const playingSpy = sinon.spy();
         const playSpy = sinon.spy();
         const canPlaySpy = sinon.spy();
         const pauseSpy = sinon.spy();
         const endedSpy = sinon.spy();
-        var player = new Youtube({el: videoEl});
+        testContainer.appendChild(videoEl);
         videoEl.addEventListener('loadstart', loadStartSpy);
         videoEl.addEventListener('playing', playingSpy);
         videoEl.addEventListener('play', playSpy);
@@ -197,37 +136,34 @@ describe('Youtube Video Tests', function () {
         assert.equal(pauseSpy.callCount, 1, 'pause event has been triggered after video has been paused');
         triggerYoutubeEvent('ended');
         assert.equal(endedSpy.callCount, 1, 'end event has been triggered after video ends');
-        player.destroy();
     });
 
     it('should call playVideo method of youtube player instance when play() method is called', async function () {
-        var videoEl = document.createElement('video');
+        const videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var player = new Youtube({el: videoEl});
+        videoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        testContainer.appendChild(videoEl);
         await videoEl.load();
         assert.equal(stubbedYtPlayerApi.playVideo.callCount, 0);
         videoEl.play();
         assert.equal(stubbedYtPlayerApi.playVideo.callCount, 1);
-        player.destroy();
     });
 
-    it('getVideoId() returns the correct video id from a url that begins with a direct link', function () {
-        var videoEl = document.createElement('video');
-        var player = new Youtube({el: videoEl});
+    it('returns the correct video id from a url that begins with a direct link', function () {
+        const videoEl = document.createElement('youtube-video');
         var videoId = 'nOEw9iiopwI';
-        assert.equal(player.getVideoId('http://www.youtube.com/watch?v=' + videoId), videoId, 'correct video id was returned');
-        player.destroy();
+        videoEl.setAttribute('src', `http://www.youtube.com/watch?v=${videoId}`);
+        testContainer.appendChild(videoEl);
+        assert.equal(videoEl.videoId, videoId);
     });
 
-    it('getVideoId() returnthe correct video id from a youtube url that is a embed link', function () {
-        var videoEl = document.createElement('video');
-        // test url
-        var player = new Youtube({el: videoEl});
+    it('returns the correct video id from a youtube url that is a embed link', function () {
+        const videoEl = document.createElement('youtube-video');
         var videoId = 'nCJJdW20uZI';
-        assert.equal(player.getVideoId('https://www.youtube.com/embed/' + videoId), videoId, 'correct video id was returned');
-        player.destroy();
+        videoEl.setAttribute('src', `http://www.youtube.com/embed/${videoId}`);
+        testContainer.appendChild(videoEl);
+        assert.equal(videoEl.videoId, videoId);
     });
 
     it('should pass any youtube video url params as key-value object pairs to playerVars options in Youtube player constructor when load is called', async function () {
@@ -235,100 +171,53 @@ describe('Youtube Video Tests', function () {
             v: 'nOEw9iiopwI',
             my: 'test'
         };
-        var videoEl = document.createElement('video');
+        const videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML =
-            '<source type="video/youtube" src="http://www.youtube.com/watch?v=' + params.v + '&my=' + params.my + '" />';
-        videoEl.setAttribute('autoplay', true);
-        var player = new Youtube({el: videoEl});
+        videoEl.setAttribute('src', `http://www.youtube.com/watch?v=${params.v}&my=${params.my}`);
+        testContainer.appendChild(videoEl);
         await videoEl.load();
         var [, ytPlayerConstructorOptions] = fakePlayerConstructor.args[0];
         assert.equal(ytPlayerConstructorOptions.playerVars.v, params.v);
         assert.equal(ytPlayerConstructorOptions.playerVars.my, params.my);
-        player.destroy();
     });
 
-    it('attempting to play/pause a video before player has loaded does not throw an error', async function () {
-        var playingClass = 'vid-playing';
-        var videoEl = document.createElement('video');
+    it('attempting to play/pause a video before player has loaded does not throw an mediaError', async function () {
+        const videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var player = new Youtube({el: videoEl, playingCssClass: playingClass});
+        videoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        testContainer.appendChild(videoEl);
         var playSpy = sinon.spy(videoEl, 'play');
         var pauseSpy = sinon.spy(videoEl, 'pause');
         videoEl.load();
         videoEl.play();
-        assert.ok(!playSpy.threw('TypeError'), 'calling play() before player\'s script has loaded does NOT throw error');
+        assert.ok(!playSpy.threw('TypeError'), 'calling play() before player\'s script has loaded does NOT throw mediaError');
         videoEl.pause();
-        assert.ok(!pauseSpy.threw('TypeError'), 'calling pause() before player\'s script has loaded does NOT throw error');
+        assert.ok(!pauseSpy.threw('TypeError'), 'calling pause() before player\'s script has loaded does NOT throw mediaError');
         videoEl.play();
         playSpy.restore();
         pauseSpy.restore();
-        player.destroy();
     });
 
-    it('should create a parent div around the video element and add the css custom class passed as an option to it after calling load()', async function () {
-        var videoEl = document.createElement('video');
-        videoEl.setAttribute('width', 640);
-        videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=89dsj" />';
-        var customWrapperClass = 'v-wrapper';
-        var player = new Youtube({el: videoEl, customWrapperClass: customWrapperClass});
-        await videoEl.load();
-        assert.ok(videoEl.parentElement.classList.contains(customWrapperClass));
-        player.destroy();
-    });
 
-    it('should resolve second player\'s load() call after first player\'s load() is called without having to load script a second time', async function () {
-        var firstVideoEl = document.createElement('video');
+    it('should resolve first and second player\'s load() call when load() calls on the video elements are made before the script has a chance to load', async function () {
+        var firstVideoEl = document.createElement('youtube-video');
         firstVideoEl.setAttribute('width', 640);
         firstVideoEl.setAttribute('height', 360);
-        firstVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var secondVideoEl = document.createElement('video');
+        firstVideoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        var secondVideoEl = document.createElement('youtube-video');
         secondVideoEl.setAttribute('width', 640);
         secondVideoEl.setAttribute('height', 360);
-        secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
+        secondVideoEl.setAttribute('src', 'http://www.youtube.com/watch?v=sk23sha');
         var firstPlayerElement = document.createElement('div');
         var secondPlayerElement = document.createElement('div');
-        let createPlayerStub = sinon.stub(Youtube.prototype, 'createPlayerElement');
-        createPlayerStub.onFirstCall().returns(firstPlayerElement);
-        createPlayerStub.onSecondCall().returns(secondPlayerElement);
-        var firstStubbedYtPlayer = fakePlayerConstructor.withArgs(firstPlayerElement);
-        var secondStubbedYtPlayer = fakePlayerConstructor.withArgs(secondPlayerElement);
-        var firstStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
-        var secondStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
-        firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
-        secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
-        var firstPlayer = new Youtube({el: firstVideoEl});
-        var secondPlayer = new Youtube({el: secondVideoEl});
-        const firstLoadPromise = firstVideoEl.load();
-        const firstPlayerLoadSpy = sinon.spy();
-        firstLoadPromise.then(firstPlayerLoadSpy);
-        var secondPlayerLoadSpy = sinon.spy();
-        const secondLoadPromise = secondVideoEl.load();
-        secondLoadPromise.then(secondPlayerLoadSpy);
-        return Promise.all([firstLoadPromise, secondLoadPromise]).then(() => {
-            assert.ok(secondPlayerLoadSpy.calledAfter(firstPlayerLoadSpy));
-            firstPlayer.destroy();
-            secondPlayer.destroy();
-            createPlayerStub.restore();
+        let createPlayerStub = sinon.stub(YoutubeVideoElement.prototype, 'createYTPlayerElement');
+        // we will be triggering api ready manually for this test
+        Object.defineProperty(window, 'onYouTubeIframeAPIReady', {
+            set() {},
+            configurable: true,
         });
-    });
-
-    it('should resolve first and second player\'s load() call when  if load() calls on the video elements are made before the script has a chance to load', function () {
-        var firstVideoEl = document.createElement('video');
-        firstVideoEl.setAttribute('width', 640);
-        firstVideoEl.setAttribute('height', 360);
-        firstVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var secondVideoEl = document.createElement('video');
-        secondVideoEl.setAttribute('width', 640);
-        secondVideoEl.setAttribute('height', 360);
-        secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
-        var firstPlayerElement = document.createElement('div');
-        var secondPlayerElement = document.createElement('div');
-        let createPlayerStub = sinon.stub(Youtube.prototype, 'createPlayerElement');
         createPlayerStub.onFirstCall().returns(firstPlayerElement);
         createPlayerStub.onSecondCall().returns(secondPlayerElement);
         var firstStubbedYtPlayer = fakePlayerConstructor.withArgs(firstPlayerElement);
@@ -337,29 +226,30 @@ describe('Youtube Video Tests', function () {
         var secondStubbedYtPlayerApi = {getPlayerState: sinon.stub()};
         firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
         secondStubbedYtPlayer.returns(secondStubbedYtPlayerApi);
-        var firstPlayer = new Youtube({el: firstVideoEl});
-        var secondPlayer = new Youtube({el: secondVideoEl});
+        testContainer.appendChild(firstVideoEl);
+        testContainer.appendChild(secondVideoEl);
         var firstPlayerLoadSpy = sinon.spy();
         const firstVideoLoadPromise = firstVideoEl.load();
         firstVideoLoadPromise.then(firstPlayerLoadSpy);
         var secondPlayerLoadSpy = sinon.spy();
         const secondVideoLoadPromise = secondVideoEl.load();
         secondVideoLoadPromise.then(secondPlayerLoadSpy);
-        return Promise.all([firstVideoLoadPromise, secondVideoLoadPromise]).then(() => {
-            assert.equal(firstPlayerLoadSpy.callCount, 1);
-            assert.equal(secondPlayerLoadSpy.callCount, 1);
-            firstPlayer.destroy();
-            secondPlayer.destroy();
-            createPlayerStub.restore();
-        });
+        assert.equal(firstPlayerLoadSpy.callCount, 0);
+        assert.equal(secondPlayerLoadSpy.callCount, 0);
+        YoutubeVideoElement.triggerYoutubeIframeAPIReady(); // trigger api ready
+        await firstVideoLoadPromise;
+        await secondVideoLoadPromise;
+        assert.equal(firstPlayerLoadSpy.callCount, 1);
+        assert.equal(secondPlayerLoadSpy.callCount, 1);
+        createPlayerStub.restore();
     });
 
     it('should call youtube video player\'s methods when calling play and pause methods on the video element', async function () {
-        var videoEl = document.createElement('video');
+        const videoEl = document.createElement('youtube-video');
         videoEl.setAttribute('width', 640);
         videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-        var player = new Youtube({el: videoEl});
+        videoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+        testContainer.appendChild(videoEl);
         await videoEl.load();
         assert.equal(stubbedYtPlayerApi.playVideo.callCount, 0);
         videoEl.play();
@@ -367,25 +257,8 @@ describe('Youtube Video Tests', function () {
         assert.equal(stubbedYtPlayerApi.pauseVideo.callCount, 0);
         videoEl.pause();
         assert.equal(stubbedYtPlayerApi.pauseVideo.callCount, 1);
-        player.destroy();
     });
 
-    it('should set video element visually directly underneath the wrapper after calling load() to prevent video from being out of view', async function () {
-        var videoEl = document.createElement('video');
-        videoEl.setAttribute('width', 640);
-        videoEl.setAttribute('height', 360);
-        videoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=89dsj" />';
-        document.body.appendChild(videoEl);
-        var customWrapperClass = 'v-wrapper';
-        var player = new Youtube({el: videoEl, customWrapperClass: customWrapperClass});
-        await videoEl.load();
-        let wrapper = videoEl.parentElement;
-        let generatedDiv = wrapper.childNodes[1];
-        let scrolledDownAmount = wrapper.offsetTop - generatedDiv.offsetTop;
-        assert.equal(scrolledDownAmount, 0);
-        player.destroy();
-        document.body.removeChild(videoEl);
-    });
 
     describe('when multiple videos are on a page', function () {
 
@@ -395,32 +268,36 @@ describe('Youtube Video Tests', function () {
         let firstPlayerConstructorStub, secondPlayerConstructorStub;
 
         beforeEach(function() {
-            firstVideoEl = document.createElement('video');
+            firstVideoEl = document.createElement('youtube-video');
             firstVideoEl.setAttribute('width', 640);
             firstVideoEl.setAttribute('height', 360);
-            firstVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=nOEw9iiopwI" />';
-            secondVideoEl = document.createElement('video');
+            firstVideoEl.setAttribute('src', 'http://www.youtube.com/watch?v=nOEw9iiopwI');
+            secondVideoEl = document.createElement('youtube-video');
             secondVideoEl.setAttribute('width', 640);
             secondVideoEl.setAttribute('height', 360);
-            secondVideoEl.innerHTML = '<source type="video/youtube" src="http://www.youtube.com/watch?v=sk23sha" />';
+            secondVideoEl.setAttribute('src', 'http://www.youtube.com/watch?v=sk23sha');
             firstPlayerElement = document.createElement('div');
             secondPlayerElement = document.createElement('div');
-            sinon.stub(Youtube.prototype, 'createPlayerElement');
-            Youtube.prototype.createPlayerElement.onFirstCall().returns(firstPlayerElement);
-            Youtube.prototype.createPlayerElement.onSecondCall().returns(secondPlayerElement);
+            sinon.stub(YoutubeVideoElement.prototype, 'createYTPlayerElement');
+            YoutubeVideoElement.prototype.createYTPlayerElement.onFirstCall().returns(firstPlayerElement);
+            YoutubeVideoElement.prototype.createYTPlayerElement.onSecondCall().returns(secondPlayerElement);
             firstStubbedYtPlayerApi = {
                 getPlayerState: sinon.stub(),
-                pauseVideo: sinon.spy()
+                pauseVideo: sinon.spy(),
+                playVideo: sinon.spy(),
+                destroy: sinon.spy(),
             };
             secondStubbedYtPlayerApi = {
                 getPlayerState: sinon.stub(),
-                pauseVideo: sinon.spy()
+                pauseVideo: sinon.spy(),
+                playVideo: sinon.spy(),
+                destroy: sinon.spy(),
             };
             firstPlayerConstructorStub = sinon.stub();
             secondPlayerConstructorStub = sinon.stub();
             class FakeMultiPlayer {
                 constructor(ytEl, props) {
-                    let stubbedApi = stubbedYtPlayerApi;
+                    let stubbedApi;
                     if (ytEl === firstPlayerElement) {
                         firstPlayerConstructorStub(...arguments);
                         stubbedApi = firstStubbedYtPlayerApi;
@@ -436,28 +313,27 @@ describe('Youtube Video Tests', function () {
         });
 
         afterEach(function() {
-            Youtube.prototype.createPlayerElement.restore();
+            YoutubeVideoElement.prototype.createYTPlayerElement.restore();
         });
 
-        it('should call first player\'s pause() if it is playing when the second player is played', async function () {
-            var firstPlayer = new Youtube({el: firstVideoEl});
-            var secondPlayer = new Youtube({el: secondVideoEl});
+        it('should call first player\'s pause() if it is playing when the youtube triggers playing on second video', async function () {
+            testContainer.appendChild(firstVideoEl);
+            testContainer.appendChild(secondVideoEl);
             await firstVideoEl.load();
             await secondVideoEl.load();
             assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 0);
-            // ensure that first video is in a playing state
+            firstVideoEl.play();
+            firstPlayerConstructorStub.args[0][1].events.onStateChange({data: 1}); /// trigger play on youtube's api
             firstStubbedYtPlayerApi.getPlayerState.returns(1);
-            // trigger play on second player
-            secondPlayerConstructorStub.args[0][1].events.onStateChange({data: 1});
+            secondVideoEl.play();
+            secondPlayerConstructorStub.args[0][1].events.onStateChange({data: 1}); // trigger play on youtube's api
             assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 1);
             assert.equal(secondStubbedYtPlayerApi.pauseVideo.callCount, 0);
-            firstPlayer.destroy();
-            secondPlayer.destroy();
         });
 
         it('should NOT call first player\'s pause() if it is NOT playing when the second player is played', async function () {
-            var firstPlayer = new Youtube({el: firstVideoEl});
-            var secondPlayer = new Youtube({el: secondVideoEl});
+            testContainer.appendChild(firstVideoEl);
+            testContainer.appendChild(secondVideoEl);
             await firstVideoEl.load();
             await secondVideoEl.load();
             // ensure that first video is in an unstarted state
@@ -465,8 +341,6 @@ describe('Youtube Video Tests', function () {
             // trigger play on second player
             secondPlayerConstructorStub.args[0][1].events.onStateChange({data: 1});
             assert.equal(firstStubbedYtPlayerApi.pauseVideo.callCount, 0);
-            firstPlayer.destroy();
-            secondPlayer.destroy();
         });
     });
 

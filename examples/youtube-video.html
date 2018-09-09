@@ -1,41 +1,29 @@
 <html>
 <head>
     <title>Youtube video events</title>
+    <script type="module" src="../dist/youtube-video.js"></script>
 </head>
-<style>
-    /* Hide the video tag since its just a placeholder */
-    video {display: none}
-</style>
 <body>
-<p>Feel free to interact with the video below. Playing, pausing and ending it will update the text below:</p>
-<p><strong>State:</strong> <span class="video-state"></span></p>
-<video width="640" height="360" id="my-video">
-    <source type="video/youtube" src="https://www.youtube.com/watch?v=Nu74oYVxTF4" />
-</video>
-<script src="../dist/youtube-video.js"></script>
-<script>
-    var videoEl = document.getElementById("my-video");
-    var player = new YoutubeVideo({
-        el: videoEl
-    });
-    var stateText = document.body.getElementsByClassName('video-state')[0];
+    <p>Feel free to interact with the video below. Playing, pausing and ending it will update the text below:</p>
+    <p><strong>State:</strong> <span class="video-state"></span></p>
 
-    // add event listeners
-    videoEl.addEventListener('playing', function () {
-        stateText.textContent = 'playing';
-    });
-    videoEl.addEventListener('ended', function () {
-        stateText.textContent = 'finished';
-    });
+    <youtube-video width="640" height="360" id="my-video" src="https://www.youtube.com/watch?v=Nu74oYVxTF4"></youtube-video>
 
-    videoEl.addEventListener('pause', function () {
-        stateText.textContent = 'paused';
-    });
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const videoEl = document.querySelector('youtube-video');
+            const [stateText] = document.body.getElementsByClassName('video-state');
+            // add event listeners
+            videoEl.addEventListener('playing', () => stateText.textContent = 'playing');
+            videoEl.addEventListener('ended', () => stateText.textContent = 'finished');
+            videoEl.addEventListener('pause', () => stateText.textContent = 'paused');
+            // load video
+            videoEl.load().then(function () {
+                videoEl.play();
+            })
+        });
 
-    videoEl.load().then(function () {
-        return videoEl.play();
-    })
+    </script>
 
-</script>
 </body>
 </html>

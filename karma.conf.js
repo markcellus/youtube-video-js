@@ -11,7 +11,10 @@ module.exports = function(config) {
                 format: 'umd',
                 sourcemap: 'inline'
             },
-            plugins: [require('rollup-plugin-node-resolve')()]
+            plugins: [
+                require('rollup-plugin-node-resolve')(),
+                require('rollup-plugin-typescript')()
+            ]
         },
         reporters: ['progress'],
         frameworks: ['mocha'],
