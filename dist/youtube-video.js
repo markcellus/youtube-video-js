@@ -1,3 +1,11 @@
+/*!
+ * Youtube-video-js v2.0.3
+ * https://github.com/mkay581/youtube-video-js#readme
+ *
+ * Copyright (c) 2018 Mark Kennedy
+ * Licensed under the MIT license
+ */
+
 /**
  * Makes sure that a path is converted to an array.
  * @param paths
