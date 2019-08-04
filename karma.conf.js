@@ -1,29 +1,24 @@
 module.exports = function(config) {
     config.set({
-        files: ['tests/**/*.js'],
+        files: [{ pattern: 'tests/**/*.ts', type: 'module' }],
 
-        preprocessors: {
-            'tests/**/*.js': ['rollup']
+        plugins: [require.resolve('@open-wc/karma-esm'), 'karma-*'],
+
+        esm: {
+            nodeResolve: true,
+            compatibility: 'all',
+            fileExtensions: ['.ts'],
+            babel: true,
         },
 
-        rollupPreprocessor: {
-            output: {
-                format: 'umd',
-                sourcemap: 'inline'
-            },
-            plugins: [
-                require('rollup-plugin-node-resolve')(),
-                require('rollup-plugin-typescript')()
-            ]
-        },
         reporters: ['progress'],
-        frameworks: ['mocha'],
+        frameworks: ['esm', 'mocha'],
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
         browsers: ['ChromeHeadless'],
         autoWatch: true,
         singleRun: true,
-        concurrency: Infinity
+        concurrency: Infinity,
     });
 };

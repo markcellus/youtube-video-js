@@ -9,8 +9,8 @@ declare global {
 const videos: Map<YoutubeVideoElement, string> = new Map();
 
 export class YoutubeVideoElement extends HTMLElement {
-    private static scriptLoadPromise: Promise<void> = null;
-    private static triggerYoutubeIframeAPIReady: () => void = null;
+    static scriptLoadPromise: Promise<void> = null;
+    static triggerYoutubeIframeAPIReady: () => void = null;
 
     ytPlayer: YT.Player;
     paused: boolean = true;
@@ -51,10 +51,10 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get height(): number {
-        return Number(this.getAttribute('height'))
+        return Number(this.getAttribute('height'));
     }
     get width(): number {
-        return Number(this.getAttribute('width'))
+        return Number(this.getAttribute('width'));
     }
 
     get src(): string {
@@ -63,7 +63,7 @@ export class YoutubeVideoElement extends HTMLElement {
 
     get autoplay(): boolean {
         return Boolean(this.getAttribute('autoplay'));
-    };
+    }
 
     get id(): string {
         return this.getAttribute('id') || `ytPlayer-${videos.size}`;
@@ -74,15 +74,17 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get ytPlayerVars(): YT.PlayerVars {
-        const {srcQueryParams} = this;
+        const { srcQueryParams } = this;
         srcQueryParams.autoplay = this.autoplay ? 1 : 0;
         srcQueryParams.controls = this.controls ? 1 : 0;
         return srcQueryParams;
-    };
+    }
 
     get srcQueryParams(): YT.PlayerVars {
         const queryString = this.src.split('?')[1] || '';
-        if (!queryString) { return {}; }
+        if (!queryString) {
+            return {};
+        }
         const a = queryString.split('&');
         const params: YT.PlayerVars = {};
         for (const item of a) {
@@ -102,15 +104,20 @@ export class YoutubeVideoElement extends HTMLElement {
         return this.ytPlayer;
     }
 
-    get videoId(): number | string {
-        const re = new RegExp(`https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\.be\\/|youtube(?:-nocookie)?\\.com\\S*[^\\w\\s-])([\\w-]{11})(?=[^\\w-]|$)(?![?=&+%\\w.-]*(?:['"][^<>]*>|<\\/a>))[?=&+%\\w.-]*`, 'ig');
+    get videoId(): string {
+        const re = new RegExp(
+            `https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\.be\\/|youtube(?:-nocookie)?\\.com\\S*[^\\w\\s-])([\\w-]{11})(?=[^\\w-]|$)(?![?=&+%\\w.-]*(?:['"][^<>]*>|<\\/a>))[?=&+%\\w.-]*`,
+            'ig'
+        );
         return this.src.replace(re, '$1');
     }
 
     play() {
         this.paused = false;
         if (!this.src) {
-            this.error = new Error(`you cannot call play() method on a video element that has no youtube source url`);
+            this.error = new Error(
+                `you cannot call play() method on a video element that has no youtube source url`
+            );
         } else if (this.ytPlayer) {
             this.ytPlayer.playVideo();
         }
@@ -118,7 +125,7 @@ export class YoutubeVideoElement extends HTMLElement {
 
     pause() {
         if (this.ytPlayer) {
-            this.ytPlayer.pauseVideo()
+            this.ytPlayer.pauseVideo();
         }
     }
 
@@ -186,7 +193,7 @@ export class YoutubeVideoElement extends HTMLElement {
     private loadYTScript(): Promise<void> {
         // Load the IFrame Player API code asynchronously.
         if (!YoutubeVideoElement.scriptLoadPromise) {
-            YoutubeVideoElement.scriptLoadPromise = new Promise((resolve) => {
+            YoutubeVideoElement.scriptLoadPromise = new Promise(resolve => {
                 // NOTE: youtube's iframe api ready only fires once after first script load
                 if (!window.onYouTubeIframeAPIReady) {
                     YoutubeVideoElement.triggerYoutubeIframeAPIReady = resolve;
@@ -213,10 +220,10 @@ export class YoutubeVideoElement extends HTMLElement {
         if (this.ytPlayerPromise) {
             return this.ytPlayerPromise;
         }
-        this.ytPlayerPromise = new Promise((resolve) => {
+        this.ytPlayerPromise = new Promise(resolve => {
             const playerOptions = {
                 events: {
-                    onError: (e: YT.OnErrorEvent) => {
+                    onError: () => {
                         this.error = new Error('player could not be built');
                     },
                     onReady: (e: YT.PlayerEvent) => {
@@ -225,14 +232,19 @@ export class YoutubeVideoElement extends HTMLElement {
                         this.resolveBuildPlayerPromise = resolve;
                         resolve(e.target);
                     },
-                    onStateChange: (obj: YT.OnStateChangeEvent) => this._onYTApiStateChange(obj),
+                    onStateChange: (obj: YT.OnStateChangeEvent) =>
+                        this._onYTApiStateChange(obj),
                 },
                 height: this.height,
                 playerVars: this.ytPlayerVars,
                 videoId: this.videoId,
                 width: this.width,
             };
-            this.ytPlayer = new YT.Player(this.ytPlayerContainer, playerOptions);
+            this.ytPlayer = new YT.Player(
+                // @ts-ignore
+                this.ytPlayerContainer,
+                playerOptions
+            );
         });
         return this.ytPlayerPromise;
     }
