@@ -33,8 +33,6 @@
     "preversion": "npm test",
     "minify": "uglifyjs dist/youtube-video.js -o dist/youtube-video.min.js",
     "build-dist": "rm -rf dist/* && rollup -c && npm run minify",
-    "version": "npm run build-dist && banner-cli dist/*.js && git add -A dist",
-    "postversion": "git push && git push --tags",
     "start-dev": "rollup -c --watch",
     "start": "http-server ./ -p 3139"
   },
