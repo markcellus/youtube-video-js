@@ -1,5 +1,5 @@
 /*!
- * Youtube-video-js v3.0.0
+ * Youtube-video-js v3.1.0
  * https://github.com/mkay581/youtube-video-js#readme
  *
  * Copyright (c) 2019 Mark Kennedy
@@ -258,6 +258,9 @@ class YoutubeVideoElement extends HTMLElement {
     get autoplay() {
         return Boolean(this.getAttribute('autoplay'));
     }
+    get playsinline() {
+        return Boolean(this.getAttribute('playsinline'));
+    }
     get id() {
         return this.getAttribute('id') || `ytPlayer-${videos.size}`;
     }
@@ -268,6 +271,7 @@ class YoutubeVideoElement extends HTMLElement {
         const { srcQueryParams } = this;
         srcQueryParams.autoplay = this.autoplay ? 1 : 0;
         srcQueryParams.controls = this.controls ? 1 : 0;
+        srcQueryParams.playsinline = this.playsinline ? 1 : 0;
         return srcQueryParams;
     }
     get srcQueryParams() {

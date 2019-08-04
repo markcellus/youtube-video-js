@@ -21,6 +21,7 @@ export declare class YoutubeVideoElement extends HTMLElement {
     readonly width: number;
     readonly src: string;
     readonly autoplay: boolean;
+    readonly playsinline: boolean;
     readonly id: string;
     readonly controls: boolean;
     readonly ytPlayerVars: YT.PlayerVars;
