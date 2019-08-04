@@ -1,8 +1,8 @@
 /*!
- * Youtube-video-js v2.0.3
+ * Youtube-video-js v3.0.0
  * https://github.com/mkay581/youtube-video-js#readme
  *
- * Copyright (c) 2018 Mark Kennedy
+ * Copyright (c) 2019 Mark Kennedy
  * Licensed under the MIT license
  */
 
@@ -215,15 +215,6 @@ class ResourceManager {
 }
 const resourceManager = new ResourceManager();
 
-function __awaiter(thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
-    });
-}
-
 const videos = new Map();
 class YoutubeVideoElement extends HTMLElement {
     constructor() {
@@ -267,7 +258,6 @@ class YoutubeVideoElement extends HTMLElement {
     get autoplay() {
         return Boolean(this.getAttribute('autoplay'));
     }
-    ;
     get id() {
         return this.getAttribute('id') || `ytPlayer-${videos.size}`;
     }
@@ -280,7 +270,6 @@ class YoutubeVideoElement extends HTMLElement {
         srcQueryParams.controls = this.controls ? 1 : 0;
         return srcQueryParams;
     }
-    ;
     get srcQueryParams() {
         const queryString = this.src.split('?')[1] || '';
         if (!queryString) {
@@ -299,12 +288,10 @@ class YoutubeVideoElement extends HTMLElement {
         }
         return params;
     }
-    load() {
-        return __awaiter(this, void 0, Promise, function* () {
-            yield this.loadYTScript();
-            this.ytPlayer = yield this.buildPlayer();
-            return this.ytPlayer;
-        });
+    async load() {
+        await this.loadYTScript();
+        this.ytPlayer = await this.buildPlayer();
+        return this.ytPlayer;
     }
     get videoId() {
         const re = new RegExp(`https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\.be\\/|youtube(?:-nocookie)?\\.com\\S*[^\\w\\s-])([\\w-]{11})(?=[^\\w-]|$)(?![?=&+%\\w.-]*(?:['"][^<>]*>|<\\/a>))[?=&+%\\w.-]*`, 'ig');
@@ -381,7 +368,7 @@ class YoutubeVideoElement extends HTMLElement {
     loadYTScript() {
         // Load the IFrame Player API code asynchronously.
         if (!YoutubeVideoElement.scriptLoadPromise) {
-            YoutubeVideoElement.scriptLoadPromise = new Promise((resolve) => {
+            YoutubeVideoElement.scriptLoadPromise = new Promise(resolve => {
                 // NOTE: youtube's iframe api ready only fires once after first script load
                 if (!window.onYouTubeIframeAPIReady) {
                     YoutubeVideoElement.triggerYoutubeIframeAPIReady = resolve;
@@ -406,10 +393,10 @@ class YoutubeVideoElement extends HTMLElement {
         if (this.ytPlayerPromise) {
             return this.ytPlayerPromise;
         }
-        this.ytPlayerPromise = new Promise((resolve) => {
+        this.ytPlayerPromise = new Promise(resolve => {
             const playerOptions = {
                 events: {
-                    onError: (e) => {
+                    onError: () => {
                         this.error = new Error('player could not be built');
                     },
                     onReady: (e) => {
@@ -425,7 +412,9 @@ class YoutubeVideoElement extends HTMLElement {
                 videoId: this.videoId,
                 width: this.width,
             };
-            this.ytPlayer = new YT.Player(this.ytPlayerContainer, playerOptions);
+            this.ytPlayer = new YT.Player(
+            // @ts-ignore
+            this.ytPlayerContainer, playerOptions);
         });
         return this.ytPlayerPromise;
     }
