@@ -23,7 +23,10 @@
     "youtube web component"
   ],
   "main": "dist/youtube-video.js",
-  "types": "src/youtube.video.ts",
+  "types": "dist/src/youtube.video.ts",
+  "files": [
+    "dist/**/*" 
+  ],
   "scripts": {
     "test": "karma start karma.conf.js && eslint '**/*.{js,ts}'",
     "test-server": "karma start karma.conf.js --single-run=false",
