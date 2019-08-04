@@ -5,3 +5,4 @@
 *.patch
 .idea/
 *.log
+node_modules
