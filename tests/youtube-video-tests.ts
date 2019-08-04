@@ -134,6 +134,22 @@ describe('Youtube Video Tests', function() {
         assert.equal(constructorOptionArgs.playerVars.autoplay, 1);
     });
 
+    it('should pass playsinline option of 1 to Youtube player constructor if autoplay attr is true on video element', async function() {
+        var videoId = 'nOEw9iiopwI';
+        const videoEl = document.createElement(
+            'youtube-video'
+        ) as YoutubeVideoElement;
+        videoEl.setAttribute(
+            'src',
+            `http://www.youtube.com/watch?v=${videoId}`
+        );
+        videoEl.setAttribute('playsinline', 'true');
+        testContainer.appendChild(videoEl);
+        await videoEl.load();
+        const [, constructorOptionArgs] = fakePlayerConstructor.args[0];
+        assert.equal(constructorOptionArgs.playerVars.playsinline, 1);
+    });
+
     it('should trigger appropriate events on video element when youtube player api triggers its events', async function() {
         const videoEl = document.createElement(
             'youtube-video'

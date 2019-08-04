@@ -65,6 +65,10 @@ export class YoutubeVideoElement extends HTMLElement {
         return Boolean(this.getAttribute('autoplay'));
     }
 
+    get playsinline(): boolean {
+        return Boolean(this.getAttribute('playsinline'));
+    }
+
     get id(): string {
         return this.getAttribute('id') || `ytPlayer-${videos.size}`;
     }
@@ -77,6 +81,7 @@ export class YoutubeVideoElement extends HTMLElement {
         const { srcQueryParams } = this;
         srcQueryParams.autoplay = this.autoplay ? 1 : 0;
         srcQueryParams.controls = this.controls ? 1 : 0;
+        srcQueryParams.playsinline = this.playsinline ? 1 : 0;
         return srcQueryParams;
     }
 
