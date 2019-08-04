@@ -1,5 +1,5 @@
 /*!
- * Youtube-video-js v3.1.0
+ * Youtube-video-js v3.1.1
  * https://github.com/mkay581/youtube-video-js#readme
  *
  * Copyright (c) 2019 Mark Kennedy
