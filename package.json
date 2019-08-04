@@ -23,7 +23,7 @@
     "youtube web component"
   ],
   "main": "dist/youtube-video.js",
-  "types": "dist/src/youtube.video.ts",
+  "types": "dist/youtube.video.d.ts",
   "files": [
     "dist/**/*"
   ],
