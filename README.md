@@ -3,14 +3,13 @@
 
 # YouTube Video
 
-A `<youtube-video>` web component that allows you to easily play and control YouTube videos, powered by the 
-[YouTube IFrame Player API](https://developers.google.com/youtube/iframe_api_reference). In addition to simple 
-rendering, videos can be played, stopped, paused, and more all with simple, native javascript. 
+A `<youtube-video>` web component that allows you to easily play and control YouTube videos, powered by the
+[YouTube IFrame Player API](https://developers.google.com/youtube/iframe_api_reference). In addition to simple
+rendering, videos can be played, stopped, paused, and more all with simple, native javascript.
 
-
-This library aims to mimick the methods and properties of HTML5's 
+This library aims to mimick the methods and properties of HTML5's
 [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video) tag to offer a simple, standardized API
-that is easy to use and adheres to the latest video tag specifications and supports all major 
+that is easy to use and adheres to the latest video tag specifications and supports all major
 [media events](https://html.spec.whatwg.org/multipage/media.html#mediaevents).
 
 ## Installation
@@ -28,38 +27,49 @@ import 'youtube-video-js';
 Or you can load it using the `<script>` tag in your html page
 
 ```html
-<script type="module" src="/node_modules/youtube-video-js/dist/youtube-video.js"></script>
+<script
+    type="module"
+    src="/node_modules/youtube-video-js/dist/youtube-video.js"
+></script>
 ```
 
 ## Usage
 
-To render a YouTube video, just declare the component in your HTML. Once created (instantiated), the instance 
-can be accessed by JavaScript and will have the [same methods that are available on the 
+To render a YouTube video, just declare the component in your HTML. Once created (instantiated), the instance
+can be accessed by JavaScript and will have the [same methods that are available on the
 HTMLMediaElement](https://html.spec.whatwg.org/multipage/media.html#htmlmediaelement).
 
-__Note: You MUST be requesting a YouTube video from a website that must be either a valid domain or localhost 
-(NOT an IP address) or video wont work! YouTube's requirement, not mine__ :)
+**Note: You MUST be requesting a YouTube video from a website that must be either a valid domain or localhost
+(NOT an IP address) or video wont work! YouTube's requirement, not mine** :)
 
 ```html
 <!-- index.html -->
-<script type="module" src="/node_modules/youtube-video-js/dist/youtube-video.js"></script>
-<youtube-video width="640" height="360" src="https://www.youtube.com/watch?v=ye82js0sL32" autoplay controls />
+<script
+    type="module"
+    src="/node_modules/youtube-video-js/dist/youtube-video.js"
+></script>
+<youtube-video
+    width="640"
+    height="360"
+    src="https://www.youtube.com/watch?v=ye82js0sL32"
+    autoplay
+    controls
+/>
 
 <script>
     const videoElement = document.querySelector('youtube-video');
     // must wait for DOM to be ready and for component to be accessible
-    document.addEventListener("DOMContentLoaded", function() {
-            // wait for loading
-            videoElement.load().then(() => {
-                // pause video after two seconds
-                const timer = setTimeout(function () {
-                    videoElement.pause();
-                    clearTimeout(timer);
-                }, 2000)
-            });
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+        // wait for loading
+        videoElement.load().then(() => {
+            // pause video after two seconds
+            const timer = setTimeout(function() {
+                videoElement.pause();
+                clearTimeout(timer);
+            }, 2000);
+        });
+    });
 </script>
-
 ```
 
 ### Listen to the video's events
@@ -70,31 +80,27 @@ you would with a native `<video>` element.
 ```javascript
 const video = document.querySelector('youtube-video');
 
-video.addEventListener('playing', function () {
+video.addEventListener('playing', function() {
     // video has started playing!
 });
 
-video.addEventListener('pause', function () {
+video.addEventListener('pause', function() {
     // video has been paused!
 });
 
-video.addEventListener('ended', function () {
+video.addEventListener('ended', function() {
     // video has ended!
 });
 
-video.addEventListener('loadstart', function () {
+video.addEventListener('loadstart', function() {
     // play video
     video.play();
     // pause video after four seconds
-    const timer = setTimeout(function () {
+    const timer = setTimeout(function() {
         video.pause();
         clearTimeout(timer);
-    }, 4000)
+    }, 4000);
 });
-
-
-
-
 ```
 
 ### Multiple Videos
