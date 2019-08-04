@@ -51,7 +51,7 @@ HTMLMediaElement](https://html.spec.whatwg.org/multipage/media.html#htmlmediaele
 <youtube-video
     width="640"
     height="360"
-    src="https://www.youtube.com/watch?v=ye82js0sL32"
+    src="https://www.youtube.com/watch?v=Wn9twYUXw6w"
     autoplay
     controls
 />
