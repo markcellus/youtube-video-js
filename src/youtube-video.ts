@@ -62,7 +62,7 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get autoplay(): boolean {
-        return Boolean(this.getAttribute('autoplay'));
+        return this.hasAttribute('autoplay');
     }
 
     get playsinline(): boolean {
