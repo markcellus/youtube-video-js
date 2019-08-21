@@ -30,7 +30,6 @@
   "scripts": {
     "test": "karma start karma.conf.js && eslint '**/*.{js,ts}'",
     "test-server": "karma start karma.conf.js --single-run=false",
-    "preversion": "npm test",
     "minify": "uglifyjs dist/youtube-video.js -o dist/youtube-video.min.js",
     "build-dist": "rm -rf dist/* && rollup -c && npm run minify",
     "banner": "banner-cli dist/*.js",
