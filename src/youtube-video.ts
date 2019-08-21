@@ -66,7 +66,7 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get playsinline(): boolean {
-        return Boolean(this.getAttribute('playsinline'));
+        return this.hasAttribute('playsinline');
     }
 
     get id(): string {
