@@ -62,11 +62,11 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get autoplay(): boolean {
-        return Boolean(this.getAttribute('autoplay'));
+        return this.hasAttribute('autoplay');
     }
 
     get playsinline(): boolean {
-        return Boolean(this.getAttribute('playsinline'));
+        return this.hasAttribute('playsinline');
     }
 
     get id(): string {
@@ -74,7 +74,7 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get controls(): boolean {
-        return Boolean(this.getAttribute('controls'));
+        return this.hasAttribute('controls') || true;
     }
 
     get ytPlayerVars(): YT.PlayerVars {

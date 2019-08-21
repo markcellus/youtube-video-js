@@ -112,11 +112,13 @@ describe('Youtube Video Tests', function() {
         assert.equal(constructorOptionArgs.videoId, videoId);
         assert.equal(constructorOptionArgs.playerVars.autoplay, 0);
         assert.equal(constructorOptionArgs.playerVars.v, videoId);
+        assert.equal(constructorOptionArgs.playerVars.controls, 1),
+            'sets controls to 1 by default';
         assert.deepEqual(resolvedValue, stubbedYtPlayerApi);
         createPlayerElementStub.restore();
     });
 
-    it('should pass autoplay option of 1 to Youtube player constructor if autoplay attr is true on video element', async function() {
+    it('should pass autoplay option of 1 to Youtube player constructor if autoplay attr is set on video element', async function() {
         var videoId = 'nOEw9iiopwI';
         const videoEl = document.createElement(
             'youtube-video'
@@ -127,14 +129,14 @@ describe('Youtube Video Tests', function() {
             'src',
             `http://www.youtube.com/watch?v=${videoId}`
         );
-        videoEl.setAttribute('autoplay', 'true');
+        videoEl.setAttribute('autoplay', '');
         testContainer.appendChild(videoEl);
         await videoEl.load();
         const [, constructorOptionArgs] = fakePlayerConstructor.args[0];
         assert.equal(constructorOptionArgs.playerVars.autoplay, 1);
     });
 
-    it('should pass playsinline option of 1 to Youtube player constructor if autoplay attr is true on video element', async function() {
+    it('should pass playsinline option of 1 to Youtube player constructor if autoplay attr is set on video element', async function() {
         var videoId = 'nOEw9iiopwI';
         const videoEl = document.createElement(
             'youtube-video'
@@ -143,11 +145,27 @@ describe('Youtube Video Tests', function() {
             'src',
             `http://www.youtube.com/watch?v=${videoId}`
         );
-        videoEl.setAttribute('playsinline', 'true');
+        videoEl.setAttribute('playsinline', '');
         testContainer.appendChild(videoEl);
         await videoEl.load();
         const [, constructorOptionArgs] = fakePlayerConstructor.args[0];
         assert.equal(constructorOptionArgs.playerVars.playsinline, 1);
+    });
+
+    it('should pass controls option of 1 to Youtube player constructor if controls attr is set on video element', async function() {
+        var videoId = 'nOEw9iiopwI';
+        const videoEl = document.createElement(
+            'youtube-video'
+        ) as YoutubeVideoElement;
+        videoEl.setAttribute(
+            'src',
+            `http://www.youtube.com/watch?v=${videoId}`
+        );
+        videoEl.setAttribute('controls', '');
+        testContainer.appendChild(videoEl);
+        await videoEl.load();
+        const [, constructorOptionArgs] = fakePlayerConstructor.args[0];
+        assert.equal(constructorOptionArgs.playerVars.controls, 1);
     });
 
     it('should trigger appropriate events on video element when youtube player api triggers its events', async function() {
