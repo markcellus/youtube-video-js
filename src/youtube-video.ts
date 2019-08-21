@@ -74,7 +74,7 @@ export class YoutubeVideoElement extends HTMLElement {
     }
 
     get controls(): boolean {
-        return Boolean(this.getAttribute('controls'));
+        return Boolean(this.hasAttribute('controls'));
     }
 
     get ytPlayerVars(): YT.PlayerVars {
