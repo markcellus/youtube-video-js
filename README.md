@@ -140,7 +140,12 @@ customElements.define('custom-youtube-element', CustomYoutubeElement);
 
 ## Examples
 
-More code samples can be viewed in the [examples](/examples) folder.
+Code samples can be found in the [examples](examples) folder. To run them, pull down this project
+and
+
+```bash
+npm start
+```
 
 ## Development
 
