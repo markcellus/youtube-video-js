@@ -41,7 +41,7 @@
     "@babel/preset-typescript": "^7.3.3",
     "@open-wc/karma-esm": "^2.2.7",
     "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.7",
+    "@types/mocha": "^7.0.2",
     "@types/youtube": "0.0.38",
     "@typescript-eslint/eslint-plugin": "^1.13.0",
     "@typescript-eslint/parser": "^1.13.0",
