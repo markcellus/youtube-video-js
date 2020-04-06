@@ -1,13 +1,13 @@
 language: node_js
 node_js:
-- "8"
+    - '8'
 dist: trusty # needs Ubuntu Trusty
 sudo: required
 addons:
-  chrome: stable # have Travis install Chrome stable.
-cache:
-  directories:
-  - node_modules
+    chrome: stable # have Travis install Chrome stable.
+script:
+    - npm test
+    - npm run build-dist
 branches:
-  only:
-  - master
+    only:
+        - master
