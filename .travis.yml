@@ -7,7 +7,7 @@ addons:
     chrome: stable # have Travis install Chrome stable.
 script:
     - npm test
-    - npm run build-dist
+    - npm run build
 branches:
     only:
         - master

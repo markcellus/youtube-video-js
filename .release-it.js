@@ -12,7 +12,7 @@ module.exports = {
     },
     hooks: {
         'before:init': ['npm test'],
-        'after:bump': 'npm run build-dist && npm run banner',
+        'after:bump': 'npm run build',
         'after:release':
             'echo Successfully released ${name} v${version} to ${repo.repository}.',
     },
