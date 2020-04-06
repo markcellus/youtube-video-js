@@ -1,22 +1,35 @@
 <html>
-<head>
-    <title>Youtube multiple video handling</title>
-    <script type="module" src="../dist/youtube-video.js"></script> 
-</head>
-<body>
-    <p>Interact with one of the multiple videos loaded below. Notice when playing one, other videos stop playing.</p>
+    <head>
+        <title>Youtube multiple video handling</title>
+        <script type="module" src="../dist/youtube-video.js"></script>
+    </head>
+    <body>
+        <p>
+            Interact with one of the multiple videos loaded below. Notice when
+            playing one, other videos stop playing.
+        </p>
 
-    <youtube-video width="640" height="360" id="my-video1" src="https://www.youtube.com/watch?v=Wn9twYUXw6w" />
-    <youtube-video width="640" height="360" id="my-video2" src="https://www.youtube.com/watch?v=x6x-GGqpwrI" />
+        <youtube-video
+            width="640"
+            height="360"
+            id="my-video1"
+            src="https://www.youtube.com/watch?v=Wn9twYUXw6w"
+        />
+        <youtube-video
+            width="640"
+            height="360"
+            id="my-video2"
+            src="https://www.youtube.com/watch?v=x6x-GGqpwrI"
+        />
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const [video1, video2] = document.querySelectorAll('youtube-video');
-            video1.load();
-            video2.load(); 
-        });
-
-    </script>
-
-</body>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const [video1, video2] = document.querySelectorAll(
+                    'youtube-video'
+                );
+                video1.load();
+                video2.load();
+            });
+        </script>
+    </body>
 </html>

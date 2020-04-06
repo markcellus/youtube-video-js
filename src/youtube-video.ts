@@ -198,7 +198,7 @@ export class YoutubeVideoElement extends HTMLElement {
     private loadYTScript(): Promise<void> {
         // Load the IFrame Player API code asynchronously.
         if (!YoutubeVideoElement.scriptLoadPromise) {
-            YoutubeVideoElement.scriptLoadPromise = new Promise(resolve => {
+            YoutubeVideoElement.scriptLoadPromise = new Promise((resolve) => {
                 // NOTE: youtube's iframe api ready only fires once after first script load
                 if (!window.onYouTubeIframeAPIReady) {
                     YoutubeVideoElement.triggerYoutubeIframeAPIReady = resolve;
@@ -225,7 +225,7 @@ export class YoutubeVideoElement extends HTMLElement {
         if (this.ytPlayerPromise) {
             return this.ytPlayerPromise;
         }
-        this.ytPlayerPromise = new Promise(resolve => {
+        this.ytPlayerPromise = new Promise((resolve) => {
             const playerOptions = {
                 events: {
                     onError: () => {

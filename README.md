@@ -59,11 +59,11 @@ HTMLMediaElement](https://html.spec.whatwg.org/multipage/media.html#htmlmediaele
 <script>
     const videoElement = document.querySelector('youtube-video');
     // must wait for DOM to be ready and for component to be accessible
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // wait for loading
         videoElement.load().then(() => {
             // pause video after two seconds
-            const timer = setTimeout(function() {
+            const timer = setTimeout(function () {
                 videoElement.pause();
                 clearTimeout(timer);
             }, 2000);
@@ -80,23 +80,23 @@ you would with a native `<video>` element.
 ```javascript
 const video = document.querySelector('youtube-video');
 
-video.addEventListener('playing', function() {
+video.addEventListener('playing', function () {
     // video has started playing!
 });
 
-video.addEventListener('pause', function() {
+video.addEventListener('pause', function () {
     // video has been paused!
 });
 
-video.addEventListener('ended', function() {
+video.addEventListener('ended', function () {
     // video has ended!
 });
 
-video.addEventListener('loadstart', function() {
+video.addEventListener('loadstart', function () {
     // play video
     video.play();
     // pause video after four seconds
-    const timer = setTimeout(function() {
+    const timer = setTimeout(function () {
         video.pause();
         clearTimeout(timer);
     }, 4000);

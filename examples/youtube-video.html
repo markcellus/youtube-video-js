@@ -18,7 +18,7 @@
         ></youtube-video>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 const videoEl = document.querySelector('youtube-video');
                 const [stateText] = document.body.getElementsByClassName(
                     'video-state'
@@ -37,7 +37,7 @@
                     () => (stateText.textContent = 'paused')
                 );
                 // load video
-                videoEl.load().then(function() {
+                videoEl.load().then(function () {
                     videoEl.play();
                 });
             });

@@ -11,7 +11,7 @@ declare global {
 
 const { assert } = window.chai;
 
-describe('Youtube Video Tests', function() {
+describe('Youtube Video Tests', function () {
     let origYouTubeIframeAPIReady;
     let fakePlayerConstructor;
     let stubbedYtPlayerApi;
@@ -30,7 +30,7 @@ describe('Youtube Video Tests', function() {
         });
     }
 
-    beforeEach(async function() {
+    beforeEach(async function () {
         stubbedYtPlayerApi = {
             playVideo: sinon.stub(),
             pauseVideo: sinon.stub(),
@@ -60,13 +60,13 @@ describe('Youtube Video Tests', function() {
         document.body.appendChild(testContainer);
     });
 
-    afterEach(async function() {
+    afterEach(async function () {
         document.body.removeChild(testContainer);
         window.onYouTubeIframeAPIReady = origYouTubeIframeAPIReady;
         window.YT = origYT;
     });
 
-    it('should load proper iFrame player api script when load() is called and remove it from the dom when removed', async function() {
+    it('should load proper iFrame player api script when load() is called and remove it from the dom when removed', async function () {
         var videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -86,7 +86,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(stubbedYtPlayerApi.destroy.callCount, 1);
     });
 
-    it('should pass the right options to the youtube player constructor when load is called and resolve load call with youtube player instance', async function() {
+    it('should pass the right options to the youtube player constructor when load is called and resolve load call with youtube player instance', async function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -118,7 +118,7 @@ describe('Youtube Video Tests', function() {
         createPlayerElementStub.restore();
     });
 
-    it('should pass autoplay option of 1 to Youtube player constructor if autoplay attr is set on video element', async function() {
+    it('should pass autoplay option of 1 to Youtube player constructor if autoplay attr is set on video element', async function () {
         var videoId = 'nOEw9iiopwI';
         const videoEl = document.createElement(
             'youtube-video'
@@ -136,7 +136,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(constructorOptionArgs.playerVars.autoplay, 1);
     });
 
-    it('should pass playsinline option of 1 to Youtube player constructor if autoplay attr is set on video element', async function() {
+    it('should pass playsinline option of 1 to Youtube player constructor if autoplay attr is set on video element', async function () {
         var videoId = 'nOEw9iiopwI';
         const videoEl = document.createElement(
             'youtube-video'
@@ -152,7 +152,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(constructorOptionArgs.playerVars.playsinline, 1);
     });
 
-    it('should pass controls option of 1 to Youtube player constructor if controls attr is set on video element', async function() {
+    it('should pass controls option of 1 to Youtube player constructor if controls attr is set on video element', async function () {
         var videoId = 'nOEw9iiopwI';
         const videoEl = document.createElement(
             'youtube-video'
@@ -168,7 +168,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(constructorOptionArgs.playerVars.controls, 1);
     });
 
-    it('should trigger appropriate events on video element when youtube player api triggers its events', async function() {
+    it('should trigger appropriate events on video element when youtube player api triggers its events', async function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -244,7 +244,7 @@ describe('Youtube Video Tests', function() {
         );
     });
 
-    it('should call playVideo method of youtube player instance when play() method is called', async function() {
+    it('should call playVideo method of youtube player instance when play() method is called', async function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -261,7 +261,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(stubbedYtPlayerApi.playVideo.callCount, 1);
     });
 
-    it('returns the correct video id from a url that begins with a direct link', function() {
+    it('returns the correct video id from a url that begins with a direct link', function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -274,7 +274,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(videoEl.videoId, videoId);
     });
 
-    it('returns the correct video id from a youtube url that is a embed link', function() {
+    it('returns the correct video id from a youtube url that is a embed link', function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -284,7 +284,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(videoEl.videoId, videoId);
     });
 
-    it('should pass any youtube video url params as key-value object pairs to playerVars options in Youtube player constructor when load is called', async function() {
+    it('should pass any youtube video url params as key-value object pairs to playerVars options in Youtube player constructor when load is called', async function () {
         var params = {
             v: 'nOEw9iiopwI',
             my: 'test',
@@ -305,7 +305,7 @@ describe('Youtube Video Tests', function() {
         assert.equal(ytPlayerConstructorOptions.playerVars.my, params.my);
     });
 
-    it('attempting to play/pause a video before player has loaded does not throw an mediaError', async function() {
+    it('attempting to play/pause a video before player has loaded does not throw an mediaError', async function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -334,7 +334,7 @@ describe('Youtube Video Tests', function() {
         pauseSpy.restore();
     });
 
-    it("should resolve first and second player's load() call when load() calls on the video elements are made before the script has a chance to load", async function() {
+    it("should resolve first and second player's load() call when load() calls on the video elements are made before the script has a chance to load", async function () {
         var firstVideoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -395,7 +395,7 @@ describe('Youtube Video Tests', function() {
         createPlayerStub.restore();
     });
 
-    it("should call youtube video player's methods when calling play and pause methods on the video element", async function() {
+    it("should call youtube video player's methods when calling play and pause methods on the video element", async function () {
         const videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;
@@ -415,14 +415,14 @@ describe('Youtube Video Tests', function() {
         assert.equal(stubbedYtPlayerApi.pauseVideo.callCount, 1);
     });
 
-    describe('when multiple videos are on a page', function() {
+    describe('when multiple videos are on a page', function () {
         let firstVideoEl, secondVideoEl;
         let firstPlayerElement, secondPlayerElement;
         let firstStubbedYtPlayerApi, secondStubbedYtPlayerApi;
         let firstPlayerConstructorStub, secondPlayerConstructorStub;
         let createYTPlayerElementStub;
 
-        beforeEach(function() {
+        beforeEach(function () {
             firstVideoEl = document.createElement(
                 'youtube-video'
             ) as YoutubeVideoElement;
@@ -485,12 +485,12 @@ describe('Youtube Video Tests', function() {
             };
         });
 
-        afterEach(function() {
+        afterEach(function () {
             createYTPlayerElementStub.restore();
             window.YT = origYT;
         });
 
-        it("should call first player's pause() if it is playing when the youtube triggers playing on second video", async function() {
+        it("should call first player's pause() if it is playing when the youtube triggers playing on second video", async function () {
             testContainer.appendChild(firstVideoEl);
             testContainer.appendChild(secondVideoEl);
             await firstVideoEl.load();
@@ -509,7 +509,7 @@ describe('Youtube Video Tests', function() {
             assert.equal(secondStubbedYtPlayerApi.pauseVideo.callCount, 0);
         });
 
-        it("should NOT call first player's pause() if it is NOT playing when the second player is played", async function() {
+        it("should NOT call first player's pause() if it is NOT playing when the second player is played", async function () {
             testContainer.appendChild(firstVideoEl);
             testContainer.appendChild(secondVideoEl);
             await firstVideoEl.load();
