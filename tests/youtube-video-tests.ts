@@ -303,6 +303,10 @@ describe('Youtube Video Tests', function () {
         var [, ytPlayerConstructorOptions] = fakePlayerConstructor.args[0];
         assert.equal(ytPlayerConstructorOptions.playerVars.v, params.v);
         assert.equal(ytPlayerConstructorOptions.playerVars.my, params.my);
+        assert.equal(
+            ytPlayerConstructorOptions.playerVars.origin,
+            window.location.origin
+        );
     });
 
     it('attempting to play/pause a video before player has loaded does not throw an mediaError', async function () {
