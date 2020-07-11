@@ -6,7 +6,6 @@ module.exports = function (config) {
 
         esm: {
             nodeResolve: true,
-            compatibility: 'all',
             fileExtensions: ['.ts'],
             babel: true,
         },
