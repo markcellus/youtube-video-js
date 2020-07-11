@@ -82,6 +82,7 @@ export class YoutubeVideoElement extends HTMLElement {
         srcQueryParams.autoplay = this.autoplay ? 1 : 0;
         srcQueryParams.controls = this.controls ? 1 : 0;
         srcQueryParams.playsinline = this.playsinline ? 1 : 0;
+        srcQueryParams.origin = window.location.origin;
         return srcQueryParams;
     }
 
