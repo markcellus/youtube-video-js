@@ -44,7 +44,7 @@
     "@open-wc/karma-esm": "^2.2.7",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@types/chai": "^4.1.7",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "^8.0.3",
     "@types/youtube": "0.0.39",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
