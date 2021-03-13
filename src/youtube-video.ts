@@ -16,7 +16,9 @@ export class YoutubeVideoElement extends HTMLElement {
     paused: boolean = true;
     ytPlayerContainer: HTMLElement = undefined;
 
-    private resolveBuildPlayerPromise: () => void = null;
+    private resolveBuildPlayerPromise: (
+        value?: YT.Player | PromiseLike<YT.Player>
+    ) => void = null;
     private ytPlayerPromise: Promise<YT.Player> = null;
     private scriptPath: string = 'https://www.youtube.com/iframe_api';
     private mediaError: Error = undefined;
@@ -247,7 +249,6 @@ export class YoutubeVideoElement extends HTMLElement {
                 width: this.width,
             };
             this.ytPlayer = new YT.Player(
-                // @ts-ignore
                 this.ytPlayerContainer,
                 playerOptions
             );
