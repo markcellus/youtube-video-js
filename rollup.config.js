@@ -5,24 +5,27 @@ import { terser } from 'rollup-plugin-terser';
 
 const { ROLLUP_WATCH } = process.env;
 
-export default {
-    input: 'src/youtube-video.ts',
-    output: {
-        format: 'esm',
-        file: 'dist/youtube-video.js',
-    },
-    plugins: [
-        resolve(),
-        typescript(),
-        ROLLUP_WATCH &&
-            serve({
-                historyApiFallback: true,
-                contentBase: '',
-                port: 3139,
-            }),
-        !ROLLUP_WATCH && terser(),
-    ],
-    watch: {
-        include: 'src/**',
-    },
-};
+export default function (commandOptions) {
+    const basePath = commandOptions.dev ? 'examples/dist' : 'dist';
+    return {
+        input: 'src/youtube-video.ts',
+        output: {
+            format: 'esm',
+            file: `${basePath}/youtube-video.js`,
+        },
+        plugins: [
+            resolve(),
+            typescript(),
+            ROLLUP_WATCH &&
+                serve({
+                    historyApiFallback: true,
+                    contentBase: '',
+                    port: 3139,
+                }),
+            !ROLLUP_WATCH && terser(),
+        ],
+        watch: {
+            include: 'src/**',
+        },
+    };
+}
