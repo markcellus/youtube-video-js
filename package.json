@@ -47,7 +47,7 @@
     "@rollup/plugin-node-resolve": "^13.0.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^8.0.3",
-    "@types/youtube": "0.0.42",
+    "@types/youtube": "0.0.43",
     "@typescript-eslint/eslint-plugin": "^2.29.0",
     "@typescript-eslint/parser": "^2.29.0",
     "assert": "^2.0.0",
