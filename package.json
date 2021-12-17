@@ -34,7 +34,8 @@
     "build:dev": "rm -rf examples/dist/* && rollup -c --watch --dev",
     "banner": "banner-cli dist/*.js",
     "start": "run-p build:dev serve",
-    "serve": "servor examples --reload --browse",
+    "start:e2e": "servor examples index.html 2201",
+    "serve": "servor examples index.html 2200 --reload --browse",
     "lint": "npm run lint:scripts && npm run lint:format",
     "lint:scripts": "eslint '**/*.{js,ts}'",
     "lint:format": "prettier --check '**/*'"
