@@ -1,6 +1,7 @@
 import ResourceManager from 'resource-manager-js';
 
 declare global {
+    // eslint-disable-next-line no-unused-vars
     interface Window {
         onYouTubeIframeAPIReady: () => void;
     }
@@ -17,6 +18,7 @@ export class YoutubeVideoElement extends HTMLElement {
     ytPlayerContainer: HTMLElement = undefined;
 
     private resolveBuildPlayerPromise: (
+        // eslint-disable-next-line no-unused-vars
         value?: YT.Player | PromiseLike<YT.Player>
     ) => void = null;
     private ytPlayerPromise: Promise<YT.Player> = null;

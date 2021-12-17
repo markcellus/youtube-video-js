@@ -3,6 +3,7 @@ import sinon from 'sinon/pkg/sinon-esm';
 import '../node_modules/chai/chai.js';
 
 declare global {
+    // eslint-disable-next-line no-unused-vars
     interface Window {
         YT: any;
         chai: Chai.ChaiStatic;

@@ -1,5 +1,5 @@
 module.exports = {
-    extends: 'eslint:recommended',
+    extends: ['eslint:recommended'],
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint'],
     parserOptions: {
@@ -13,5 +13,6 @@ module.exports = {
     },
     globals: {
         YT: true,
+        Chai: 'readonly',
     },
 };
