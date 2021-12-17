@@ -12,7 +12,7 @@
     "url": "https://github.com/mkay581/youtube-video-js.git"
   },
   "engines": {
-    "node": ">=10.16"
+    "node": ">=16"
   },
   "license": "MIT",
   "keywords": [
