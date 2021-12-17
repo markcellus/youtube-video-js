@@ -20,9 +20,8 @@
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const videoEl = document.querySelector('youtube-video');
-                const [stateText] = document.body.getElementsByClassName(
-                    'video-state'
-                );
+                const [stateText] =
+                    document.body.getElementsByClassName('video-state');
                 // add event listeners
                 videoEl.addEventListener(
                     'playing',

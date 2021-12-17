@@ -370,12 +370,10 @@ describe('Youtube Video Tests', function () {
         });
         createPlayerStub.onFirstCall().returns(firstPlayerElement);
         createPlayerStub.onSecondCall().returns(secondPlayerElement);
-        var firstStubbedYtPlayer = fakePlayerConstructor.withArgs(
-            firstPlayerElement
-        );
-        var secondStubbedYtPlayer = fakePlayerConstructor.withArgs(
-            secondPlayerElement
-        );
+        var firstStubbedYtPlayer =
+            fakePlayerConstructor.withArgs(firstPlayerElement);
+        var secondStubbedYtPlayer =
+            fakePlayerConstructor.withArgs(secondPlayerElement);
         var firstStubbedYtPlayerApi = { getPlayerState: sinon.stub() };
         var secondStubbedYtPlayerApi = { getPlayerState: sinon.stub() };
         firstStubbedYtPlayer.returns(firstStubbedYtPlayerApi);
