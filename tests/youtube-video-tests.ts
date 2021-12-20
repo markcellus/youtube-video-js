@@ -1,5 +1,5 @@
 import { YoutubeVideoElement } from '../src/youtube-video';
-import sinon from 'sinon/pkg/sinon-esm';
+import sinon from 'sinon';
 import '../node_modules/chai/chai.js';
 
 declare global {
