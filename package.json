@@ -67,7 +67,7 @@
     "rollup-plugin-terser": "^7.0.0",
     "rollup-plugin-typescript2": "^0.31.1",
     "servor": "^4.0.2",
-    "sinon": "^13.0.1",
+    "sinon": "^14.0.0",
     "typescript": "^4.0.2"
   },
   "dependencies": {
