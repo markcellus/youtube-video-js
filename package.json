@@ -30,12 +30,13 @@
   "scripts": {
     "test": "karma start karma.conf.js && npm run lint",
     "test-server": "karma start karma.conf.js --single-run=false",
+    "test:e2e": "testcafe",
     "build": "rm -rf dist/* && rollup -c && npm run banner",
     "build:dev": "rm -rf examples/dist/* && rollup -c --watch --dev",
     "banner": "banner-cli dist/*.js",
     "start": "run-p build:dev serve",
-    "start:e2e": "servor examples index.html 2201",
-    "serve": "servor examples index.html 2200 --reload --browse",
+    "start:e2e": "servor . index.html 2201",
+    "serve": "servor . index.html 2200 --reload --browse",
     "lint": "npm run lint:scripts && npm run lint:format",
     "lint:scripts": "eslint '**/*.{js,ts}'",
     "lint:format": "prettier --check '**/*'"
