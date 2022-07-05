@@ -2,7 +2,7 @@
   "name": "youtube-video-js",
   "version": "3.5.0",
   "description": "Easily play and control Youtube video using javascript",
-  "author": "Mark Kennedy <mark@heyimmark.com> (heyimmark.com)",
+  "author": "Mark",
   "homepage": "https://github.com/mkay581/youtube-video-js",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
