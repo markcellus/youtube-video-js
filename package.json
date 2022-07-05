@@ -3,13 +3,13 @@
   "version": "3.6.0",
   "description": "Easily play and control Youtube video using javascript",
   "author": "Mark",
-  "homepage": "https://github.com/mkay581/youtube-video-js",
+  "homepage": "https://github.com/markcellus/youtube-video-js",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mkay581/youtube-video-js.git"
+    "url": "https://github.com/markcellus/youtube-video-js.git"
   },
   "engines": {
     "node": ">=16"
