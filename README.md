@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mkay581/youtube-video-js.svg?branch=master)](https://travis-ci.org/mkay581/youtube-video-js)
+[![Build Status](https://travis-ci.com/mkay581/youtube-video-js.svg?branch=master)](https://travis-ci.com/mkay581/youtube-video-js)
 [![npm version](https://badge.fury.io/js/youtube-video-js.svg)](https://badge.fury.io/js/youtube-video-js)
 
 # YouTube Video
