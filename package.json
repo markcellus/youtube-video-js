@@ -44,7 +44,7 @@
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/preset-typescript": "^7.3.3",
     "@open-wc/karma-esm": "^4.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^14.1.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^9.0.0",
     "@types/youtube": "0.0.47",
