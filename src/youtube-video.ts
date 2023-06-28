@@ -205,16 +205,19 @@ export class YoutubeVideoElement extends HTMLElement {
         if (!YoutubeVideoElement.scriptLoadPromise) {
             YoutubeVideoElement.scriptLoadPromise = new Promise((resolve) => {
                 // NOTE: youtube's iframe api ready only fires once after first script load
-                if (!window.onYouTubeIframeAPIReady) {
-                    YoutubeVideoElement.triggerYoutubeIframeAPIReady = resolve;
-                    window.onYouTubeIframeAPIReady = () => {
-                        window.onYouTubeIframeAPIReady = null;
-                        // once the script loads once, we are guaranteed for it to
-                        // be ready even after destruction of all instances (if consumer
-                        // doesnt mangle with it)
-                        YoutubeVideoElement.triggerYoutubeIframeAPIReady();
-                    };
-                }
+                const originalOnYouTubeIframeAPIReady =
+                    window.onYouTubeIframeAPIReady;
+                YoutubeVideoElement.triggerYoutubeIframeAPIReady = resolve;
+                window.onYouTubeIframeAPIReady = (...args) => {
+                    window.onYouTubeIframeAPIReady = null;
+                    // once the script loads once, we are guaranteed for it to
+                    // be ready even after destruction of all instances (if consumer
+                    // doesnt mangle with it)
+                    YoutubeVideoElement.triggerYoutubeIframeAPIReady();
+                    if (originalOnYouTubeIframeAPIReady) {
+                        originalOnYouTubeIframeAPIReady(...args);
+                    }
+                };
                 return ResourceManager.loadScript(this.scriptPath);
             });
         }

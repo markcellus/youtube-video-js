@@ -67,6 +67,31 @@ describe('Youtube Video Tests', function () {
         window.YT = origYT;
     });
 
+    it('does not override original window.onYouTubeIframeAPIReady if exists', async () => {
+        const onYouTubeIframeAPIReadyStub = sinon.stub();
+        Object.defineProperty(window, 'onYouTubeIframeAPIReady', {
+            get() {
+                return onYouTubeIframeAPIReadyStub;
+            },
+            configurable: true,
+        });
+        var videoEl = document.createElement(
+            'youtube-video'
+        ) as YoutubeVideoElement;
+        videoEl.setAttribute('width', '640');
+        videoEl.setAttribute('height', '360');
+        videoEl.setAttribute(
+            'src',
+            'http://www.youtube.com/watch?v=nOEw9iiopwI'
+        );
+        testContainer.appendChild(videoEl);
+        await videoEl.load(); // wait for API to be ready
+        assert.equal(onYouTubeIframeAPIReadyStub.callCount, 0);
+        window.onYouTubeIframeAPIReady();
+        assert.equal(onYouTubeIframeAPIReadyStub.callCount, 1);
+        testContainer.removeChild(videoEl);
+    });
+
     it('should load proper iFrame player api script when load() is called and remove it from the dom when removed', async function () {
         var videoEl = document.createElement(
             'youtube-video'
