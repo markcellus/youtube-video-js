@@ -37,7 +37,7 @@
     "serve": "servor examples --reload --browse",
     "lint": "npm run lint:scripts && npm run lint:format",
     "lint:scripts": "eslint '**/*.{js,ts}'",
-    "lint:format": "prettier --check '**/*'"
+    "lint:format": "prettier --check '**/*' --ignore-unknown"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
