@@ -92,7 +92,7 @@ describe('Youtube Video Tests', function () {
         testContainer.removeChild(videoEl);
     });
 
-    it('should load proper iFrame player api script when load() is called and remove it from the dom when removed', async function () {
+    it('loads proper iFrame player api script when load() is called and remove it from the dom when removed', async function () {
         var videoEl = document.createElement(
             'youtube-video'
         ) as YoutubeVideoElement;

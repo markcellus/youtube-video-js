@@ -1,5 +1,3 @@
-import ResourceManager from 'resource-manager-js';
-
 declare global {
     // eslint-disable-next-line no-unused-vars
     interface Window {
@@ -25,9 +23,13 @@ export class YoutubeVideoElement extends HTMLElement {
     private scriptPath: string = 'https://www.youtube.com/iframe_api';
     private mediaError: Error = undefined;
 
+    id: string;
+
     constructor() {
         super();
-        videos.set(this, this.id);
+        const id = this.getAttribute('id') || `ytPlayer-${videos.size}`;
+        videos.set(this, id);
+        this.id = id;
     }
 
     connectedCallback() {
@@ -71,10 +73,6 @@ export class YoutubeVideoElement extends HTMLElement {
 
     get playsinline(): boolean {
         return this.hasAttribute('playsinline');
-    }
-
-    get id(): string {
-        return this.getAttribute('id') || `ytPlayer-${videos.size}`;
     }
 
     get controls(): boolean {
@@ -200,6 +198,10 @@ export class YoutubeVideoElement extends HTMLElement {
         }
     }
 
+    private get loadScriptId() {
+        return `youtube-video-${this.id}`;
+    }
+
     private loadYTScript(): Promise<void> {
         // Load the IFrame Player API code asynchronously.
         if (!YoutubeVideoElement.scriptLoadPromise) {
@@ -217,15 +219,26 @@ export class YoutubeVideoElement extends HTMLElement {
                     if (originalOnYouTubeIframeAPIReady) {
                         originalOnYouTubeIframeAPIReady(...args);
                     }
+                    resolve();
                 };
-                return ResourceManager.loadScript(this.scriptPath);
+
+                // load youtube's script tag
+                const script = document.createElement('script');
+                script.id = this.loadScriptId;
+                script.src = this.scriptPath;
+                const firstScriptTag =
+                    document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(script, firstScriptTag);
             });
         }
         return YoutubeVideoElement.scriptLoadPromise;
     }
 
     private unloadYTScript() {
-        ResourceManager.unloadScript(this.scriptPath);
+        const script = document.querySelector(`#${this.loadScriptId}`);
+        if (script) {
+            script.remove();
+        }
         YoutubeVideoElement.scriptLoadPromise = null;
     }
 
