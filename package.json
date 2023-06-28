@@ -68,7 +68,7 @@
     "rollup-plugin-typescript2": "^0.34.0",
     "servor": "^4.0.2",
     "sinon": "^15.2.0",
-    "typescript": "^4.0.2"
+    "typescript": "^5.1.5"
   },
   "dependencies": {
     "resource-manager-js": "^5.0.7"
