@@ -69,8 +69,5 @@
     "servor": "^4.0.2",
     "sinon": "^15.2.0",
     "typescript": "^5.1.5"
-  },
-  "dependencies": {
-    "resource-manager-js": "^5.0.7"
   }
 }
