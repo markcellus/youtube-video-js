@@ -56,11 +56,11 @@ export class YoutubeVideoElement extends HTMLElement {
         }
     }
 
-    get height(): number {
-        return Number(this.getAttribute('height'));
+    get height(): string {
+        return this.getAttribute('height');
     }
-    get width(): number {
-        return Number(this.getAttribute('width'));
+    get width(): string {
+        return this.getAttribute('width');
     }
 
     get src(): string {
